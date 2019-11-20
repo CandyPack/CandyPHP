@@ -1,4 +1,13 @@
 <!DOCTYPE html>
 <html>
-{{ PRINT }}
+  <head>
+    {{ HEAD }}
+  </head>
+  <body>
+      {{ HEADER }}
+      {{ SIDEBAR }}
+      {{ CONTENT }}
+      {{ FOOTER }}
+      {{ SCRIPT }}
+  </body>
 </html>
