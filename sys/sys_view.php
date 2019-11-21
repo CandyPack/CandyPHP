@@ -23,34 +23,34 @@ class View {
   }
   public function printView(){
     $skeleton = defined('VIEW_SKELETON') ? 'skeleton/'.VIEW_SKELETON.'.skeleton' : 'skeleton/page.skeleton';
+    if(defined('VIEW_HEAD')){
     $skeleton = explode('{{ HEAD }}',file_get_contents($skeleton, FILE_USE_INCLUDE_PATH));
     print($skeleton[0]);
-    if(null !== VIEW_HEAD){
       include('view/head_'.VIEW_HEAD.'.php');
     }
+    if(defined('VIEW_HEADER')){
     $skeleton = explode('{{ HEADER }}',$skeleton[1]);
     print($skeleton[0]);
-    if(null !== VIEW_HEADER){
       include('view/header_'.VIEW_HEADER.'.php');
     }
+    if(defined('VIEW_SIDEBAR')){
     $skeleton = explode('{{ SIDEBAR }}',$skeleton[1]);
     print($skeleton[0]);
-    if(null !== VIEW_SIDEBAR){
       include('view/sidebar_'.VIEW_SIDEBAR.'.php');
     }
+    if(defined('VIEW_CONTENT')){
     $skeleton = explode('{{ CONTENT }}',$skeleton[1]);
     print($skeleton[0]);
-    if(null !== VIEW_CONTENT){
       include('view/content_'.VIEW_CONTENT.'.php');
     }
+    if(defined('VIEW_FOOTER')){
     $skeleton = explode('{{ FOOTER }}',$skeleton[1]);
     print($skeleton[0]);
-    if(null !== VIEW_FOOTER){
       include('view/footer_'.VIEW_FOOTER.'.php');
     }
+    if(defined('VIEW_SCRIPT')){
     $skeleton = explode('{{ SCRIPT }}',$skeleton[1]);
     print($skeleton[0]);
-    if(null !== VIEW_SCRIPT){
       include('view/script_'.VIEW_SCRIPT.'.php');
     }
     print($skeleton[1]);

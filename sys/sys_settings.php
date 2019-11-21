@@ -4,19 +4,19 @@ class Config {
     if($b)ini_set('display_errors', 1);
   }
   public function mysqlServer($s){
-    definde(MYSQL_SERVER,$s);
+    define('MYSQL_SERVER',$s);
   }
   public function mysqlDatabase($s){
-    definde(MYSQL_DB,$s);
+    define('MYSQL_DB',$s);
   }
   public function mysqlUsername($s){
-    definde(MYSQL_USER,$s);
+    define('MYSQL_USER',$s);
   }
   public function mysqlPassword($s){
-    definde(MYSQL_PASS,$s);
+    define('MYSQL_PASS',$s);
   }
-  public function mysqlConnection($s){
-    definde(MYSQL_PASS,$s);
+  public function mysqlConnection($b = true){
+    define('MYSQL_CONNECT',$b);
   }
 }
 $config = new Config();

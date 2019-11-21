@@ -8,5 +8,9 @@ class Candy {
   public function import($class){
     include('import/class_'.$class.'.php');
   }
+
+  public function userCheck(){
+    return false;
+  }
 }
 $candy = new Candy();
