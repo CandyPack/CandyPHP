@@ -22,6 +22,15 @@ class View {
     define('VIEW_SKELETON',$v);
   }
   public function printView(){
+    global $candy;
+    global $route;
+
+    function get($v){
+      global $candy;
+      return $candy->get('title');
+    }
+
+    if(defined('VIEW_SKELETON')){
     $skeleton = defined('VIEW_SKELETON') ? 'skeleton/'.VIEW_SKELETON.'.skeleton' : 'skeleton/page.skeleton';
     if(defined('VIEW_HEAD')){
     $skeleton = explode('{{ HEAD }}',file_get_contents($skeleton, FILE_USE_INCLUDE_PATH));
@@ -55,6 +64,7 @@ class View {
     }
     print($skeleton[1]);
   }
+}
 }
 
 $view = new View();

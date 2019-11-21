@@ -17,12 +17,16 @@ class Route {
  public function printPage(){
    global $view;
    global $candy;
-   
+   function set($p,$v){
+     global $candy;
+     $candy->set($p,$v);
+   }
    if(defined('PAGE')){
      include('controller/controller_'.PAGE.'.php');
    }elseif(defined('PAGE404')){
      include('controller/controller_'.PAGE404.'.php');
    }
+   $view->printView();
  }
 }
 
