@@ -24,10 +24,11 @@ class View {
   public function printView(){
     global $candy;
     global $route;
+    global $conn;
 
     function get($v){
       global $candy;
-      return $candy->get('title');
+      return $candy->get($v);
     }
 
     if(defined('VIEW_SKELETON')){

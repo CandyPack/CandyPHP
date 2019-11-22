@@ -24,12 +24,15 @@ class Candy {
 
   public function get($p){
     global $var;
-    return $var[$p];
+    return $var->$p;
   }
 
   public function set($p,$v){
     global $var;
-    $var[$p] = $v;
+    if(empty($var)){
+      $var = new \stdClass();
+    }
+    $var->$p = $v;
   }
 
   public function configCheck(){
