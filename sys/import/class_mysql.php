@@ -1,6 +1,7 @@
 <?php
 class Mysql {
   public $conn;
+  public $usercheck = 0;
 
   public function connect($db=0,$user=0,$pass=0,$server=0){
     global $conn;
@@ -59,6 +60,8 @@ class Mysql {
 
   public function userCheck($fetch = true){
     global $conn;
+    global $usercheck;
+    if($usercheck==0){
     $result = new \stdClass();
     if(isset($_COOKIE['token1']) && isset($_COOKIE['token2'])){
       $token1 = mysqli_real_escape_string($conn, $_COOKIE['token1']);
@@ -72,12 +75,17 @@ class Mysql {
             $result->rows = mysqli_num_rows($sql_user);
             return $result;
         }else{
+          $usercheck = 1;
           return true;
         }
       }
     }else{
+      $usercheck = 2;
       return false;
     }
+  }else{
+    return $usercheck==1;
+  }
   }
 
   public function logout(){
@@ -127,6 +135,27 @@ class Mysql {
     }else{
       return false;
     }
+  }
+
+  public function update($table,$where,$value){
+    global $conn;
+    if(is_array($value)){
+      $query = 'UPDATE '.$table.' SET ';
+
+      foreach ($value as $key => $val) {
+        $query .= $key.'="'.$val.'",';
+      }
+      $query = substr($query,0,-1) . ' WHERE '.$where;
+      echo $query;
+      return mysqli_query($conn, $query);
+    }else{
+      return false;
+    }
+  }
+
+  public function delete($table,$where){
+    global $conn;
+    return $sql = mysqli_query($conn, 'DELETE FROM '.$table.' WHERE '.$where);
   }
 }
 global $mysql;

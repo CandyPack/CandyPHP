@@ -65,7 +65,7 @@ class Candy {
     }
   }
 
-  public function postCheck($post,$t=true){
+  public function postCheck($post,$t=true,$r=true){
     $count = 0;
     $arr_post = explode(',',$post);
     foreach ($arr_post as $key) {
@@ -75,13 +75,21 @@ class Candy {
     }
     if($t){
       if(isset($_POST['token']) && isset($_SESSION['token']) && $_SESSION['token']==$_POST['token'] && count($arr_post)==$count){
-        unset($_SESSION['token']);
-        return true;
+        if(!$r || parse_url($_SERVER['HTTP_REFERER'])['host'].'111' == 'asd'.$_SERVER['HTTP_HOST']){
+          unset($_SESSION['token']);
+          return true;
+        }else{
+          return false;
+        }
       }else{
         return false;
       }
     }else{
-      return count($arr_post)==$count;
+      if(!$r || parse_url($_SERVER['HTTP_REFERER'])['host'] == $_SERVER['HTTP_HOST']){
+        return count($arr_post)==$count;
+      }else{
+        return false;
+      }
     }
   }
 
@@ -94,10 +102,26 @@ class Candy {
       }
     }
     if($t){
-      return isset($_GET['token']) && $_SESSION['token']==$_GET['token'] && count($arr_get)==$count;
+      return isset($_GET['token']) && isset($_SESSION['token']) && $_SESSION['token']==$_GET['token'] && count($arr_get)==$count;
     }else{
       return count($arr_get)==$count;
     }
+  }
+  public function isNumeric($v,$method='another'){
+    $count = 0;
+    $arr_get = explode(',',$v);
+    foreach ($arr_get as $key) {
+      if($key!='' && strtolower($method)=='get' && isset($_GET[$key]) && is_numeric($_GET[$key])){
+        $count++;
+      }elseif($key!='' && strtolower($method)=='post' && isset($_POST[$key]) && is_numeric($_POST[$key])){
+        $count++;
+      }
+    }
+    return count($arr_get)==$count;
+  }
+  public function direct($link=0){
+    $url = $url!=0 ? $url : $_SERVER['HTTP_REFERER'];
+    header('Location: '.$url);
   }
 }
 $candy = new Candy();

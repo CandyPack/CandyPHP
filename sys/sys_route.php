@@ -39,6 +39,7 @@ class Route {
  public function printPage(){
    global $view;
    global $candy;
+   global $conn;
    function set($p,$v){
      global $candy;
      $candy->set($p,$v);
