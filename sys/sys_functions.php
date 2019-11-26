@@ -140,8 +140,8 @@ class Candy {
     $target_file = $filename=='0' ? $target_dir . basename($_FILES[$postname]["name"]) : $target_dir.$filename;
     $uploadOk = 1;
     $imageFileType = strtolower(pathinfo($target_file,PATHINFO_EXTENSION));
+    $check = (!file_exists($_FILES[$postname]['tmp_name']) || !is_uploaded_file($_FILES[$postname]['tmp_name'])) ? false : getimagesize($_FILES[$postname]["tmp_name"]);
 
-    $check = getimagesize($_FILES[$postname]["tmp_name"]);
     if($check !== false) {
       $result->message = "File is an image - " . $check["mime"] . ".";
       $uploadOk = 1;
