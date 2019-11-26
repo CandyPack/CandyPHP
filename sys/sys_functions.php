@@ -113,6 +113,7 @@ class Candy {
       return count($arr_get)==$count;
     }
   }
+
   public function isNumeric($v,$method='another'){
     $count = 0;
     $arr_get = explode(',',$v);
@@ -125,9 +126,69 @@ class Candy {
     }
     return count($arr_get)==$count;
   }
+
   public function direct($link=0){
     $url = $url!=0 ? $url : $_SERVER['HTTP_REFERER'];
     header('Location: '.$url);
+  }
+
+  public function uploadImage($postname="upload",$target = "uploads/",$filename='0',$maxsize=500000){
+
+    $result = new \stdClass();
+    $result->success = false;
+    $target_dir = $target;
+    $target_file = $filename=='0' ? $target_dir . basename($_FILES[$postname]["name"]) : $target_dir.$filename;
+    $uploadOk = 1;
+    $imageFileType = strtolower(pathinfo($target_file,PATHINFO_EXTENSION));
+
+    $check = getimagesize($_FILES[$postname]["tmp_name"]);
+    if($check !== false) {
+      $result->message = "File is an image - " . $check["mime"] . ".";
+      $uploadOk = 1;
+    } else {
+        $result->message = "File is not an image.";
+        $uploadOk = 0;
+    }
+
+    if (file_exists($target_file)) {
+      $result->message = "Sorry, file already exists.";
+      $uploadOk = 0;
+    }
+
+    if ($_FILES[$postname]["size"] > $maxsize) {
+      $result->message = "Sorry, your file is too large.";
+      $uploadOk = 0;
+    }
+
+    if($imageFileType != "jpg" && $imageFileType != "png" && $imageFileType != "jpeg" && $imageFileType != "gif" ) {
+      $result->message = "Sorry, only JPG, JPEG, PNG & GIF files are allowed.";
+      $uploadOk = 0;
+    }
+
+    if ($uploadOk == 0) {
+      $result->message = "Sorry, your file was not uploaded.";
+    } else {
+      if (move_uploaded_file($_FILES[$postname]["tmp_name"], $target_file)) {
+        $result->message = "The file ". basename( $_FILES[$postname]["name"]). " has been uploaded.";
+        $result->success = true;
+      } else {
+        $result->message = "Sorry, there was an error uploading your file.";
+      }
+    }
+    return $result;
+  }
+  public static function slugify($text)
+  {
+    $text = preg_replace('~[^\pL\d]+~u', '-', $text);
+    $text = iconv('utf-8', 'us-ascii//TRANSLIT', $text);
+    $text = preg_replace('~[^-\w]+~', '', $text);
+    $text = trim($text, '-');
+    $text = preg_replace('~-+~', '-', $text);
+    $text = strtolower($text);
+    if (empty($text)) {
+      return '';
+    }
+    return $text;
   }
 }
 $candy = new Candy();

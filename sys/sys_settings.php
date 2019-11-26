@@ -1,7 +1,7 @@
 <?php
 class Config {
   public function displayError($b = true){
-    if($b)ini_set('display_errors', 1);
+    $b ? ini_set('display_errors', 1) : ini_set('display_errors', 0);
   }
   public function mysqlServer($s){
     define('MYSQL_SERVER',$s);
