@@ -122,6 +122,7 @@ class Mysql {
 
   public function insert($table, $value){
     global $conn;
+    $result = new \stdClass();
     if(is_array($value)){
       $query_key = '';
       $query_val = '';
@@ -130,8 +131,10 @@ class Mysql {
         $query_val .= '"'.mysqli_real_escape_string($conn, $val).'",';
       }
       $query = 'INSERT INTO '.$table.' ('.substr($query_key,0,-1).') VALUES ('.substr($query_val,0,-1).')';
-      echo $query;
-      return mysqli_query($conn, $query);
+      $sql = mysqli_query($conn, $query);
+      $result->success = $sql;
+      $result->id = $conn->insert_id;
+      return $result;
     }else{
       return false;
     }

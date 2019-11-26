@@ -4,6 +4,8 @@ class Candy {
   public $imported;
   public $token;
   public $import;
+  public $postToken;
+  public $getToken;
 
   public function hello(){
     echo 'Hi, World !';
@@ -47,7 +49,7 @@ class Candy {
 
   public function token($check = 0){
     global $token;
-    if($check==0){
+    if($check==0 || $check=='input'){
       if($token==''){
         $token = md5(rand(10000,99999));
         $_SESSION['token'] = $token;
@@ -55,6 +57,7 @@ class Candy {
       }else{
         return $token;
       }
+      echo '<input name="token" value="'.$token.'" hidden="">';
     }else{
       if($_SESSION['token']==$token){
         unset($_SESSION['token']);
@@ -66,6 +69,10 @@ class Candy {
   }
 
   public function postCheck($post,$t=true,$r=true){
+    global $postToken;
+    $postToken = is_null($postToken) ? isset($_POST['token']) && isset($_SESSION['token']) && $_SESSION['token']==$_POST['token'] : $postToken;
+    unset($_SESSION['token']);
+
     $count = 0;
     $arr_post = explode(',',$post);
     foreach ($arr_post as $key) {
@@ -74,9 +81,8 @@ class Candy {
       }
     }
     if($t){
-      if(isset($_POST['token']) && isset($_SESSION['token']) && $_SESSION['token']==$_POST['token'] && count($arr_post)==$count){
-        if(!$r || parse_url($_SERVER['HTTP_REFERER'])['host'].'111' == 'asd'.$_SERVER['HTTP_HOST']){
-          unset($_SESSION['token']);
+      if($postToken && count($arr_post)==$count){
+        if(!$r || parse_url($_SERVER['HTTP_REFERER'])['host'] == $_SERVER['HTTP_HOST']){
           return true;
         }else{
           return false;
