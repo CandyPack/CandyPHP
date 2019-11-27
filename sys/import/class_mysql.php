@@ -149,8 +149,8 @@ class Mysql {
         $query .= $key.'="'.$val.'",';
       }
       $query = substr($query,0,-1) . ' WHERE '.$where;
-      echo $query;
-      return mysqli_query($conn, $query);
+      $sql = mysqli_query($conn, $query);
+      return $sql;
     }else{
       return false;
     }

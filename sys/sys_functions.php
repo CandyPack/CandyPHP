@@ -47,17 +47,17 @@ class Candy {
     }
   }
 
-  public function token($check = 0){
+  public function token($check = '0'){
     global $token;
-    if($check==0 || $check=='input'){
+    if($check=='0' || $check=='input'){
       if($token==''){
         $token = md5(rand(10000,99999));
         $_SESSION['token'] = $token;
-        return $token;
-      }else{
-        return $token;
       }
-      echo '<input name="token" value="'.$token.'" hidden="">';
+      if($check==='input'){
+        echo '<input name="token" value="'.$token.'" hidden="">';
+      }
+      return $token;
     }else{
       if($_SESSION['token']==$token){
         unset($_SESSION['token']);
@@ -189,6 +189,15 @@ class Candy {
       return '';
     }
     return $text;
+  }
+  public static function generateFilename($filename,$extension,$path = ''){
+    $loop = 0;
+    $loop_file = '';
+    while(file_exists($path.$filename.$loop_file.$extension)){
+      $loop++;
+      $loop_file = '-'.$loop;
+    }
+    return $filename.$loop_file.$extension;
   }
 }
 $candy = new Candy();
