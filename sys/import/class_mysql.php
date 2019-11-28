@@ -100,16 +100,37 @@ class Mysql {
     }
   }
 
-  public function select($tb = 0,$where = 0){
+  public function select($tb = '0',$where = '0'){
     global $conn;
+
     $result = new \stdClass();
-    if($tb!=''){
-      $query = $where==0 ? 'SELECT * FROM '.$tb : 'SELECT * FROM '.$b.' WHERE '.$where;
+    if(is_array($tb) || $tb!='0'){
+      if(!is_array($tb)){
+        $query = $where=='0' ? 'SELECT * FROM '.$tb : 'SELECT * FROM '.$tb.' WHERE '.$where;
+      }else{
+        if(isset($tb['SELECT'])){
+          $query = 'SELECT '.$tb['SELECT'];
+        }elseif(isset($tb['select'])){
+          $query = 'SELECT '.$tb['select'];
+        }else{
+          $query = 'SELECT *';}
+        foreach ($tb as $key => $value){
+          if(strtoupper($key)!='SELECT'){
+            $query .= ' '.strtoupper($key).' '.$value;
+          }
+        }
+      }
       if($sql = mysqli_query($conn, $query)){
         $result->success = true;
         $result->rows = mysqli_num_rows($sql);
-        $result->fetch = mysqli_fetch_array($sql);
-        return $sql;
+        $data = array();
+        while($row = mysqli_fetch_assoc($sql)){
+          $data[] = $row;
+        }
+
+        $result->fetch = $data;
+        mysqli_free_result($sql);
+        return $result;
       }else{
         $result->success = false;
         return $result;

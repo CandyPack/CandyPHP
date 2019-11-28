@@ -177,8 +177,8 @@ class Candy {
     }
     return $result;
   }
-  public static function slugify($text)
-  {
+
+  public static function slugify($text){
     $text = preg_replace('~[^\pL\d]+~u', '-', $text);
     $text = iconv('utf-8', 'us-ascii//TRANSLIT', $text);
     $text = preg_replace('~[^-\w]+~', '', $text);
@@ -190,6 +190,7 @@ class Candy {
     }
     return $text;
   }
+
   public static function generateFilename($filename,$extension,$path = ''){
     $loop = 0;
     $loop_file = '';
@@ -198,6 +199,13 @@ class Candy {
       $loop_file = '-'.$loop;
     }
     return $filename.$loop_file.$extension;
+  }
+
+  public static function arrayElementDelete($array,$element){
+    if (($key = array_search($element, $array)) !== false) {
+      unset($array[$key]);
+    }
+    return $array;
   }
 }
 $candy = new Candy();
