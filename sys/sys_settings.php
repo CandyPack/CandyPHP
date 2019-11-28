@@ -20,12 +20,13 @@ class Config {
   }
   public function languageDetect($b  = true){
     $langg = substr($_SERVER['HTTP_ACCEPT_LANGUAGE'], 0, 2);
-    if(file_exists("lang/{$langg}.php")){
-      require_once "lang/{$langg}.php";
+    if(file_exists("lang/lang_{$langg}.php")){
+      require_once "lang/lang_{$langg}.php";
+      Lang::setArray($lang);
     }elseif(file_exists("lang/lang.php")){
-      require_once "lang/{$langg}.php";
+      require_once "lang/lang.php";
+      Lang::setArray($lang);
     }
-
   }
 }
 $config = new Config();
