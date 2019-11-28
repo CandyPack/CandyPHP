@@ -18,6 +18,15 @@ class Config {
   public function mysqlConnection($b = true){
     define('MYSQL_CONNECT',$b);
   }
+  public function languageDetect($b  = true){
+    $langg = substr($_SERVER['HTTP_ACCEPT_LANGUAGE'], 0, 2);
+    if(file_exists("lang/{$langg}.php")){
+      require_once "lang/{$langg}.php";
+    }elseif(file_exists("lang/lang.php")){
+      require_once "lang/{$langg}.php";
+    }
+
+  }
 }
 $config = new Config();
 include('config.php');

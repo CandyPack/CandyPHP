@@ -47,6 +47,7 @@ class Route {
    if(defined('PAGE')){
      include('controller/controller_'.PAGE.'.php');
    }elseif(defined('PAGE404')){
+     http_response_code(404);
      include('controller/controller_'.PAGE404.'.php');
    }
    $view->printView();

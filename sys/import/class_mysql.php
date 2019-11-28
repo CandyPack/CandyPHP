@@ -120,6 +120,7 @@ class Mysql {
           }
         }
       }
+      $result->query = $query;
       if($sql = mysqli_query($conn, $query)){
         $result->success = true;
         $result->rows = mysqli_num_rows($sql);
