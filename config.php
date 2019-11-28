@@ -2,6 +2,8 @@
 
 $config->displayError();
 
+$config->languageDetect();
+
 //$config->mysqlServer();
 //$config->mysqlDatabase();
 //$config->mysqlUsername();
