@@ -8,6 +8,7 @@ Candy PHP Framework
   - Kolayca mysql bağlantısı ve işlemleri
   - Otomatik günlük web ve sql yedeği alabilme
   - Çoklu dil desteğine sahip web sayfaları
+  - Güvenli POST / GET işlemleri
   - Ve dahası...
 
 
