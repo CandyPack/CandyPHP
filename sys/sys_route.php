@@ -44,13 +44,28 @@ class Route {
      global $candy;
      $candy->set($p,$v);
    }
-   if(defined('PAGE')){
+   if(defined('PAGE') && file_exists('controller/controller_'.PAGE.'.php')){
      include('controller/controller_'.PAGE.'.php');
-   }elseif(defined('PAGE404')){
+   }elseif(defined('PAGE404') && file_exists('controller/controller_'.PAGE404.'.php')){
      http_response_code(404);
      include('controller/controller_'.PAGE404.'.php');
    }
    $view->printView();
+ }
+
+ public function cron($controller){
+   $run = true;
+   function minute($at){
+     global $run;
+     $run = $at==date('i') && $run;
+   }
+   if(defined('CRON_JOBS') && CRON_JOBS===true && $run){
+     if(isset($_GET['_candy']) && $_GET['_candy']=='cron'){
+       if($_SERVER['SERVER_ADDR'] == $_SERVER['REMOTE_ADDR']){
+         include('cron/cron_'.$controller.'.php');
+       }
+     }
+   }
  }
 }
 

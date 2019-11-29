@@ -8,3 +8,4 @@ require_once('sys_view.php');
 require_once('sys_route.php');
 $candy->configCheck();
 require_once('route/route_check.php');
+$route->printPage();

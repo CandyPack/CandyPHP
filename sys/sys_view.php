@@ -36,32 +36,44 @@ class View {
     if(defined('VIEW_HEAD')){
     $skeleton = explode('{{ HEAD }}',file_get_contents($skeleton, FILE_USE_INCLUDE_PATH));
     print($skeleton[0]);
-      include('view/head_'.VIEW_HEAD.'.php');
+      if(file_exists('view/head_'.VIEW_HEAD.'.php')){
+        include('view/head_'.VIEW_HEAD.'.php');
+      }
     }
     if(defined('VIEW_HEADER')){
     $skeleton = explode('{{ HEADER }}',$skeleton[1]);
     print($skeleton[0]);
-      include('view/header_'.VIEW_HEADER.'.php');
+      if(file_exists('view/header_'.VIEW_HEADER.'.php')){
+        include('view/header_'.VIEW_HEADER.'.php');
+      }
     }
     if(defined('VIEW_SIDEBAR')){
     $skeleton = explode('{{ SIDEBAR }}',$skeleton[1]);
     print($skeleton[0]);
-      include('view/sidebar_'.VIEW_SIDEBAR.'.php');
+      if(file_exists('view/sidebar_'.VIEW_SIDEBAR.'.php')){
+        include('view/sidebar_'.VIEW_SIDEBAR.'.php');
+      }
     }
     if(defined('VIEW_CONTENT')){
     $skeleton = explode('{{ CONTENT }}',$skeleton[1]);
     print($skeleton[0]);
-      include('view/content_'.VIEW_CONTENT.'.php');
+      if(file_exists('view/content_'.VIEW_CONTENT.'.php')){
+        include('view/content_'.VIEW_CONTENT.'.php');
+      }
     }
     if(defined('VIEW_FOOTER')){
     $skeleton = explode('{{ FOOTER }}',$skeleton[1]);
     print($skeleton[0]);
-      include('view/footer_'.VIEW_FOOTER.'.php');
+      if(file_exists('view/footer_'.VIEW_FOOTER.'.php')){
+        include('view/footer_'.VIEW_FOOTER.'.php');
+      }
     }
     if(defined('VIEW_SCRIPT')){
     $skeleton = explode('{{ SCRIPT }}',$skeleton[1]);
     print($skeleton[0]);
-      include('view/script_'.VIEW_SCRIPT.'.php');
+      if(file_exists('view/script_'.VIEW_SCRIPT.'.php')){
+        include('view/script_'.VIEW_SCRIPT.'.php');
+      }
     }
     print($skeleton[1]);
   }
