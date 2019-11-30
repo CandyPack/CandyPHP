@@ -12,12 +12,25 @@ Candy PHP Framework
   - Ve dahası...
 
 ## Bölümler
-> ' Config ' ile site ön ayarlarınızı yapabilir,
-> ' Routecheck ' ile url yollarını ayarlayabilir,
-> ' Skeleton ' ile website şablonunuzu oluşturabilir
-> ' Controller ' ile PHP kodlarınızı girebilir
-> ' View ' ile sayfa bölümlerini ve içeriğini oluşturabilir,
-> ' Cron ' ile zamanlanmış görevler oluşturabilirsiniz.
+> config.php ile site ön ayarlarınızı yapabilir,
+
+> route/route_check.php ile url yollarını ayarlayabilir,
+ 
+> skeleton/ * .skeleton ile website şablonunuzu oluşturabilir,
+ 
+> controller/controller_ * .php ile sayfa içeriğini oluşturabilir,
+ 
+> view/head_ * .php ile sayfa head bölümü,
+
+> view/sidebar_ * .php ile sayfa sidebar bölümü,
+
+> view/content_ * .php ile sayfa içeriği,
+
+> view/footer_ * .php ile sayfa footer bölümü,
+
+> view/script_ * .php ile sayfa script bölümü,
+ 
+> cron/cron_ * .php ile zamanlanmış görevler oluşturabilirsiniz.
 
 ## Kurulum
 Sadece gerekli dosyaları website ana dizinine atarak kullanmaya başlayabilirsiniz.
