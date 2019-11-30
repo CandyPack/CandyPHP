@@ -1,6 +1,5 @@
 <?php
 
-
 $config->displayError();   // Oluşan hataları gösterir
 $config->languageDetect(); // Dil dosyalarını yükler (/lang)
 $config->cronJobs(true);   // Zamanlanmış görevleri aktifleştirir
