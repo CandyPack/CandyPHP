@@ -22,20 +22,20 @@ class Config {
   }
   public function languageDetect($b  = true){
     if(isset($_SERVER['HTTP_ACCEPT_LANGUAGE'])){
-    $langg = substr($_SERVER['HTTP_ACCEPT_LANGUAGE'], 0, 2);
-    if(file_exists("lang/lang_{$langg}.php")){
-      require_once "lang/lang_{$langg}.php";
-      Lang::setArray($lang);
-    }elseif(file_exists("lang/lang.php")){
-      require_once "lang/lang.php";
-      Lang::setArray($lang);
+      $langg = substr($_SERVER['HTTP_ACCEPT_LANGUAGE'], 0, 2);
+      if(file_exists("lang/lang_{$langg}.php")){
+        require_once "lang/lang_{$langg}.php";
+        Lang::setArray($lang);
+      }elseif(file_exists("lang/lang.php")){
+        require_once "lang/lang.php";
+        Lang::setArray($lang);
+      }
+    }else{
+      if(file_exists("lang/lang.php")){
+        require_once "lang/lang.php";
+        Lang::setArray($lang);
+      }
     }
-  }else{
-    if(file_exists("lang/lang.php")){
-      require_once "lang/lang.php";
-      Lang::setArray($lang);
-    }
-  }
   }
   public function cronJobs($b = true){
     define('CRON_JOBS',$b);
@@ -63,71 +63,72 @@ class Config {
       }
     }
   }
-  public function autoBackup($b = true){
+  public function autoBackup($b = true,$directory = 'backup/'){
     global $conn;
     global $backupdirectory;
-    $backupdirectory = defined('BACKUP_DIRECTORY') ? BACKUP_DIRECTORY : 'backup/';
+    $backupdirectory = $directory;
     define('AUTO_BACKUP',$b);
-    //---------------------------------
-    if($b && date("Hi")=='0000' && $_SERVER['SERVER_ADDR'] == $_SERVER['REMOTE_ADDR'] && isset($_GET['_candy']) && $_GET['_candy']=='cron'){
+    set_time_limit(1000);
+    if($b && (date("Hi")=='0000' || true) && $_SERVER['SERVER_ADDR'] == $_SERVER['REMOTE_ADDR'] && isset($_GET['_candy']) && $_GET['_candy']=='cron'){
       if (!file_exists($backupdirectory.'mysql/')) {
         mkdir($backupdirectory.'mysql/', 0777, true);
       }
-    $tables = array();
-    $result = mysqli_query($conn,"SHOW TABLES");
-    while ($row = mysqli_fetch_row($result)) {
-      $tables[] = $row[0];
-    }
-    $return = '';
-
-    foreach ($tables as $table) {
-      $result = mysqli_query($conn, "SELECT * FROM ".$table);
-      $num_fields = mysqli_num_fields($result);
-
-      $return .= 'DROP TABLE '.$table.';';
-      $row2 = mysqli_fetch_row(mysqli_query($conn, 'SHOW CREATE TABLE '.$table));
-      $return .= "\n\n".$row2[1].";\n\n";
-
-      for ($i=0; $i < $num_fields; $i++) {
-        while ($row = mysqli_fetch_row($result)) {
-          $return .= 'INSERT INTO '.$table.' VALUES(';
-          for ($j=0; $j < $num_fields; $j++) {
-            $row[$j] = addslashes($row[$j]);
-            if (isset($row[$j])) {
-              $return .= '"'.$row[$j].'"';} else { $return .= '""';}
-              if($j<$num_fields-1){ $return .= ','; }
+      if (!file_exists($backupdirectory.'www/')) {
+        mkdir($backupdirectory.'www/', 0777, true);
+      }
+      $tables = array();
+      $result = mysqli_query($conn,"SHOW TABLES");
+      while ($row = mysqli_fetch_row($result)) {
+        $tables[] = $row[0];
+      }
+      $return = '';
+      foreach ($tables as $table) {
+        $result = mysqli_query($conn, "SELECT * FROM ".$table);
+        $num_fields = mysqli_num_fields($result);
+        $return .= 'DROP TABLE '.$table.';';
+        $row2 = mysqli_fetch_row(mysqli_query($conn, 'SHOW CREATE TABLE '.$table));
+        $return .= "\n\n".$row2[1].";\n\n";
+        for ($i=0; $i < $num_fields; $i++){
+          while ($row = mysqli_fetch_row($result)){
+            $return .= 'INSERT INTO '.$table.' VALUES(';
+            for ($j=0; $j < $num_fields; $j++){
+              $row[$j] = addslashes($row[$j]);
+              if(isset($row[$j])){
+                $return .= '"'.$row[$j].'"';
+              }else{
+                $return .= '""';
+              }
+              if($j<$num_fields-1){
+                $return .= ',';
+              }
             }
             $return .= ");\n";
           }
         }
         $return .= "\n\n\n";
       }
-
       $handle = fopen($backupdirectory.'mysql/'.date("Y-m-d").'-backup.sql', 'w+');
       fwrite($handle, $return);
       fclose($handle);
-    }
-    //---------------------------------
-    $rootPath = realpath('./');
-    $zip = new ZipArchive();
-    $zip->open($backupdirectory.'www/'.date("Y-m-d").'-www.sql', ZipArchive::CREATE | ZipArchive::OVERWRITE);
-
-    /** @var SplFileInfo[] $files */
-    $files = new RecursiveIteratorIterator(
+      $rootPath = realpath('./');
+      $zip = new ZipArchive();
+      $zip->open($backupdirectory.'www/'.date("Y-m-d").'-www.zip', ZipArchive::CREATE | ZipArchive::OVERWRITE);
+      /** @var SplFileInfo[] $files */
+      $files = new RecursiveIteratorIterator(
         new RecursiveDirectoryIterator($rootPath),
         RecursiveIteratorIterator::LEAVES_ONLY
-    );
-    foreach ($files as $name => $file)
-    {
+      );
+      foreach ($files as $name => $file)
+      {
         if (!$file->isDir())
         {
-            $filePath = $file->getRealPath();
-            $relativePath = substr($filePath, strlen($rootPath) + 1);
-            $zip->addFile($filePath, $relativePath);
+          $filePath = $file->getRealPath();
+          $relativePath = substr($filePath, strlen($rootPath) + 1);
+          $zip->addFile($filePath, $relativePath);
         }
+      }
+      $zip->close();
     }
-    $zip->close();
-    //---------------------------------
   }
 }
 $config = new Config();
