@@ -41,6 +41,7 @@ Sadece gerekli dosyaları website ana dizinine atarak kullanmaya başlayabilirsi
 | Fonksiyon | Doküman |
 | ------ | ------ |
 | Config | [Site Ön Ayarları][config.md] |
+| Candy | [Genel Fonksiyonlar][candy.md] |
 
 
 
@@ -48,3 +49,4 @@ Sadece gerekli dosyaları website ana dizinine atarak kullanmaya başlayabilirsi
 [MIT](https://choosealicense.com/licenses/mit/)
 
    [config.md]: <https://github.com/emredv/Candy-PHP/blob/master/README/CONFIG.md>
+   [candy.md]: <https://github.com/emredv/Candy-PHP/blob/master/README/CANDY.md>
