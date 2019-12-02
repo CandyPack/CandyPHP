@@ -62,30 +62,30 @@ class Mysql {
     global $conn;
     global $usercheck;
     if($usercheck==0){
-    $result = new \stdClass();
-    if(isset($_COOKIE['token1']) && isset($_COOKIE['token2'])){
-      $token1 = mysqli_real_escape_string($conn, $_COOKIE['token1']);
-      $token2 = mysqli_real_escape_string($conn, $_COOKIE['token2']);
-      $token3 = md5($_SERVER['HTTP_USER_AGENT']);
-      $sql_token = mysqli_query($conn, 'SELECT * FROM tb_token WHERE token1="'.$token1.'" AND token2="'.$token2.'" AND token3="'.$token3.'"');
-      if(mysqli_num_rows($sql_token) == 1){
-        if($fetch){
+      $result = new \stdClass();
+      if(isset($_COOKIE['token1']) && isset($_COOKIE['token2'])){
+        $token1 = mysqli_real_escape_string($conn, $_COOKIE['token1']);
+        $token2 = mysqli_real_escape_string($conn, $_COOKIE['token2']);
+        $token3 = md5($_SERVER['HTTP_USER_AGENT']);
+        $sql_token = mysqli_query($conn, 'SELECT * FROM tb_token WHERE token1="'.$token1.'" AND token2="'.$token2.'" AND token3="'.$token3.'"');
+        if(mysqli_num_rows($sql_token) == 1){
+          if($fetch){
             $result->success = true;
             $result->fetch = mysqli_fetch_assoc($sql_user);
             $result->rows = mysqli_num_rows($sql_user);
             return $result;
-        }else{
-          $usercheck = 1;
-          return true;
+          }else{
+            $usercheck = 1;
+            return true;
+          }
         }
+      }else{
+        $usercheck = 2;
+        return false;
       }
     }else{
-      $usercheck = 2;
-      return false;
+      return $usercheck==1;
     }
-  }else{
-    return $usercheck==1;
-  }
   }
 
   public function logout(){
