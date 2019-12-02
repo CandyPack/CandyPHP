@@ -18,7 +18,7 @@ $config->autoBackup(boolean, dizin); // Boolean değer ve özel dizin girilebili
 // Otomatik dosya ve mysql yedeklemesini etkinleştirir. (Varsayılan dizin ../backup/)
 ```
 ```php
-$config->autoUpdate(); // 
+$config->autoUpdate();
 // Candy PHP sistem dosyalarını otomatik güncelleştirir.
 ```
 ```php
