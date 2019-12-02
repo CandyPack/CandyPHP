@@ -1,4 +1,6 @@
-#date:2019-12-02
+#year:2019
+#month:12
+#day:02
 index.php
 sys/sys_functions.php
 sys/sys_language.php
