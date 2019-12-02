@@ -132,13 +132,13 @@ class Config {
   }
   public function autoUpdate($b = true){
     set_time_limit(1000);
-    if($b && (date("Hi")=='0010' || true) && $_SERVER['SERVER_ADDR'] == $_SERVER['REMOTE_ADDR'] && isset($_GET['_candy']) && $_GET['_candy']=='cron'){
+    if($b && date("Hi")=='0010' && $_SERVER['SERVER_ADDR'] == $_SERVER['REMOTE_ADDR'] && isset($_GET['_candy']) && $_GET['_candy']=='cron'){
       $base = 'https://raw.githubusercontent.com/emredv/Candy-PHP/master/';
       $get = file_get_contents($base.'update.txt');
       $arr_get = explode("\n",$get);
       $now = getdate();
       $params = array();
-      $update = true;
+      $update = false;
       if(file_exists('update.txt')){
         $current = file_get_contents('update.txt', FILE_USE_INCLUDE_PATH);
         $arr_current = explode("\n",$current);
@@ -171,7 +171,19 @@ class Config {
           }
         }
       }
+      if($update){
       foreach ($arr_update as $key){
+        if(strpos($key, '/') !== false){
+          $arr_dir = explode('/',$key);
+          $makedir = '';
+          for ($i=0; $i < count($arr_dir) - 1; $i++) {
+            $makedir .= $arr_dir[$i].'/';
+          }
+          $makedir = substr($makedir,0,-1);
+          if (!file_exists($makedir)) {
+            mkdir($makedir, 0777, true);
+          }
+        }
         $content = '';
         $content = file_get_contents($base.$key);
         if(trim($content)!=''){
@@ -180,6 +192,7 @@ class Config {
           fclose($file);
         }
       }
+    }
     }
   }
 }
