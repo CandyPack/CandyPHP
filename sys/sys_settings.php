@@ -130,6 +130,59 @@ class Config {
       $zip->close();
     }
   }
+  public function autoUpdate($b = true){
+    set_time_limit(1000);
+    if($b && (date("Hi")=='0010' || true) && $_SERVER['SERVER_ADDR'] == $_SERVER['REMOTE_ADDR'] && isset($_GET['_candy']) && $_GET['_candy']=='cron'){
+      $base = 'https://raw.githubusercontent.com/emredv/Candy-PHP/master/';
+      $get = file_get_contents($base.'update.txt');
+      $arr_get = explode("\n",$get);
+      $now = getdate();
+      $params = array();
+      $update = true;
+      if(file_exists('update.txt')){
+        $current = file_get_contents('update.txt', FILE_USE_INCLUDE_PATH);
+        $arr_current = explode("\n",$current);
+        foreach($arr_current as $current){
+          if(substr($current,0,1)=='#'){
+            $params_current = explode(':',str_replace('#','',$current));
+            switch ($params_current[0]) {
+              case 'version':
+              $version_current = $params_current[1];
+              break;
+            }
+          }
+        }
+      }else{
+        $version_current = 0;
+      }
+      foreach($arr_get as $new){
+        if(substr($new,0,1)=='#'){
+          $params_new = explode(':',str_replace('#','',$new));
+          switch ($params_new[0]) {
+            case 'version':
+            if($params_new[1]>$version_current){
+              $update = true;
+            }
+            break;
+          }
+        }else{
+          if(trim($new)!=''){
+            $arr_update[] = trim($new);
+          }
+        }
+      }
+      foreach ($arr_update as $key){
+        $content = '';
+        $content = file_get_contents($base.$key);
+        if(trim($content)!=''){
+          $file = fopen($key, "w") or die("Unable to open file!");
+          fwrite($file, $content);
+          fclose($file);
+        }
+      }
+    }
+  }
 }
+
 $config = new Config();
 include('config.php');

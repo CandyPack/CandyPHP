@@ -99,7 +99,8 @@ class Candy {
     }
   }
 
-  public function getCheck($get,$t=true){
+  public function getCheck($get='',$t=true){
+    if($get!=''){
     $count = 0;
     $arr_get = explode(',',$get);
     foreach ($arr_get as $key) {
@@ -112,6 +113,14 @@ class Candy {
     }else{
       return count($arr_get)==$count;
     }
+  }else{
+    $arr_get = isset($_GET) ? $_GET : array();
+    if($t){
+      return isset($_GET['token']) && isset($_SESSION['token']) && $_SESSION['token']==$_GET['token'] && count($arr_get)>0;
+    }else{
+      return count($arr_get)>0;
+    }
+  }
   }
 
   public function isNumeric($v,$method='another'){
