@@ -45,6 +45,9 @@ class Candy {
       $imported .= '_mysql_';
       $mysql->connect();
     }
+    if(defined('AUTO_BACKUP') && AUTO_BACKUP==true){
+      Config::runBackup();
+    }
   }
 
   public function token($check = '0'){

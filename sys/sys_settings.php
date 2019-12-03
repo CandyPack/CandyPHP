@@ -64,12 +64,18 @@ class Config {
     }
   }
   public function autoBackup($b = true,$directory = 'backup/'){
+    define('AUTO_BACKUP',$b);
+    define('BACKUP_DIRECTORY',$directory);
+  }
+  public function runBackup(){
     global $conn;
     global $backupdirectory;
-    $backupdirectory = $directory;
-    define('AUTO_BACKUP',$b);
-    set_time_limit(1000);
-    if($b && (date("Hi")=='0000' || true) && $_SERVER['SERVER_ADDR'] == $_SERVER['REMOTE_ADDR'] && isset($_GET['_candy']) && $_GET['_candy']=='cron'){
+
+    set_time_limit(10000);
+    $b = defined('AUTO_BACKUP') && AUTO_BACKUP;
+    if($b && date("Hi")=='0000' && $_SERVER['SERVER_ADDR'] == $_SERVER['REMOTE_ADDR'] && isset($_GET['_candy']) && $_GET['_candy']=='cron'){
+      $directory = BACKUP_DIRECTORY;
+      $backupdirectory = $directory;
       if (!file_exists($backupdirectory.'mysql/')) {
         mkdir($backupdirectory.'mysql/', 0777, true);
       }
