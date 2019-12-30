@@ -219,5 +219,96 @@ class Candy {
     }
     return $array;
   }
+
+  public function dateFormatter($date = '0', $format = 'd / m / Y'){
+    $date = str_replace('/','-',$date);
+    $date = new DateTime($date);
+    $date = $date->format($format);
+    return $date;
+  }
+
+  public function getJs($path){
+    $minify = false;
+    $file_raw = 'assets/js/'.$path;
+    $file_min = str_replace('.js','.min.js',$file_raw);
+    if(file_exists($file_raw)){
+      $date_min = '1';
+      if(file_exists($file_min)){
+        $date_raw = filemtime($file_raw);
+        $date_min = filemtime($file_min);
+        if($date_raw>$date_min){
+          $minify = true;
+        }
+      }else{
+        $minify = true;
+      }
+      if($minify){
+        $js_raw = file_get_contents($file_raw, FILE_USE_INCLUDE_PATH);
+        $js_min = Candy::jsMinifier($js_raw);
+        file_put_contents($file_min, $js_min);
+      }
+      return $file_min.'?_v='.$date_min;
+    }else{
+      return $path;
+    }
+  }
+
+  public function getCss($path, $b=true){
+    $minify = false;
+    $file_raw = 'assets/css/'.$path;
+    $file_min = str_replace('.css','.min.css',$file_raw);
+    if(file_exists($file_raw)){
+      $date_min = '1';
+      if(file_exists($file_min)){
+        $date_raw = filemtime($file_raw);
+        $date_min = filemtime($file_min);
+        if($date_raw>$date_min){
+          $minify = true;
+        }
+      }else{
+        $minify = true;
+      }
+      if($minify){
+        $css_raw = file_get_contents($file_raw, FILE_USE_INCLUDE_PATH);
+        $css_min = Candy::cssMinifier($css_raw);
+        file_put_contents($file_min, $css_min);
+      }
+      echo $b ? '/'.$file_min.'?_v='.$date_min : '';
+      return $file_min.'?_v='.$date_min;
+    }else{
+      echo $b ? '/'.$path : '';
+      return $path;
+    }
+  }
+
+  public function jsMinifier($js){
+    $url = 'https://javascript-minifier.com/raw';
+    $ch = curl_init();
+    curl_setopt_array($ch, [
+        CURLOPT_URL => $url,
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_POST => true,
+        CURLOPT_HTTPHEADER => ["Content-Type: application/x-www-form-urlencoded"],
+        CURLOPT_POSTFIELDS => http_build_query([ "input" => $js ])
+    ]);
+    $minified = curl_exec($ch);
+    curl_close($ch);
+    return $minified;
+  }
+
+  public function cssMinifier($css){
+    $url = 'https://cssminifier.com/raw';
+    $ch = curl_init();
+    curl_setopt_array($ch, [
+        CURLOPT_URL => $url,
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_POST => true,
+        CURLOPT_HTTPHEADER => ["Content-Type: application/x-www-form-urlencoded"],
+        CURLOPT_POSTFIELDS => http_build_query([ "input" => $css ])
+    ]);
+    $minified = curl_exec($ch);
+    curl_close($ch);
+    return $minified;
+  }
 }
 $candy = new Candy();

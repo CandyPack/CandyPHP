@@ -5,10 +5,10 @@ class Mysql {
 
   public function connect($db=0,$user=0,$pass=0,$server=0){
     global $conn;
-    $db = $db==0 ? (defined('MYSQL_DB') ? MYSQL_DB : '') : $db;
-    $user = $user==0 ? (defined('MYSQL_USER') ? MYSQL_USER : '') : $user;
-    $pass = $pass==0 ? (defined('MYSQL_PASS') ? MYSQL_PASS : '') : $pass;
-    $server = $server==0 ? (defined('MYSQL_SERVER') ? MYSQL_SERVER : '127.0.0.1') : $server;
+    $db = $db===0 ? (defined('MYSQL_DB') ? MYSQL_DB : '') : $db;
+    $user = $user===0 ? (defined('MYSQL_USER') ? MYSQL_USER : '') : $user;
+    $pass = $pass===0 ? (defined('MYSQL_PASS') ? MYSQL_PASS : '') : $pass;
+    $server = $server===0 ? (defined('MYSQL_SERVER') ? MYSQL_SERVER : '127.0.0.1') : $server;
     $conn = mysqli_connect($server, $user, $pass, $db);
     mysqli_set_charset($conn,"utf8");
     if (!$conn) {
@@ -20,9 +20,14 @@ class Mysql {
 
   public function query($query,$b = true){
     global $conn;
+    $result = new \stdClass();
     $sql = mysqli_query($conn, $query);
+    $data = array();
+    while($row = mysqli_fetch_assoc($sql)){
+      $data[] = $row;
+    }
     $result->rows = mysqli_num_rows($sql);
-    $result->fetch = mysqli_fetch_assoc($sql);
+    $result->fetch = $data;
     if($b){
       return $result;
     }
@@ -41,15 +46,19 @@ class Mysql {
     $sql_user = mysqli_query($conn, 'SELECT * FROM '.$arr['table_user'].' WHERE '.$query);
     if(mysqli_num_rows($sql_user)==1){
       $result->success = true;
-      $result->fetch = mysqli_fetch_assoc($sql_user);
+      $data = array();
+      while($row = mysqli_fetch_assoc($sql_user)){
+        $data[] = $row;
+      }
+      $result->fetch = $data;
       $result->rows = mysqli_num_rows($sql_user);
       if($t){
-        $token1 = md5(rand(0, 1000000));
+        $token1 = $data['id'].(time()*100).rand(1000,9999);
         $token2 = md5($_SERVER['REMOTE_ADDR']);
         $token3 = md5($_SERVER['HTTP_USER_AGENT']);
         setcookie("token1", $token1, time() + 61536000, "/");
         setcookie("token2", $token2, time() + 61536000, "/");
-        $sql_token = mysqli_query($conn, 'INSERT INTO '.$arr['table_token'].' (userid,token1,token2,token3,ip) VALUES ("' . $result->fetch['id'] . '","' . $token1 . '","' . $token2 . '","' . $token3 . '","'.$_SERVER['REMOTE_ADDR'].'")');
+        $sql_token = mysqli_query($conn, 'INSERT INTO '.$arr['table_token'].' (userid,token1,token2,token3,ip) VALUES ("' . $result->fetch[0]['id'] . '","' . $token1 . '","' . $token2 . '","' . $token3 . '","'.$_SERVER['REMOTE_ADDR'].'")');
       }
         return $result;
     }else{
@@ -71,7 +80,11 @@ class Mysql {
         if(mysqli_num_rows($sql_token) == 1){
           if($fetch){
             $result->success = true;
-            $result->fetch = mysqli_fetch_assoc($sql_user);
+            $data = array();
+            while($row = mysqli_fetch_assoc($sql_user)){
+              $data[] = $row;
+            }
+            $result->fetch = $data;
             $result->rows = mysqli_num_rows($sql_user);
             return $result;
           }else{
