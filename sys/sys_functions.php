@@ -227,7 +227,7 @@ class Candy {
     return $date;
   }
 
-  public function getJs($path){
+  public function getJs($path,$b=true){
     $minify = false;
     $file_raw = 'assets/js/'.$path;
     $file_min = str_replace('.js','.min.js',$file_raw);
@@ -247,8 +247,10 @@ class Candy {
         $js_min = Candy::jsMinifier($js_raw);
         file_put_contents($file_min, $js_min);
       }
+      echo $b ? '/'.$file_min.'?_v='.$date_min : '';
       return $file_min.'?_v='.$date_min;
     }else{
+      echo $b ? '/'.$path : '';
       return $path;
     }
   }
