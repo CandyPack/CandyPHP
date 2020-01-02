@@ -312,5 +312,37 @@ class Candy {
     curl_close($ch);
     return $minified;
   }
+
+  public function uploadCheck($name=null){
+    if(isset($_FILES) && count($_FILES)>0){
+      if($name==null){
+        foreach ($_FILES as $key) {
+          if($key['size']>0){
+            return true;
+          }
+        }
+      }else{
+        $result = true;
+        $arr_name = explode(',',$name);
+        foreach ($arr_name as $key) {
+          if($key!=''){
+            if(isset($_FILES[$key]) && count($_FILES[$key])>0){
+              if($_FILES[$key]['size']>0){
+                $result = !$result ? false : true;
+              }else{
+                $result = false;
+              }
+            }else{
+              $result = false;
+            }
+          }
+        }
+        return $result;
+      }
+    }else{
+      return false;
+    }
+  }
+
 }
 $candy = new Candy();
