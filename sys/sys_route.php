@@ -66,35 +66,7 @@ class Route {
     }
   }
   public function cron($controller,$array='*'){
-    global $is_cron;
-    $run = true;
-    $now = getdate();
-    if(is_array($array)){
-      if(!isset($array['minute']) || $array['minute']==='*' || $array['minute']==$now['minutes']){
-        if(!isset($array['hour']) || $array['hour']==='*' || $array['hour']==$now['hours']){
-          if(!isset($array['day']) || $array['day']==='*' || $array['day']==$now['mday']){
-            if(!isset($array['month']) || $array['month']==='*' || $array['month']==$now['mon']){
-              if(!isset($array['year']) || $array['year']==='*' || $array['year']==$now['year']){
-                $run = true;
-              }else{$run=false;}
-            }else{$run=false;}
-          }else{$run=false;}
-        }else{$run=false;}
-      }else{$run=false;}
-    }
-
-    if(defined('CRON_JOBS') && CRON_JOBS===true){
-      if(isset($_GET['_candy']) && $_GET['_candy']=='cron'){
-        if($_SERVER['SERVER_ADDR'] == $_SERVER['REMOTE_ADDR']){
-          if($_SERVER['HTTP_USER_AGENT']=='candyPHP-cron'){
-            $is_cron = true;
-            if($run){
-              include('cron/cron_'.$controller.'.php');
-            }
-          }
-        }
-      }
-    }
+    return Cron::controller($controller);
   }
   public function authPage($page,$controller,$else=''){
     if(Mysql::userCheck(false)){
