@@ -12,7 +12,9 @@ class Cron
 
     public static function run(){
       if(self::$_run && isset(self::$_var['controller'])){
-        include('cron/cron_'.self::$_var['controller'].'.php');
+        if(defined('CRON_JOBS') && CRON_JOBS){
+          include('cron/cron_'.self::$_var['controller'].'.php');
+        }
       }
       return self::$_run;
     }

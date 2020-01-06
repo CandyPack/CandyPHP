@@ -66,9 +66,7 @@ class Route {
     }
   }
   public function cron($controller,$array='*'){
-    if(defined('CRON_JOBS') && CRON_JOBS){
-      return Cron::controller($controller);
-    }
+    return Cron::controller($controller);
   }
   public function authPage($page,$controller,$else=''){
     if(Mysql::userCheck(false)){
