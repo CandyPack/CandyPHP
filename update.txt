@@ -1,9 +1,10 @@
-#version:20200102
+#version:20200106
 index.php
 sys/sys_functions.php
 sys/sys_route.php
 sys/sys_settings.php
 sys/sys_start.php
 sys/sys_view.php
+sys/sys_cron.php
 sys/import/class_mysql.php
 update.txt
