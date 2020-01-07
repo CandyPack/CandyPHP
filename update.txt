@@ -7,5 +7,6 @@ sys/sys_start.php
 sys/sys_view.php
 sys/sys_cron.php
 sys/sys_storage.php
+sys/sys_language.php
 sys/import/class_mysql.php
 update.txt
