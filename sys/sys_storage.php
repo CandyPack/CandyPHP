@@ -7,10 +7,10 @@ class Storage
 
     public static function select($s='sys'){
       self::$_arr = new \stdClass();
-      self::$_path = 'sys/storage/'.$s.'.json';
+      self::$_path = 'storage/'.$s.'.json';
       if(!file_exists(self::$_path)){
-        if(!file_exists('sys/storage/')){
-          mkdir('sys/storage/', 0777, true);
+        if(!file_exists('storage/')){
+          mkdir('storage/', 0777, true);
         }
         $_file = fopen(self::$_path, "w");
         fclose($_file);
