@@ -5,13 +5,36 @@ class Mysql {
 
   public function connect($db=0,$user=0,$pass=0,$server=0){
     global $conn;
+    $storage = Candy::storage('sys')->get('mysql');
+    $storage->error = isset($storage->error) && is_object($storage->error) ? $storage->error : new \stdClass;
+    $storage->error->info = isset($storage->error->info) && is_object($storage->error->info) ? $storage->error->info : new \stdClass;
+
     $db = $db===0 ? (defined('MYSQL_DB') ? MYSQL_DB : '') : $db;
     $user = $user===0 ? (defined('MYSQL_USER') ? MYSQL_USER : '') : $user;
     $pass = $pass===0 ? (defined('MYSQL_PASS') ? MYSQL_PASS : '') : $pass;
     $server = $server===0 ? (defined('MYSQL_SERVER') ? MYSQL_SERVER : '127.0.0.1') : $server;
     $conn = mysqli_connect($server, $user, $pass, $db);
-    mysqli_set_charset($conn,"utf8");
-    if (!$conn) {
+    if($conn){
+      mysqli_set_charset($conn,"utf8");
+      mysqli_query($conn,"SET NAMES utf8mb4");
+    }else{
+      if(Config::check('INFO_MAIL,MASTER_MAIL') && (!isset($storage->error->info->date) || $storage->error->info->date!=date('d/m/Y'))){
+        Candy::mail( MASTER_MAIL,
+                    '<b>Date</b>: '.date("Y-m-d H:i:s").'<br />
+                     <b>Message</b>: Unable to connect to mysql server<br /><br />
+                     <b>Details</b>: <br />
+                     SERVER:
+                     <pre>'.print_r($_SERVER,true).'</pre>
+                     SESSION:
+                     <pre>'.print_r($_SESSION,true).'</pre>
+                     COOKIE:
+                     <pre>'.print_r($_COOKIE,true).'</pre>',
+                     $_SERVER['SERVER_NAME'].' - INFO',
+                     ['mail' => 'candyphp@'.$_SERVER['SERVER_NAME'], 'name' => 'Candy PHP']
+                   );
+        $storage->error->info->date = date('d/m/Y');
+        Candy::storage('sys')->set('mysql',$storage);
+      }
         echo "Mysql connection error" . PHP_EOL;
         exit;
     }

@@ -201,6 +201,37 @@ class Config {
     }
     }
   }
+
+  public function masterMail($s=''){
+    if(!defined('MASTER_MAIL') && $s!=''){
+      define('MASTER_MAIL',$s);
+    }
+  }
+
+  public function infoMail($b=true){
+    if(!defined('INFO_MAIL')){
+      define('INFO_MAIL',$b);
+    }
+  }
+
+  public function check($v){
+    $return = true;
+    $arr_var = explode(',',$v);
+    foreach ($arr_var as $key){
+      if($key!=''){
+        if(!defined($key)){
+          $return = false;
+        }else{
+          if(is_bool(constant($key)) && !constant($key)){
+            $return = false;
+          }elseif(!is_bool(constant($key)) && (is_numeric(constant($key)) || constant($key)!='')){
+
+          }
+        }
+      }
+    }
+    return $return;
+  }
 }
 
 $config = new Config();

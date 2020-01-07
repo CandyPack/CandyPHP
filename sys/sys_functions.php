@@ -344,5 +344,57 @@ class Candy {
     }
   }
 
+  public function mail($to,$message,$subject = '',$from = ''){
+    if(is_array($from)){
+      $from_name = '<'.$from['name'].'>';
+      $from = $from['mail'];
+    }else{
+      $from_name = '';      
+    }
+    if($from=='' && defined('MASTER_MAIL')){
+      $from = MASTER_MAIL;
+    }
+    if($subject==''){
+      $subject = $_SERVER['SERVER_NAME'];
+    }
+    $headers = 'From: '.$from . "\r\n" .
+    'Reply-To: '.$from . "\r\n" .
+    'MIME-Version: 1.0\r\n' .
+    'Content-Type: text/html; charset=UTF-8\r\n';
+
+    $headers = "From: ".$from_name . strip_tags($from) . "\r\n";
+    $headers .= "Reply-To: ". strip_tags($from) . "\r\n";
+    $headers .= "MIME-Version: 1.0\r\n";
+    $headers .= "Content-Type: text/html; charset=UTF-8\r\n";
+
+    if(!(strpos($message, '<html>') !== false)){
+      if(!(strpos($message, '<head>') !== false)){
+        if(!(strpos($message, '<body>') !== false)){
+          $message = '<body>'.$message.'</body>';
+        }
+        $message = '<head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <title>'.$subject.'</title>
+        <!--[if !mso]><!--><meta http-equiv="X-UA-Compatible" content="IE=edge"><!--<![endif]-->
+        <meta name="viewport" content="width=device-width">
+        <meta name="robots" content="noindex,nofollow">
+        <meta property="og:title" content="'.$subject.'">
+        '.$message;
+      }
+      $message = '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional //EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+      <!--[if IE]>
+      <html xmlns="http://www.w3.org/1999/xhtml" class="ie">
+      <![endif]-->
+      <!--[if !IE]><!-->
+      <html style="margin: 0;padding: 0;" xmlns="http://www.w3.org/1999/xhtml">
+      <!--<![endif]-->'.$message.'</html>';
+    }
+
+    return mail($to, $subject, $message, $headers);
+  }
+
+  public function storage($s){
+    return Storage::select($s);
+  }
 }
 $candy = new Candy();
