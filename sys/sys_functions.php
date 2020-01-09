@@ -26,7 +26,7 @@ class Candy {
 
   public function get($p){
     global $var;
-    return $var->$p;
+    return isset($var->$p) ? $var->$p : null;
   }
 
   public function set($p,$v){
@@ -54,16 +54,29 @@ class Candy {
     global $token;
     if($check=='0' || $check=='input'){
       if($token==''){
-        $token = md5(rand(10000,99999));
-        $_SESSION['token'] = $token;
+        $token = md5(uniqid(mt_rand(), true));
+        $sess = isset($_SESSION['_token']) ? $_SESSION['_token'] : '';
+        $sess .= ','.$token.',';
+        if(isset($_SESSION['_token'])){
+          $arr_sess = explode(',',$_SESSION['_token']);
+          if(count($arr_sess)>100){
+            $sess = ','.$token.',';
+            for ($i=0; $i < 90; $i++) {
+              if($arr_sess[$i]!=''){
+                $sess .= ','.$arr_sess[$i].',';
+              }
+            }
+          }
+        }
+        $_SESSION['_token'] = $sess;
       }
       if($check==='input'){
         echo '<input name="token" value="'.$token.'" hidden="">';
       }
       return $token;
     }else{
-      if($_SESSION['token']==$token){
-        unset($_SESSION['token']);
+      if(isset($_SESSION['_token']) && (strpos($_SESSION['_token'], ','.$token.',') !== false)){
+        $_SESSION['_token'] = str_replace(','.$token.',','',$_SESSION['_token']);
         return true;
       }else{
         return false;
@@ -73,9 +86,6 @@ class Candy {
 
   public function postCheck($post,$t=true,$r=true){
     global $postToken;
-    $postToken = is_null($postToken) ? isset($_POST['token']) && isset($_SESSION['token']) && $_SESSION['token']==$_POST['token'] : $postToken;
-    unset($_SESSION['token']);
-
     $count = 0;
     $arr_post = explode(',',$post);
     foreach ($arr_post as $key) {
@@ -84,7 +94,7 @@ class Candy {
       }
     }
     if($t){
-      if($postToken && count($arr_post)==$count){
+      if(self::token($_POST['token']) && count($arr_post)==$count){
         if(!$r || parse_url($_SERVER['HTTP_REFERER'])['host'] == $_SERVER['HTTP_HOST']){
           return true;
         }else{
@@ -112,21 +122,21 @@ class Candy {
       }
     }
     if($t){
-      return isset($_GET['token']) && isset($_SESSION['token']) && $_SESSION['token']==$_GET['token'] && count($arr_get)==$count;
+      return self::token($_GET['token']) && count($arr_get)==$count;
     }else{
       return count($arr_get)==$count;
     }
   }else{
     $arr_get = isset($_GET) ? $_GET : array();
     if($t){
-      return isset($_GET['token']) && isset($_SESSION['token']) && $_SESSION['token']==$_GET['token'] && count($arr_get)>0;
+      return self::token($_GET['token']) && count($arr_get)>0;
     }else{
       return count($arr_get)>0;
     }
   }
   }
 
-  public function isNumeric($v,$method='another'){
+  public function isNumeric($v,$method='post'){
     $count = 0;
     $arr_get = explode(',',$v);
     foreach ($arr_get as $key) {
@@ -348,8 +358,10 @@ class Candy {
     if(is_array($from)){
       $from_name = '<'.$from['name'].'>';
       $from = $from['mail'];
+      $from_mail = $from['mail'];
     }else{
-      $from_name = '';      
+      $from_name = '';
+      $from_mail = $from;
     }
     if($from=='' && defined('MASTER_MAIL')){
       $from = MASTER_MAIL;
@@ -362,8 +374,8 @@ class Candy {
     'MIME-Version: 1.0\r\n' .
     'Content-Type: text/html; charset=UTF-8\r\n';
 
-    $headers = "From: ".$from_name . strip_tags($from) . "\r\n";
-    $headers .= "Reply-To: ". strip_tags($from) . "\r\n";
+    $headers = "From: ".$from_name . strip_tags($from_mail) . "\r\n";
+    $headers .= "Reply-To: ". strip_tags($from_mail) . "\r\n";
     $headers .= "MIME-Version: 1.0\r\n";
     $headers .= "Content-Type: text/html; charset=UTF-8\r\n";
 
@@ -395,6 +407,23 @@ class Candy {
 
   public function storage($s){
     return Storage::select($s);
+  }
+
+  public function strFormatter($str,$format){
+    $output = '';
+    $letter = 0;
+    for ($i=0; $i < strlen($format); $i++) {
+      if(substr($format,$i,1)=='?'){
+        $output .= substr($str,$letter,1);
+        $letter = $letter + 1;
+      }elseif(substr($format,$i,1)=='*'){
+        $output .= substr($str,$letter);
+        $letter = $letter + strlen(substr($str,$letter));
+      }else{
+        $output .= substr($format,$i,1);
+      }
+    }
+    return $output;
   }
 }
 $candy = new Candy();

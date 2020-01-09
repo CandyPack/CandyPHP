@@ -2,12 +2,7 @@
 class Lang {
   public $lang;
 
-  public function setVar($var,$text){
-    global $lang;
-    return $lang[$var] = $text;
-  }
-
-  public function getVar($var){
+  public function get($var){
     global $lang;
     return $lang[$var];
   }

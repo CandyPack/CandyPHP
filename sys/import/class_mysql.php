@@ -76,7 +76,7 @@ class Mysql {
       $result->fetch = $data;
       $result->rows = mysqli_num_rows($sql_user);
       if($t){
-        $token1 = $data['id'].(time()*100).rand(1000,9999);
+        $token1 = $data['id'].(time()*100).rand(10000,99999);
         $token2 = md5($_SERVER['REMOTE_ADDR']);
         $token3 = md5($_SERVER['HTTP_USER_AGENT']);
         setcookie("token1", $token1, time() + 61536000, "/");

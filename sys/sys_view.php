@@ -1,25 +1,36 @@
 <?php
 class View {
-  public function setHead($v){
+  public static function head($v){
     define('VIEW_HEAD',$v);
+    return new static();
   }
-  public function setHeader($v){
+  public static function header($v){
     define('VIEW_HEADER',$v);
+    return new static();
   }
-  public function setSidebar($v){
+  public static function sidebar($v){
     define('VIEW_SIDEBAR',$v);
+    return new static();
   }
-  public function setContent($v){
+  public static function content($v){
     define('VIEW_CONTENT',$v);
+    return new static();
   }
-  public function setFooter($v){
+  public static function footer($v){
     define('VIEW_FOOTER',$v);
+    return new static();
   }
-  public function setScript($v){
+  public static function script($v){
     define('VIEW_SCRIPT',$v);
+    return new static();
   }
-  public function setSkeleton($v){
+  public function skeleton($v){
     define('VIEW_SKELETON',$v);
+    return new static();
+  }
+  public function set($c,$v){
+    define('VIEW_'.strtoupper($c),$v);
+    return new static();
   }
   public function printView(){
     global $candy;
@@ -30,54 +41,26 @@ class View {
       global $candy;
       return $candy->get($v);
     }
-
     if(defined('VIEW_SKELETON')){
     $skeleton = defined('VIEW_SKELETON') ? 'skeleton/'.VIEW_SKELETON.'.skeleton' : 'skeleton/page.skeleton';
-    if(defined('VIEW_HEAD')){
-    $skeleton = explode('{{ HEAD }}',file_get_contents($skeleton, FILE_USE_INCLUDE_PATH));
-    print($skeleton[0]);
-      if(file_exists('view/head_'.VIEW_HEAD.'.php')){
-        include('view/head_'.VIEW_HEAD.'.php');
+    $skeleton = file_get_contents($skeleton, FILE_USE_INCLUDE_PATH);
+    $arr_test = explode('{{', $skeleton);
+      foreach ($arr_test as $key) {
+        if(strpos($key, '}}') !== false) {
+          $arr_key = explode('}}',$key);
+          if(defined('VIEW_'.trim($arr_key[0]))){
+            if(file_exists('view/'.strtolower(trim($arr_key[0])).'_'.constant('VIEW_'.trim($arr_key[0])).'.php')){
+              include('view/'.strtolower(trim($arr_key[0])).'_'.constant('VIEW_'.trim($arr_key[0])).'.php');
+            }
+          }
+          if(isset($arr_key[1])){
+            print($arr_key[1]);
+          }
+        }else{
+          print($key);
+        }
       }
     }
-    if(defined('VIEW_HEADER')){
-    $skeleton = explode('{{ HEADER }}',$skeleton[1]);
-    print($skeleton[0]);
-      if(file_exists('view/header_'.VIEW_HEADER.'.php')){
-        include('view/header_'.VIEW_HEADER.'.php');
-      }
-    }
-    if(defined('VIEW_SIDEBAR')){
-    $skeleton = explode('{{ SIDEBAR }}',$skeleton[1]);
-    print($skeleton[0]);
-      if(file_exists('view/sidebar_'.VIEW_SIDEBAR.'.php')){
-        include('view/sidebar_'.VIEW_SIDEBAR.'.php');
-      }
-    }
-    if(defined('VIEW_CONTENT')){
-    $skeleton = explode('{{ CONTENT }}',$skeleton[1]);
-    print($skeleton[0]);
-      if(file_exists('view/content_'.VIEW_CONTENT.'.php')){
-        include('view/content_'.VIEW_CONTENT.'.php');
-      }
-    }
-    if(defined('VIEW_FOOTER')){
-    $skeleton = explode('{{ FOOTER }}',$skeleton[1]);
-    print($skeleton[0]);
-      if(file_exists('view/footer_'.VIEW_FOOTER.'.php')){
-        include('view/footer_'.VIEW_FOOTER.'.php');
-      }
-    }
-    if(defined('VIEW_SCRIPT')){
-    $skeleton = explode('{{ SCRIPT }}',$skeleton[1]);
-    print($skeleton[0]);
-      if(file_exists('view/script_'.VIEW_SCRIPT.'.php')){
-        include('view/script_'.VIEW_SCRIPT.'.php');
-      }
-    }
-    print($skeleton[1]);
   }
 }
-}
-
 $view = new View();
