@@ -37,8 +37,8 @@ class Route {
     }
   }
   public function page404($controller){
-    if(!defined('PAGE')){
       define('PAGE404',$controller);
+    if(!defined('PAGE_METHOD')){
       define('PAGE_METHOD','page');
     }
   }
@@ -55,8 +55,13 @@ class Route {
       global $request;
       return $request[$v];
     }
+
     if(defined('PAGE') && file_exists('controller/controller_'.PAGE.'.php')){
       include('controller/controller_'.PAGE.'.php');
+      if(defined('DIRECT_404') && DIRECT_404 && defined('PAGE404') && file_exists('controller/controller_'.PAGE404.'.php')){
+        http_response_code(404);
+        include('controller/controller_'.PAGE404.'.php');
+      }
     }elseif(defined('PAGE404') && file_exists('controller/controller_'.PAGE404.'.php')){
       http_response_code(404);
       include('controller/controller_'.PAGE404.'.php');

@@ -6,6 +6,7 @@ class Candy {
   public $import;
   public $postToken;
   public $getToken;
+  public $tokenCheck = '';
 
   public function hello(){
     echo 'Hi, World !';
@@ -50,9 +51,10 @@ class Candy {
     }
   }
 
-  public function token($check = '0'){
+  public function token($check = 0){
     global $token;
-    if($check=='0' || $check=='input'){
+    global $tokenCheck;
+    if($check===0 || $check==='input'){
       if($token==''){
         $token = md5(uniqid(mt_rand(), true));
         $sess = isset($_SESSION['_token']) ? $_SESSION['_token'] : '';
@@ -75,8 +77,11 @@ class Candy {
       }
       return $token;
     }else{
-      if(isset($_SESSION['_token']) && (strpos($_SESSION['_token'], ','.$token.',') !== false)){
-        $_SESSION['_token'] = str_replace(','.$token.',','',$_SESSION['_token']);
+      if(strpos($tokenCheck, ','.$check.',') !== false){
+        return true;
+      }elseif(isset($_SESSION['_token']) && (strpos($_SESSION['_token'], ','.$check.',') !== false)){
+        $_SESSION['_token'] = str_replace(','.$check.',','',$_SESSION['_token']);
+        $tokenCheck .= ','.$check.',';
         return true;
       }else{
         return false;
@@ -94,7 +99,7 @@ class Candy {
       }
     }
     if($t){
-      if(self::token($_POST['token']) && count($arr_post)==$count){
+      if(isset($_POST['token']) && self::token($_POST['token']) && count($arr_post)==$count){
         if(!$r || parse_url($_SERVER['HTTP_REFERER'])['host'] == $_SERVER['HTTP_HOST']){
           return true;
         }else{
@@ -122,7 +127,7 @@ class Candy {
       }
     }
     if($t){
-      return self::token($_GET['token']) && count($arr_get)==$count;
+      return isset($_POST['token']) && self::token($_GET['token']) && count($arr_get)==$count;
     }else{
       return count($arr_get)==$count;
     }
@@ -150,8 +155,14 @@ class Candy {
   }
 
   public function direct($link=0){
-    $url = $url!=0 ? $url : $_SERVER['HTTP_REFERER'];
-    header('Location: '.$url);
+    if($link===404){
+      if(!defined('DIRECT_404')){
+        define('DIRECT_404',true);
+      }
+    }else{
+      $url = $link!==0 ? $link : $_SERVER['HTTP_REFERER'];
+      header('Location: '.$url);
+    }
   }
 
   public function uploadImage($postname="upload",$target = "uploads/",$filename='0',$maxsize=500000){
@@ -424,6 +435,11 @@ class Candy {
       }
     }
     return $output;
+  }
+
+  public function validator(){
+    self::import('validation');
+    return new Validation();
   }
 }
 $candy = new Candy();

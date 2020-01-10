@@ -1,35 +1,38 @@
 <?php
 class View {
+  public $_parts = array();
   public static function head($v){
-    define('VIEW_HEAD',$v);
-    return new static();
+    //define('VIEW_HEAD',$v);
+    return self::set('head',$v);
   }
   public static function header($v){
-    define('VIEW_HEADER',$v);
-    return new static();
+    //define('VIEW_HEADER',$v);
+    return self::set('header',$v);
   }
   public static function sidebar($v){
-    define('VIEW_SIDEBAR',$v);
-    return new static();
+    //define('VIEW_SIDEBAR',$v);
+    return self::set('sidebar',$v);
   }
   public static function content($v){
-    define('VIEW_CONTENT',$v);
-    return new static();
+    //define('VIEW_CONTENT',$v);
+    return self::set('content',$v);
   }
   public static function footer($v){
-    define('VIEW_FOOTER',$v);
-    return new static();
+    //define('VIEW_FOOTER',$v);
+    return self::set('footer',$v);
   }
   public static function script($v){
-    define('VIEW_SCRIPT',$v);
-    return new static();
+    //define('VIEW_SCRIPT',$v);
+    return self::set('script',$v);
   }
   public function skeleton($v){
-    define('VIEW_SKELETON',$v);
-    return new static();
+    //define('VIEW_SKELETON',$v);
+    return self::set('skeleton',$v);
   }
   public function set($c,$v){
+    global $_parts;
     define('VIEW_'.strtoupper($c),$v);
+    $_parts[$c] = $v;
     return new static();
   }
   public function printView(){
