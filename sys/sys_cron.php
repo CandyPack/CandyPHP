@@ -23,6 +23,7 @@ class Cron
       if(self::$_run){
         self::$_run = intval(self::$_var['date']['minutes']) == intval($val);
       }
+      $GLOBALS['cron'][self::$_var['controller']] = self::$_run;
       return new static();
     }
 
@@ -30,6 +31,7 @@ class Cron
       if(self::$_run){
         self::$_run = intval(self::$_var['date']['hours']) == intval($val);
       }
+      $GLOBALS['cron'][self::$_var['controller']] = self::$_run;
       return new static();
     }
 
@@ -37,6 +39,7 @@ class Cron
       if(self::$_run){
         self::$_run = intval(self::$_var['date']['mday']) == intval($val);
       }
+      $GLOBALS['cron'][self::$_var['controller']] = self::$_run;
       return new static();
     }
 
@@ -44,6 +47,7 @@ class Cron
       if(self::$_run){
         self::$_run = intval(self::$_var['date']['wday']) == intval($val);
       }
+      $GLOBALS['cron'][self::$_var['controller']] = self::$_run;
       return new static();
     }
 
@@ -51,6 +55,7 @@ class Cron
       if(self::$_run){
         self::$_run = intval(self::$_var['date']['mon']) == intval($val);
       }
+      $GLOBALS['cron'][self::$_var['controller']] = self::$_run;
       return new static();
     }
 
@@ -58,6 +63,7 @@ class Cron
       if(self::$_run){
         self::$_run = intval(self::$_var['date']['year']) == intval($val);
       }
+      $GLOBALS['cron'][self::$_var['controller']] = self::$_run;
       return new static();
     }
 
@@ -65,6 +71,7 @@ class Cron
       if(self::$_run){
         self::$_run = intval(self::$_var['date']['yday']) == intval($val);
       }
+      $GLOBALS['cron'][self::$_var['controller']] = self::$_run;
       return new static();
     }
 
@@ -72,6 +79,7 @@ class Cron
       if(self::$_run){
         self::$_run = intval(self::$_var['date']['minutes'])%intval($val) == 0;
       }
+      $GLOBALS['cron'][self::$_var['controller']] = self::$_run;
       return new static();
     }
 
@@ -79,6 +87,7 @@ class Cron
       if(self::$_run){
         self::$_run = intval(self::$_var['date']['hours'])%intval($val)==0;
       }
+      $GLOBALS['cron'][self::$_var['controller']] = self::$_run;
       return new static();
     }
 
@@ -86,6 +95,7 @@ class Cron
       if(self::$_run){
         self::$_run = intval(self::$_var['date']['mday'])%intval($val)==0;
       }
+      $GLOBALS['cron'][self::$_var['controller']] = self::$_run;
       return new static();
     }
 
@@ -93,6 +103,7 @@ class Cron
       if(self::$_run){
         self::$_run = intval(self::$_var['date']['wday'])%intval($val)==0;
       }
+      $GLOBALS['cron'][self::$_var['controller']] = self::$_run;
       return new static();
     }
 
@@ -100,13 +111,15 @@ class Cron
       if(self::$_run){
         self::$_run = intval(self::$_var['date']['mon'])%intval($val) == 0;
       }
+      $GLOBALS['cron'][self::$_var['controller']] = self::$_run;
       return new static();
     }
 
-    public static function eveyYear($val=1){
+    public static function everyYear($val=1){
       if(self::$_run){
         self::$_run = intval(self::$_var['date']['year'])%intval($val)==0;
       }
+      $GLOBALS['cron'][self::$_var['controller']] = self::$_run;
       return new static();
     }
 
@@ -114,6 +127,7 @@ class Cron
       if(self::$_run){
         self::$_run = intval(self::$_var['date']['yday'])%intval($val)==0;
       }
+      $GLOBALS['cron'][self::$_var['controller']] = self::$_run;
       return new static();
     }
 

@@ -119,26 +119,26 @@ class Candy {
 
   public function getCheck($get='',$t=true){
     if($get!=''){
-    $count = 0;
-    $arr_get = explode(',',$get);
-    foreach ($arr_get as $key) {
-      if($key!='' && isset($_GET[$key]) && $_GET[$key]!=''){
-        $count++;
+      $count = 0;
+      $arr_get = explode(',',$get);
+      foreach ($arr_get as $key) {
+        if($key!='' && isset($_GET[$key]) && $_GET[$key]!=''){
+          $count++;
+        }
+      }
+      if($t){
+        return isset($_POST['token']) && self::token($_GET['token']) && count($arr_get)==$count;
+      }else{
+        return count($arr_get)==$count;
+      }
+    }else{
+      $arr_get = isset($_GET) ? $_GET : array();
+      if($t){
+        return self::token($_GET['token']) && count($arr_get)>0;
+      }else{
+        return count($arr_get)>0;
       }
     }
-    if($t){
-      return isset($_POST['token']) && self::token($_GET['token']) && count($arr_get)==$count;
-    }else{
-      return count($arr_get)==$count;
-    }
-  }else{
-    $arr_get = isset($_GET) ? $_GET : array();
-    if($t){
-      return self::token($_GET['token']) && count($arr_get)>0;
-    }else{
-      return count($arr_get)>0;
-    }
-  }
   }
 
   public function isNumeric($v,$method='post'){
@@ -265,7 +265,7 @@ class Candy {
       }
       if($minify){
         $js_raw = file_get_contents($file_raw, FILE_USE_INCLUDE_PATH);
-        $js_min = Candy::jsMinifier($js_raw);
+        $js_min = self::jsMinifier($js_raw);
         file_put_contents($file_min, $js_min);
       }
       echo $b ? '/'.$file_min.'?_v='.$date_min : '';
@@ -293,7 +293,7 @@ class Candy {
       }
       if($minify){
         $css_raw = file_get_contents($file_raw, FILE_USE_INCLUDE_PATH);
-        $css_min = Candy::cssMinifier($css_raw);
+        $css_min = self::cssMinifier($css_raw);
         file_put_contents($file_min, $css_min);
       }
       echo $b ? '/'.$file_min.'?_v='.$date_min : '';
@@ -365,7 +365,12 @@ class Candy {
     }
   }
 
-  public function mail($to,$message,$subject = '',$from = ''){
+  public function mail($view){
+    self::import('mail');
+    return Mail::view($view);
+  }
+
+  public function quickMail($to,$message,$subject = '',$from = ''){
     if(is_array($from)){
       $from_name = '<'.$from['name'].'>';
       $from = $from['mail'];
@@ -380,11 +385,7 @@ class Candy {
     if($subject==''){
       $subject = $_SERVER['SERVER_NAME'];
     }
-    $headers = 'From: '.$from . "\r\n" .
-    'Reply-To: '.$from . "\r\n" .
-    'MIME-Version: 1.0\r\n' .
-    'Content-Type: text/html; charset=UTF-8\r\n';
-
+    
     $headers = "From: ".$from_name . strip_tags($from_mail) . "\r\n";
     $headers .= "Reply-To: ". strip_tags($from_mail) . "\r\n";
     $headers .= "MIME-Version: 1.0\r\n";

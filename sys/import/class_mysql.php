@@ -19,7 +19,7 @@ class Mysql {
       mysqli_query($conn,"SET NAMES utf8mb4");
     }else{
       if(Config::check('INFO_MAIL,MASTER_MAIL') && (!isset($storage->error->info->date) || $storage->error->info->date!=date('d/m/Y'))){
-        Candy::mail( MASTER_MAIL,
+        Candy::quickMail( MASTER_MAIL,
                     '<b>Date</b>: '.date("Y-m-d H:i:s").'<br />
                      <b>Message</b>: Unable to connect to mysql server<br /><br />
                      <b>Details</b>: <br />

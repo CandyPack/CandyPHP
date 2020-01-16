@@ -69,6 +69,25 @@ class Route {
     if(PAGE_METHOD=='page' || true){
       $view->printView();
     }
+
+    //----------------------------
+    if(defined('CRON_JOBS') && CRON_JOBS===true){
+      if(isset($_GET['_candy']) && $_GET['_candy']=='cron'){
+        if($_SERVER['SERVER_ADDR'] == $_SERVER['REMOTE_ADDR']){
+          if($_SERVER['HTTP_USER_AGENT']=='candyPHP-cron'){
+            foreach ($GLOBALS['cron'] as $key => $value) {
+              if($value){
+                if($_SERVER['SERVER_ADDR'] == $_SERVER['REMOTE_ADDR']){
+                  include('cron/cron_'.$key.'.php');
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+    //-----------------------------
+
   }
   public function cron($controller,$array='*'){
     return Cron::controller($controller);
