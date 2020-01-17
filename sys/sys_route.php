@@ -8,7 +8,6 @@ class Route {
     if($get_page==$page || self::checkRequest($page,$get_page)){
       if(!defined('PAGE')){
         define('PAGE',$controller);
-        define('PAGE_METHOD',$type);
       }
     }
   }
@@ -20,7 +19,6 @@ class Route {
       if(($get_page==$page || self::checkRequest($page,$get_page)) && isset($_GET)){
         if(!defined('PAGE')){
           define('PAGE',$controller);
-          define('PAGE_METHOD','get');
         }
       }
     }
@@ -31,16 +29,12 @@ class Route {
       if(($get_page==$page || self::checkRequest($page,$get_page)) && isset($_POST)){
         if(!defined('PAGE')){
           define('PAGE',$controller);
-          define('PAGE_METHOD','post');
         }
       }
     }
   }
   public function page404($controller){
       define('PAGE404',$controller);
-    if(!defined('PAGE_METHOD')){
-      define('PAGE_METHOD','page');
-    }
   }
   public function printPage(){
     global $view;
@@ -66,11 +60,7 @@ class Route {
       http_response_code(404);
       include('controller/controller_'.PAGE404.'.php');
     }
-    if(PAGE_METHOD=='page' || true){
-      $view->printView();
-    }
-
-    //----------------------------
+    $view->printView();
     if(defined('CRON_JOBS') && CRON_JOBS===true){
       if(isset($_GET['_candy']) && $_GET['_candy']=='cron'){
         if($_SERVER['SERVER_ADDR'] == $_SERVER['REMOTE_ADDR']){
@@ -86,8 +76,6 @@ class Route {
         }
       }
     }
-    //-----------------------------
-
   }
   public function cron($controller,$array='*'){
     return Cron::controller($controller);

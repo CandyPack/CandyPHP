@@ -42,10 +42,9 @@ class Mail
             return false;
           }
         }
-        //-----------------------------------------------------------------------
         if(is_array($from)){
-          $from_name = '<'.$from['name'].'>';
-          $from_mail = $from['mail'];
+          $from_name = ''.$from['name'].' ';
+          $from_mail = '<'.$from['mail'].'>';
         }else{
           $from_name = '';
           $from_mail = $from;

@@ -55,7 +55,9 @@ class View {
           $arr_key = explode('}}',$key);
           if(defined('VIEW_'.trim($arr_key[0]))){
             if(file_exists('view/'.strtolower(trim($arr_key[0])).'_'.constant('VIEW_'.trim($arr_key[0])).'.php')){
+              echo "\n<!--_".md5(trim($arr_key[0]))."_-->\n";
               include(self::cacheView(strtolower(trim($arr_key[0])).'_'.constant('VIEW_'.trim($arr_key[0])).'.php'));
+              echo "\n<!--_".md5(trim($arr_key[0]))."_-->\n";
             }
           }
           if(isset($arr_key[1])){
@@ -104,11 +106,11 @@ class View {
         '{--',
         '--}',
         '@endif',
-        '@end',
         '@endforeach',
         '@endfor',
         '@endwhile',
-        '@else'
+        '@else',
+        '@end',
       ];
       $rpl = [
         '<?php echo htmlentities(',
@@ -123,8 +125,8 @@ class View {
         '<?php } ?>',
         '<?php } ?>',
         '<?php } ?>',
-        '<?php } ?>',
-        '<?php }else{ ?>'
+        '<?php }else{ ?>',
+        '<?php } ?>'
       ];
       $php_raw = str_replace($str,$rpl,file_get_contents($filepath, FILE_USE_INCLUDE_PATH));
       $regex = [
