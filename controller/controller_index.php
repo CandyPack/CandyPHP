@@ -1,10 +1,9 @@
 <?php
 
-$view->setSkeleton('page');
-
-$view->setHead('index');
-$view->setHeader('index');
-$view->setSidebar('index');
-$view->setContent('index');
-$view->setFooter('index');
-$view->setScript('index');
+$view->skeleton('page')
+     ->head('index')
+     ->header('index')
+     ->sidebar('index')
+     ->content('index')
+     ->footer('index')
+     ->script('index');
