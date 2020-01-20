@@ -24,7 +24,7 @@ class Route {
     }
   }
   public function post($page,$controller,$check='',$t=true){
-    if($check=='' || Candy::postCheck($check,$t)){
+    if(Candy::postCheck($check,$t)){
       $get_page = isset($_GET['_page']) ? $_GET['_page'] : '';
       if(($get_page==$page || self::checkRequest($page,$get_page)) && isset($_POST)){
         if(!defined('PAGE')){
@@ -47,7 +47,13 @@ class Route {
     }
     function request($v){
       global $request;
-      return $request[$v];
+      if(isset($request[$v])){
+        return $request[$v];
+      }elseif(isset($_POST[$v])){
+        return $_POST[$v];
+      }elseif(isset($_GET[$v])){
+        return $_GET[$v];
+      }
     }
 
     if(defined('PAGE') && file_exists('controller/controller_'.PAGE.'.php')){
@@ -76,6 +82,8 @@ class Route {
         }
       }
     }
+    unset($_SESSION['_candy']['oneshot']);
+    $_SESSION['_candy']['oneshot'] = $GLOBALS['_candy']['oneshot'];
   }
   public function cron($controller,$array='*'){
     return Cron::controller($controller);

@@ -3,7 +3,6 @@ class Candy {
   public $var;
   public $imported;
   public $token;
-  public $import;
   public $postToken;
   public $getToken;
   public $tokenCheck = '';
@@ -14,7 +13,6 @@ class Candy {
 
   public function import($class){
     global $imported;
-    global $import;
     if(!(strpos($imported, '_'.$class.'_') !== false)){
       $imported .= '_'.$class.'_';
       include('import/class_'.$class.'.php');
@@ -40,7 +38,6 @@ class Candy {
 
   public function configCheck(){
     global $imported;
-    global $import;
     if(defined('MYSQL_CONNECT') && MYSQL_CONNECT==true){
       include('import/class_mysql.php');
       $imported .= '_mysql_';
@@ -89,18 +86,22 @@ class Candy {
     }
   }
 
-  public function postCheck($post,$t=true,$r=true){
+  public function postCheck($post='',$t=true){
     global $postToken;
     $count = 0;
     $arr_post = explode(',',$post);
-    foreach ($arr_post as $key) {
-      if($key!='' && isset($_POST[$key]) && $_POST[$key]!=''){
-        $count++;
+    if($post!=''){
+      foreach ($arr_post as $key) {
+        if($key!='' && isset($_POST[$key]) && $_POST[$key]!=''){
+          $count++;
+        }
       }
+    }elseif($_SERVER['REQUEST_METHOD']==='POST'){
+      $count = 1;
     }
     if($t){
       if(isset($_POST['token']) && self::token($_POST['token']) && count($arr_post)==$count){
-        if(!$r || parse_url($_SERVER['HTTP_REFERER'])['host'] == $_SERVER['HTTP_HOST']){
+        if(!$t || parse_url($_SERVER['HTTP_REFERER'])['host'] == $_SERVER['HTTP_HOST']){
           return true;
         }else{
           return false;
@@ -109,7 +110,7 @@ class Candy {
         return false;
       }
     }else{
-      if(!$r || parse_url($_SERVER['HTTP_REFERER'])['host'] == $_SERVER['HTTP_HOST']){
+      if(!$t || parse_url($_SERVER['HTTP_REFERER'])['host'] == $_SERVER['HTTP_HOST']){
         return count($arr_post)==$count;
       }else{
         return false;
@@ -163,6 +164,13 @@ class Candy {
       $url = $link!==0 ? $link : $_SERVER['HTTP_REFERER'];
       header('Location: '.$url);
     }
+    return new class{function with($v){
+      if(is_array($GLOBALS['_candy']['oneshot'])){
+        $GLOBALS['_candy']['oneshot'] = array_merge($GLOBALS['_candy']['oneshot'],$v);
+      }else{
+        $GLOBALS['_candy']['oneshot']=$v;
+      }
+      return new static();}};
   }
 
   public function uploadImage($postname="upload",$target = "uploads/",$filename='0',$maxsize=500000){
@@ -235,7 +243,7 @@ class Candy {
   }
 
   public static function arrayElementDelete($array,$element){
-    if (($key = array_search($element, $array)) !== false) {
+    if(($key = array_search($element, $array)) !== false) {
       unset($array[$key]);
     }
     return $array;
@@ -385,7 +393,7 @@ class Candy {
     if($subject==''){
       $subject = $_SERVER['SERVER_NAME'];
     }
-    
+
     $headers = "From: ".$from_name . strip_tags($from_mail) . "\r\n";
     $headers .= "Reply-To: ". strip_tags($from_mail) . "\r\n";
     $headers .= "MIME-Version: 1.0\r\n";
@@ -438,9 +446,22 @@ class Candy {
     return $output;
   }
 
-  public function validator(){
-    self::import('validation');
-    return new Validation();
+  public function validator($v = null){
+    if($v===null){
+      self::import('validation');
+      return new Validation();
+    }else{
+      return isset($_SESSION['_candy']['oneshot']['_validation'][$v]) ? $_SESSION['_candy']['oneshot']['_validation'][$v] : false;
+    }
+  }
+
+  public function session($key,$val=null){
+    if($val===null){
+      return isset($_SESSION[$key]) ? $_SESSION[$key] : null;
+    }else{
+      $_SESSION[$key] = $val;
+      return true;
+    }
   }
 }
 $candy = new Candy();

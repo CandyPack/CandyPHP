@@ -51,12 +51,12 @@ class View {
     $skeleton = file_get_contents($skeleton, FILE_USE_INCLUDE_PATH);
     $arr_test = explode('{{', $skeleton);
       foreach ($arr_test as $key) {
-        if(strpos($key, '}}') !== false) {
+        if(strpos($key, '}}') !== false){
           $arr_key = explode('}}',$key);
           if(defined('VIEW_'.trim($arr_key[0]))){
-            if(file_exists('view/'.strtolower(trim($arr_key[0])).'_'.constant('VIEW_'.trim($arr_key[0])).'.php')){
+            if(file_exists('view/'.strtolower(trim($arr_key[0])).'/'.constant('VIEW_'.trim($arr_key[0])).'.blade.php')){
               echo "\n<!--_".md5(trim($arr_key[0]))."_-->\n";
-              include(self::cacheView(strtolower(trim($arr_key[0])).'_'.constant('VIEW_'.trim($arr_key[0])).'.php'));
+              include(self::cacheView(strtolower(trim($arr_key[0])).'/'.constant('VIEW_'.trim($arr_key[0])).'.blade.php'));
               echo "\n<!--_".md5(trim($arr_key[0]))."_-->\n";
             }
           }
@@ -134,14 +134,18 @@ class View {
         '/@foreach\((.*)\)/',
         '/@for\((.*)\)/',
         '/@while\((.*)\)/',
-        '/@elseif\((.*)\)/'
+        '/@elseif\((.*)\)/',
+        '/@candy::(.*);/',
+        '/@candy::\(?(.*)\)/'
       ];
       $replace = [
         '<?php if($1){ ?>',
         '<?php foreach($1){ ?>',
         '<?php for($1){ ?>',
         '<?php while($1){ ?>',
-        '<?php }elseif($1){ ?>'
+        '<?php }elseif($1){ ?>',
+        '<?php Candy::$1; ?>',
+        '<?php Candy::$1); ?>'
       ];
       $php_raw = preg_replace($regex, $replace, $php_raw);
       $php_cache = 'storage/cache/'.md5($v).time().'.php';

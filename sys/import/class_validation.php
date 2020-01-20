@@ -29,6 +29,7 @@ class Validation
     }
 
     public static function validate(){
+      $GLOBALS['_candy']['oneshot']['_validation'] = self::$_message;
       return self::$_message;
     }
 
