@@ -39,7 +39,7 @@ class Config {
   }
   public function cronJobs($b = true){
     define('CRON_JOBS',$b);
-    $command = '* * * * * curl -L -A candyPHP-cron '.$_SERVER['SERVER_NAME'].'/?_candy=cron';
+    $command = '* * * * * curl -L -A candyPHP-cron '.str_replace('www.','',$_SERVER['SERVER_NAME']).'/?_candy=cron';
     exec('crontab -l', $crontab);
     $append = true;
     $is_override = false;
@@ -231,6 +231,33 @@ class Config {
       }
     }
     return $return;
+  }
+
+  public function backupClear(){
+    $arr = ['www','mysql'];
+    foreach ($arr as $key){
+    $dir = substr(BACKUP_DIRECTORY,-1)=='/' ? BACKUP_DIRECTORY.$key.'/' : BACKUP_DIRECTORY.'/'.$key.'/';
+    $dh  = opendir($dir);
+    while(false !== ($filename = readdir($dh))){
+      if($filename!='.' && $filename!='..'){
+        $filemtime = filemtime($dir.$filename);
+        $diff = time()-$filemtime;
+        $days = round($diff/86400);
+        $dayofweek = date('w', $filemtime);
+        $dayofmonth = date('d', $filemtime);
+        $dayofyear = date('md', $filemtime);
+        if($days>7){
+          if($dayofweek!=1 || $days>30){
+            if($dayofmonth!=1 || $days>365){
+              if($dayofyear!='0101'){
+                unlink($dir.$filename);
+              }
+            }
+          }
+        }
+      }
+    }
+    }
   }
 }
 

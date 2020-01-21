@@ -37,47 +37,45 @@ class Candy {
   }
 
   public function configCheck(){
-    global $imported;
+    header('X-POWERED-BY: Candy PHP');
     if(defined('MYSQL_CONNECT') && MYSQL_CONNECT==true){
-      include('import/class_mysql.php');
-      $imported .= '_mysql_';
-      $mysql->connect();
+      self::import('mysql');
+      Mysql::connect();
     }
     if(defined('AUTO_BACKUP') && AUTO_BACKUP==true){
       Config::runBackup();
+      Config::backupClear();
     }
   }
 
   public function token($check = 0){
     global $token;
     global $tokenCheck;
-    if($check===0 || $check==='input'){
+    if($check===0 || $check==='input' || $check==='json' || $check==='echo'){
       if($token==''){
         $token = md5(uniqid(mt_rand(), true));
-        $sess = isset($_SESSION['_token']) ? $_SESSION['_token'] : '';
-        $sess .= ','.$token.',';
-        if(isset($_SESSION['_token'])){
-          $arr_sess = explode(',',$_SESSION['_token']);
-          if(count($arr_sess)>100){
-            $sess = ','.$token.',';
-            for ($i=0; $i < 90; $i++) {
-              if($arr_sess[$i]!=''){
-                $sess .= ','.$arr_sess[$i].',';
-              }
-            }
-          }
+        if(isset($_SESSION['_token']) && is_array($_SESSION['_token'])){
+          $sess = $_SESSION['_token'];
+          array_unshift($sess,$token);
+          array_splice($sess,60);
+        }else{
+          $sess = [$token];
         }
         $_SESSION['_token'] = $sess;
       }
       if($check==='input'){
         echo '<input name="token" value="'.$token.'" hidden="">';
+      }elseif($check==='json'){
+        return json_encode(['token' => $token]);
+      }elseif($check==='echo'){
+        echo $token;
       }
       return $token;
     }else{
       if(strpos($tokenCheck, ','.$check.',') !== false){
         return true;
-      }elseif(isset($_SESSION['_token']) && (strpos($_SESSION['_token'], ','.$check.',') !== false)){
-        $_SESSION['_token'] = str_replace(','.$check.',','',$_SESSION['_token']);
+      }elseif(isset($_SESSION['_token']) && is_array($_SESSION['_token']) && in_array($check,$_SESSION['_token'])){
+        $_SESSION['_token'] = array_diff($_SESSION['_token'], [$check]);
         $tokenCheck .= ','.$check.',';
         return true;
       }else{
@@ -135,7 +133,11 @@ class Candy {
     }else{
       $arr_get = isset($_GET) ? $_GET : array();
       if($t){
-        return self::token($_GET['token']) && count($arr_get)>0;
+        if(isset($_GET['token'])){
+          return self::token($_GET['token']) && count($arr_get)>0;
+        }else{
+          return false;
+        }
       }else{
         return count($arr_get)>0;
       }
@@ -461,6 +463,15 @@ class Candy {
     }else{
       $_SESSION[$key] = $val;
       return true;
+    }
+  }
+
+  public function return($v){
+    if(is_array($v) || is_object($v)){
+      header("Content-Type: application/json; charset=UTF-8");
+      echo json_encode($v);
+    }else{
+      echo $v;
     }
   }
 }

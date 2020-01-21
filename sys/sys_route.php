@@ -8,17 +8,19 @@ class Route {
     if($get_page==$page || self::checkRequest($page,$get_page)){
       if(!defined('PAGE')){
         define('PAGE',$controller);
+        define('PAGE_METHOD','page');
       }
     }
   }
   public function get($page,$controller,$check='',$t=true){
     $arr_get = $_GET;
     unset($arr_get['_page']);
-    if(Candy::getCheck($check,$t)){
+    if(Candy::getCheck($check,$t) || true){
       $get_page = isset($_GET['_page']) ? $_GET['_page'] : '';
       if(($get_page==$page || self::checkRequest($page,$get_page)) && isset($_GET)){
         if(!defined('PAGE')){
           define('PAGE',$controller);
+          define('PAGE_METHOD','get');
         }
       }
     }
@@ -29,6 +31,7 @@ class Route {
       if(($get_page==$page || self::checkRequest($page,$get_page)) && isset($_POST)){
         if(!defined('PAGE')){
           define('PAGE',$controller);
+          define('PAGE_METHOD','post');
         }
       }
     }
@@ -45,45 +48,43 @@ class Route {
       global $candy;
       $candy->set($p,$v);
     }
-    function request($v){
+    function request($v,$method=null){
       global $request;
-      if(isset($request[$v])){
-        return $request[$v];
-      }elseif(isset($_POST[$v])){
-        return $_POST[$v];
-      }elseif(isset($_GET[$v])){
-        return $_GET[$v];
-      }
-    }
-
-    if(defined('PAGE') && file_exists('controller/controller_'.PAGE.'.php')){
-      include('controller/controller_'.PAGE.'.php');
-      if(defined('DIRECT_404') && DIRECT_404 && defined('PAGE404') && file_exists('controller/controller_'.PAGE404.'.php')){
-        http_response_code(404);
-        include('controller/controller_'.PAGE404.'.php');
-      }
-    }elseif(defined('PAGE404') && file_exists('controller/controller_'.PAGE404.'.php')){
-      http_response_code(404);
-      include('controller/controller_'.PAGE404.'.php');
-    }
-    $view->printView();
-    if(defined('CRON_JOBS') && CRON_JOBS===true){
-      if(isset($_GET['_candy']) && $_GET['_candy']=='cron'){
-        if($_SERVER['SERVER_ADDR'] == $_SERVER['REMOTE_ADDR']){
-          if($_SERVER['HTTP_USER_AGENT']=='candyPHP-cron'){
-            foreach ($GLOBALS['cron'] as $key => $value) {
-              if($value){
-                if($_SERVER['SERVER_ADDR'] == $_SERVER['REMOTE_ADDR']){
-                  include('cron/cron_'.$key.'.php');
-                }
-              }
-            }
+        if($method==null){
+          if(isset($request[$v])){
+            return $request[$v];
+          }elseif(isset($_POST[$v])){
+            return $_POST[$v];
+          }elseif(isset($_GET[$v])){
+            return $_GET[$v];
+          }
+        }else{
+          switch($method){
+            case 'post':
+            return isset($_POST[$v]) ? $_POST[$v] : null;
+            break;
+            case 'get':
+            return isset($_GET[$v]) ? $_GET[$v] : null;
+            break;
           }
         }
       }
+    if(defined('PAGE') && file_exists('controller/'.PAGE_METHOD.'/'.PAGE.'.php')){
+      include('controller/'.PAGE_METHOD.'/'.PAGE.'.php');
+      if(defined('DIRECT_404') && DIRECT_404 && defined('PAGE404') && file_exists('controller/page/'.PAGE404.'.php')){
+        http_response_code(404);
+        include('controller/page/'.PAGE404.'.php');
+      }
+    }elseif(defined('PAGE404') && file_exists('controller/page/'.PAGE404.'.php')){
+      http_response_code(404);
+      include('controller/page/'.PAGE404.'.php');
     }
-    unset($_SESSION['_candy']['oneshot']);
-    $_SESSION['_candy']['oneshot'] = $GLOBALS['_candy']['oneshot'];
+    $view->printView();
+    if(isset($GLOBALS['_candy']['oneshot'])){
+      $_SESSION['_candy']['oneshot'] = $GLOBALS['_candy']['oneshot'];
+    }else{
+      unset($_SESSION['_candy']['oneshot']);
+    }
   }
   public function cron($controller,$array='*'){
     return Cron::controller($controller);
@@ -153,6 +154,41 @@ class Route {
       $return = false;
     }
     return $return;
+  }
+  public function print(){
+    if(isset($_GET['_candy']) && $_GET['_candy']!=''){
+      switch($_GET['_candy']){
+        case 'token':
+          if(!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest' && isset($_SERVER['HTTP_REFERER']) && parse_url($_SERVER['HTTP_REFERER'])['host']==$_SERVER['HTTP_HOST']){
+            header("Content-Type: application/json; charset=UTF-8");
+            echo Candy::token('json');
+          }else{self::printPage();}
+        break;
+        case 'cron':
+          if(defined('CRON_JOBS') && CRON_JOBS===true){
+              if($_SERVER['SERVER_ADDR'] == $_SERVER['REMOTE_ADDR']){
+                if($_SERVER['HTTP_USER_AGENT']=='candyPHP-cron'){
+                  function set($p,$v){
+                    global $candy;
+                    $candy->set($p,$v);
+                  }
+                  foreach ($GLOBALS['cron'] as $key => $value){
+                    if($value){
+                      if($_SERVER['SERVER_ADDR'] == $_SERVER['REMOTE_ADDR']){
+                        include('cron/'.$key.'.php');
+                      }
+                    }
+                  }
+                }
+              }
+          }
+          break;
+        default:
+          self::printPage();
+      }
+    }else{
+      self::printPage();
+    }
   }
 }
 

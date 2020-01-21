@@ -25,8 +25,10 @@ class Mail
     }
     public static function send(){
       if(isset(self::$_arr['to']) && isset(self::$_arr['view'])){
-        function get($v){
-          return Candy::get($v);
+        if(!function_exists('get')){
+          function get($v){
+            return Candy::get($v);
+          }
         }
         ob_start();
         include(View::cacheView('mail/'.self::$_arr['view'].'.php'));

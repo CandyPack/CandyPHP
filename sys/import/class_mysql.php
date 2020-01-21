@@ -136,13 +136,17 @@ class Mysql {
     }
   }
 
-  public function select($tb = '0',$where = '0'){
+  public function select($tb = '0',$where = null){
     global $conn;
 
     $result = new \stdClass();
     if(is_array($tb) || $tb!='0'){
       if(!is_array($tb)){
-        $query = $where=='0' ? 'SELECT * FROM '.$tb : 'SELECT * FROM '.$tb.' WHERE '.$where;
+        if($where===null){
+          $query = 'SELECT * FROM '.$tb;
+        }else{
+          $query = is_numeric($where) ? 'SELECT * FROM '.$tb.' WHERE id="'.$where.'"' : 'SELECT * FROM '.$tb.' WHERE '.$where;
+        }
       }else{
         if(isset($tb['SELECT'])){
           $query = 'SELECT '.$tb['SELECT'];
@@ -206,7 +210,11 @@ class Mysql {
       foreach ($value as $key => $val) {
         $query .= $key.'="'.$val.'",';
       }
-      $query = substr($query,0,-1) . ' WHERE '.$where;
+      if(is_numeric($where)){
+        $query = substr($query,0,-1) . ' WHERE id="'.$where.'"';
+      }else{
+        $query = substr($query,0,-1) . ' WHERE '.$where;
+      }
       $sql = mysqli_query($conn, $query);
       return $sql;
     }else{
