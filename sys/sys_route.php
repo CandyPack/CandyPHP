@@ -15,7 +15,7 @@ class Route {
   public function get($page,$controller,$check='',$t=true){
     $arr_get = $_GET;
     unset($arr_get['_page']);
-    if(Candy::getCheck($check,$t) || true){
+    if(Candy::getCheck($check,$t)){
       $get_page = isset($_GET['_page']) ? $_GET['_page'] : '';
       if(($get_page==$page || self::checkRequest($page,$get_page)) && isset($_GET)){
         if(!defined('PAGE')){
