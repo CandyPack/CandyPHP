@@ -1,2 +1,2 @@
 <?php
-$lang['welcome'] = 'Merhaba';
+$lang['welcome'] = 'Candy PHP\'ye Hoşgeldin !';
