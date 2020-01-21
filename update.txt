@@ -1,4 +1,4 @@
-#version:20200120
+#version:20200121
 index.php
 sys/sys_functions.php
 sys/sys_route.php
@@ -11,4 +11,5 @@ sys/sys_language.php
 sys/import/class_mysql.php
 sys/import/class_validation.php
 sys/import/class_mail.php
+assets/js/candy.js
 update.txt
