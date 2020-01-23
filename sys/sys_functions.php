@@ -126,7 +126,7 @@ class Candy {
         }
       }
       if($t){
-        return isset($_POST['token']) && self::token($_GET['token']) && count($arr_get)==$count;
+        return isset($_GET['token']) && self::token($_GET['token']) && count($arr_get)==$count;
       }else{
         return count($arr_get)==$count;
       }
@@ -467,12 +467,8 @@ class Candy {
   }
 
   public function return($v){
-    if(is_array($v) || is_object($v)){
-      header("Content-Type: application/json; charset=UTF-8");
-      echo json_encode($v);
-    }else{
-      echo $v;
-    }
+    header("Content-Type: application/json; charset=UTF-8");
+    echo json_encode($v);
   }
 }
 $candy = new Candy();

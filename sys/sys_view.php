@@ -97,14 +97,14 @@ class View {
         }
       }
       $str = [
+        '{{--',
+        '--}}',
         '{{',
         '}}',
         '@php',
         '@endphp',
         '{!!',
         '!!}',
-        '{--',
-        '--}',
         '@endif',
         '@endforeach',
         '@endfor',
@@ -113,14 +113,14 @@ class View {
         '@end',
       ];
       $rpl = [
+        '<?php /*',
+        '*/ ?>',
         '<?php echo htmlentities(',
         ') ?>',
         '<?php',
         '?>',
         '<?php echo ',
         ' ?>',
-        '<?php /*',
-        '*/ ?>',
         '<?php } ?>',
         '<?php } ?>',
         '<?php } ?>',

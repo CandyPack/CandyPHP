@@ -208,7 +208,7 @@ class Mysql {
       $query = 'UPDATE '.$table.' SET ';
 
       foreach ($value as $key => $val) {
-        $query .= $key.'="'.$val.'",';
+        $query .= $key.'="'.mysqli_real_escape_string($conn,$val).'",';
       }
       if(is_numeric($where)){
         $query = substr($query,0,-1) . ' WHERE id="'.$where.'"';
@@ -224,7 +224,11 @@ class Mysql {
 
   public function delete($table,$where){
     global $conn;
-    return $sql = mysqli_query($conn, 'DELETE FROM '.$table.' WHERE '.$where);
+    if(is_numeric($where)){
+      return $sql = mysqli_query($conn, 'DELETE FROM '.$table.' WHERE id="'.$where.'"');
+    }else{
+      return $sql = mysqli_query($conn, 'DELETE FROM '.$table.' WHERE '.$where);
+    }
   }
 }
 global $mysql;

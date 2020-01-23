@@ -55,8 +55,8 @@ class Mail
           $subject = $_SERVER['SERVER_NAME'];
         }
 
-        $headers = "From: ".$from_name . strip_tags($from_mail) . "\r\n";
-        $headers .= "Reply-To: ". strip_tags($from_mail) . "\r\n";
+        $headers = "From: ".$from_name . $from_mail . "\r\n";
+        $headers .= "Reply-To: ". $from_mail . "\r\n";
         $headers .= "MIME-Version: 1.0\r\n";
         $headers .= "Content-Type: text/html; charset=UTF-8\r\n";
 
