@@ -2,10 +2,15 @@
 class Mysql {
   public $conn;
   public $usercheck = 0;
+  public $user_result;
+  public $tb_user = null;
+  public $tb_token = null;
+  public $storage = null;
 
   public function connect($db=0,$user=0,$pass=0,$server=0){
     global $conn;
-    $storage = Candy::storage('sys')->get('mysql');
+    global $storage;
+    $storage = $storage===null ? Candy::storage('sys')->get('mysql') : $storage;
     $storage->error = isset($storage->error) && is_object($storage->error) ? $storage->error : new \stdClass;
     $storage->error->info = isset($storage->error->info) && is_object($storage->error->info) ? $storage->error->info : new \stdClass;
 
@@ -58,6 +63,9 @@ class Mysql {
 
   public function loginCheck($arr,$t = true){
     global $conn;
+    global $storage;
+    global $table_token;
+    global $table_user;
     $result = new \stdClass();
     $query = '';
     foreach ($arr as $key => $value) {
@@ -76,39 +84,63 @@ class Mysql {
       $result->fetch = $data;
       $result->rows = mysqli_num_rows($sql_user);
       if($t){
-        $token1 = $data['id'].(time()*100).rand(10000,99999);
+        $token1 = uniqid(mt_rand(), true).rand(10000,99999).(time()*100);
         $token2 = md5($_SERVER['REMOTE_ADDR']);
         $token3 = md5($_SERVER['HTTP_USER_AGENT']);
         setcookie("token1", $token1, time() + 61536000, "/");
         setcookie("token2", $token2, time() + 61536000, "/");
         $sql_token = mysqli_query($conn, 'INSERT INTO '.$arr['table_token'].' (userid,token1,token2,token3,ip) VALUES ("' . $result->fetch[0]['id'] . '","' . $token1 . '","' . $token2 . '","' . $token3 . '","'.$_SERVER['REMOTE_ADDR'].'")');
       }
-        return $result;
+      $table_token = $arr['table_token'];
+      $table_user = $arr['table_user'];
+      $storage = $storage===null ? Candy::storage('sys')->get('mysql') : $storage;
+      if(!isset($storage->login->table_token) || !isset($storage->login->table_user) || $table_token!=$storage->login->table_token || $table_user!=$storage->login->table_user){
+        $storage->login = isset($storage->login) && is_object($storage->login) ? $storage->login : new \stdClass;
+        $storage->login->table_user = $arr['table_user'];
+        $storage->login->table_token = $arr['table_token'];
+        Candy::storage('sys')->set('mysql',$storage);
+      }
+      return $result;
     }else{
       $result->success = false;
       return $result;
     }
   }
 
-  public function userCheck($fetch = true){
+  public function userCheck($fetch = false){
     global $conn;
     global $usercheck;
-    if($usercheck==0){
+    global $user;
+    global $storage;
+    global $tb_token;
+    global $tb_user;
+    global $user_result;
+    $storage = $storage===null ? Candy::storage('sys')->get('mysql') : $storage;
+    if($tb_token===null){
+      $tb_token = isset($storage->login->table_token) ? $storage->login->table_token : 'tb_token';
+    }
+    if($tb_user===null){
+      $tb_user = isset($storage->login->table_user) ? $storage->login->table_user : 'tb_user';
+    }
+    if($usercheck==0 || $fetch){
       $result = new \stdClass();
       if(isset($_COOKIE['token1']) && isset($_COOKIE['token2'])){
         $token1 = mysqli_real_escape_string($conn, $_COOKIE['token1']);
         $token2 = mysqli_real_escape_string($conn, $_COOKIE['token2']);
         $token3 = md5($_SERVER['HTTP_USER_AGENT']);
-        $sql_token = mysqli_query($conn, 'SELECT * FROM tb_token WHERE token1="'.$token1.'" AND token2="'.$token2.'" AND token3="'.$token3.'"');
+        $sql_token = mysqli_query($conn, 'SELECT * FROM '.mysqli_real_escape_string($conn,$tb_token).' WHERE token1="'.$token1.'" AND token2="'.$token2.'" AND token3="'.$token3.'"');
         if(mysqli_num_rows($sql_token) == 1){
           if($fetch){
+            $get_token = mysqli_fetch_assoc($sql_token);
+            $sql_user = mysqli_query($conn,'SELECT * FROM '.$tb_user.' WHERE id="'.$get_token['userid'].'"');
             $result->success = true;
             $data = array();
-            while($row = mysqli_fetch_assoc($sql_user)){
-              $data[] = $row;
-            }
+            $row = mysqli_fetch_assoc($sql_user);
+            $data = $row;
             $result->fetch = $data;
+            $user = $data;
             $result->rows = mysqli_num_rows($sql_user);
+            $user_result = $result;
             return $result;
           }else{
             $usercheck = 1;
@@ -120,17 +152,23 @@ class Mysql {
         return false;
       }
     }else{
-      return $usercheck==1;
+        return $usercheck==1;
     }
   }
 
   public function logout(){
     global $conn;
+    global $storage;
+    global $tb_token;
+    $storage = $storage===null ? Candy::storage('sys')->get('mysql') : $storage;
+    if($tb_token===null){
+      $tb_token = isset($storage->login->table_token) ? $storage->login->table_token : 'tb_token';
+    }
     if(isset($_COOKIE['token1']) && isset($_COOKIE['token2'])){
       $token1 = mysqli_real_escape_string($conn, $_COOKIE['token1']);
       $token2 = mysqli_real_escape_string($conn, $_COOKIE['token2']);
       $token3 = md5($_SERVER['HTTP_USER_AGENT']);
-      $sql_token = mysqli_query($conn, 'DELETE FROM tb_token WHERE token1="'.$token1.'" AND token2="'.$token2.'" AND token3="'.$token3.'"');
+      $sql_token = mysqli_query($conn, 'DELETE FROM '.mysqli_real_escape_string($conn,$tb_token).' WHERE token1="'.$token1.'" AND token2="'.$token2.'" AND token3="'.$token3.'"');
       setcookie("token1", "", time() - 3600);
       setcookie("token2", "", time() - 3600);
     }

@@ -449,12 +449,9 @@ class Candy {
   }
 
   public function validator($v = null){
-    if($v===null){
-      self::import('validation');
-      return new Validation();
-    }else{
-      return isset($_SESSION['_candy']['oneshot']['_validation'][$v]) ? $_SESSION['_candy']['oneshot']['_validation'][$v] : false;
-    }
+    self::import('validation');
+    $validation = new Validation();
+    return $validation->validator($v);
   }
 
   public function session($key,$val=null){
