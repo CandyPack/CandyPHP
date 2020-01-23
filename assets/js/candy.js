@@ -75,37 +75,3 @@ var candy = new Candy;
 $(function(){
   candy.getToken();
 });
-
-
-/*
-var _history = [];
-$(document).on("click","a", function(e) {
-  e.preventDefault();
-  var url_now = window.location.href;
-  var url_go = $(this).attr('href');
-  var target = $(this).attr('target');
-
-  if((target==null || target=='_self') && (url_go!='' && url_go.substring(0,11)!='javascript:' && url_go.substring(0,1)!='#') && (!url_go.includes('://') || url_now.split("/")[2]==url_go.split("/")[2])){
-    $.ajax({
-         url: url_go,
-         type: "GET",
-         beforeSend: function(xhr){xhr.setRequestHeader('X-CANDY', 'ajaxload');},
-         success: function(_data){
-             var newDoc = document.open("text/html", "replace");
-             newDoc.write(_data);
-             newDoc.close();
-             _history.push(url_go);
-             window.history.pushState(null, document.title, url_go);
-             window_location = url_go;
-             console.log(_history);
-         },
-         error : function(){
-           $(this).unbind('click');
-           e.currentTarget.click();
-         }
-      });
-    }else{
-      $(this).unbind('click');
-      e.currentTarget.click();
-    }
-  });*/
