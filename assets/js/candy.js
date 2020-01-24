@@ -33,6 +33,7 @@ var Candy = class Candy {
       e.preventDefault();
       $('#'+id+' ._candy_form_info').remove();
       $('#'+id+' ._candy').html('');
+      $('#'+id+' ._candy').hide();
       var datastring = $("#"+id).serialize()+'&token='+candy.token();
       $.ajax({
         type: $("#"+id).attr('method'),
@@ -53,6 +54,7 @@ var Candy = class Candy {
                 $.each(errors, function(index, value) {
                   if($('#'+id+' ._candy_'+index).length){
                     $('#'+id+' ._candy_'+index).html(value);
+                    $('#'+id+' ._candy_'+index).show();
                   }else{
                     $('#'+id+' *[name ="'+index+'"]').after('<span class="_candy_form_info" style="color:green">'+value+'</span>');
                   }
