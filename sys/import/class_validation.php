@@ -90,6 +90,9 @@ class Validation
             case 'same':
               self::$_error = isset(self::$_method[self::$_name]) && isset(self::$_method[$vars[1]]) && self::$_method[self::$_name]!==self::$_method[$vars[1]];
               break;
+            case 'equal':
+              self::$_error = isset(self::$_method[self::$_name]) && isset($vars[1]) && self::$_method[self::$_name]!==$vars[1];
+              break;
           }
         }
       }

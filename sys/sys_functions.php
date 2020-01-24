@@ -209,7 +209,9 @@ class Candy {
     }
 
     if ($uploadOk == 0) {
-      $result->message = "Sorry, your file was not uploaded.";
+      if(!isset($result->message)){
+        $result->message = "Sorry, your file was not uploaded.";
+      }
     } else {
       if (move_uploaded_file($_FILES[$postname]["tmp_name"], $target_file)) {
         $result->message = "The file ". basename( $_FILES[$postname]["name"]). " has been uploaded.";
@@ -466,6 +468,15 @@ class Candy {
   public function return($v){
     header("Content-Type: application/json; charset=UTF-8");
     echo json_encode($v);
+  }
+
+  public function hash($v,$h=null){
+    $options = ['cost' => 11];
+    if($h==null){
+      return password_hash($v, PASSWORD_BCRYPT, $options);
+    }else{
+      return password_verify($v, $h);
+    }
   }
 }
 $candy = new Candy();
