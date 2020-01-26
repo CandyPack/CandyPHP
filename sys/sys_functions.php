@@ -7,11 +7,11 @@ class Candy {
   public $getToken;
   public $tokenCheck = '';
 
-  public function hello(){
+  public static function hello(){
     echo 'Hi, World !';
   }
 
-  public function import($class){
+  public static function import($class){
     global $imported;
     if(!(strpos($imported, '_'.$class.'_') !== false)){
       $imported .= '_'.$class.'_';
@@ -19,16 +19,16 @@ class Candy {
     }
   }
 
-  public function userCheck(){
+  public static function userCheck(){
     return false;
   }
 
-  public function get($p){
+  public static function get($p){
     global $var;
     return isset($var->$p) ? $var->$p : null;
   }
 
-  public function set($p,$v){
+  public static function set($p,$v){
     global $var;
     if(empty($var)){
       $var = new \stdClass();
@@ -36,7 +36,7 @@ class Candy {
     $var->$p = $v;
   }
 
-  public function configCheck(){
+  public static function configCheck(){
     header('X-POWERED-BY: Candy PHP');
     if(defined('MYSQL_CONNECT') && MYSQL_CONNECT==true){
       self::import('mysql');
@@ -48,7 +48,7 @@ class Candy {
     }
   }
 
-  public function token($check = 0){
+  public static function token($check = 0){
     global $token;
     global $tokenCheck;
     if($check===0 || $check==='input' || $check==='json' || $check==='echo'){
@@ -84,7 +84,7 @@ class Candy {
     }
   }
 
-  public function postCheck($post='',$t=true){
+  public static function postCheck($post='',$t=true){
     global $postToken;
     $count = 0;
     $arr_post = explode(',',$post);
@@ -116,7 +116,7 @@ class Candy {
     }
   }
 
-  public function getCheck($get='',$t=true){
+  public static function getCheck($get='',$t=true){
     if($get!=''){
       $count = 0;
       $arr_get = explode(',',$get);
@@ -144,7 +144,7 @@ class Candy {
     }
   }
 
-  public function isNumeric($v,$method='post'){
+  public static function isNumeric($v,$method='post'){
     $count = 0;
     $arr_get = explode(',',$v);
     foreach ($arr_get as $key) {
@@ -157,7 +157,7 @@ class Candy {
     return count($arr_get)==$count;
   }
 
-  public function direct($link=0){
+  public static function direct($link=0){
     if($link===404){
       if(!defined('DIRECT_404')){
         define('DIRECT_404',true);
@@ -175,7 +175,7 @@ class Candy {
       return new static();}};
   }
 
-  public function uploadImage($postname="upload",$target = "uploads/",$filename='0',$maxsize=500000){
+  public static function uploadImage($postname="upload",$target = "uploads/",$filename='0',$maxsize=500000){
 
     $result = new \stdClass();
     $result->success = false;
@@ -253,14 +253,14 @@ class Candy {
     return $array;
   }
 
-  public function dateFormatter($date = '0', $format = 'd / m / Y'){
+  public static function dateFormatter($date = '0', $format = 'd / m / Y'){
     $date = str_replace('/','-',$date);
     $date = new DateTime($date);
     $date = $date->format($format);
     return $date;
   }
 
-  public function getJs($path,$b=true){
+  public static function getJs($path){
     $minify = false;
     $file_raw = 'assets/js/'.$path;
     $file_min = str_replace('.js','.min.js',$file_raw);
@@ -280,15 +280,15 @@ class Candy {
         $js_min = self::jsMinifier($js_raw);
         file_put_contents($file_min, $js_min);
       }
-      echo $b ? '/'.$file_min.'?_v='.$date_min : '';
+      echo '/'.$file_min.'?_v='.$date_min;
       return $file_min.'?_v='.$date_min;
     }else{
-      echo $b ? '/'.$path : '';
-      return $path;
+      echo 'assets/js/'.$path;
+      return 'assets/js/'.$path;
     }
   }
 
-  public function getCss($path, $b=true){
+  public static function getCss($path){
     $minify = false;
     $file_raw = 'assets/css/'.$path;
     $file_min = str_replace('.css','.min.css',$file_raw);
@@ -308,15 +308,15 @@ class Candy {
         $css_min = self::cssMinifier($css_raw);
         file_put_contents($file_min, $css_min);
       }
-      echo $b ? '/'.$file_min.'?_v='.$date_min : '';
-      return $file_min.'?_v='.$date_min;
+      echo '/'.$file_min.'?_v='.$date_min;
+      return '/'.$file_min.'?_v='.$date_min;
     }else{
-      echo $b ? '/'.$path : '';
-      return $path;
+      echo '/assets/css/'.$path;
+      return '/assets/css/'.$path;
     }
   }
 
-  public function jsMinifier($js){
+  public static function jsMinifier($js){
     $url = 'https://javascript-minifier.com/raw';
     $ch = curl_init();
     curl_setopt_array($ch, [
@@ -331,7 +331,7 @@ class Candy {
     return $minified;
   }
 
-  public function cssMinifier($css){
+  public static function cssMinifier($css){
     $url = 'https://cssminifier.com/raw';
     $ch = curl_init();
     curl_setopt_array($ch, [
@@ -346,7 +346,7 @@ class Candy {
     return $minified;
   }
 
-  public function uploadCheck($name=null){
+  public static function uploadCheck($name=null){
     if(isset($_FILES) && count($_FILES)>0){
       if($name==null){
         foreach ($_FILES as $key) {
@@ -377,12 +377,12 @@ class Candy {
     }
   }
 
-  public function mail($view){
+  public static function mail($view){
     self::import('mail');
     return Mail::view($view);
   }
 
-  public function quickMail($to,$message,$subject = '',$from = ''){
+  public static function quickMail($to,$message,$subject = '',$from = ''){
     if(is_array($from)){
       $from_name = '<'.$from['name'].'>';
       $from = $from['mail'];
@@ -429,11 +429,11 @@ class Candy {
     return mail($to, $subject, $message, $headers);
   }
 
-  public function storage($s){
+  public static function storage($s){
     return Storage::select($s);
   }
 
-  public function strFormatter($str,$format){
+  public static function strFormatter($str,$format){
     $output = '';
     $letter = 0;
     for ($i=0; $i < strlen($format); $i++) {
@@ -450,13 +450,13 @@ class Candy {
     return $output;
   }
 
-  public function validator($v = null){
+  public static function validator($v = null){
     self::import('validation');
     $validation = new Validation();
     return $validation->validator($v);
   }
 
-  public function session($key,$val=null){
+  public static function session($key,$val=null){
     if($val===null){
       return isset($_SESSION[$key]) ? $_SESSION[$key] : null;
     }else{
@@ -465,12 +465,12 @@ class Candy {
     }
   }
 
-  public function return($v){
+  public static function return($v){
     header("Content-Type: application/json; charset=UTF-8");
     echo json_encode($v);
   }
 
-  public function hash($v,$h=null){
+  public static function hash($v,$h=null){
     $options = ['cost' => 11];
     if($h==null){
       return password_hash($v, PASSWORD_BCRYPT, $options);

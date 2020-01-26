@@ -2,25 +2,31 @@
 class Config {
   public $backupdirectory = '../backup/';
 
-  public function displayError($b = true){
-    $b ? ini_set('display_errors', 1) : ini_set('display_errors', 0);
+  public static function displayError($b = true){
+    if($b){
+      ini_set('display_errors', 1);
+      ini_set('display_startup_errors', 1);
+      error_reporting(E_ALL);
+    }else{
+      ini_set('display_errors', 0);
+    }
   }
-  public function mysqlServer($s){
+  public static function mysqlServer($s){
     define('MYSQL_SERVER',$s);
   }
-  public function mysqlDatabase($s){
+  public static function mysqlDatabase($s){
     define('MYSQL_DB',$s);
   }
-  public function mysqlUsername($s){
+  public static function mysqlUsername($s){
     define('MYSQL_USER',$s);
   }
-  public function mysqlPassword($s){
+  public static function mysqlPassword($s){
     define('MYSQL_PASS',$s);
   }
-  public function mysqlConnection($b = true){
+  public static function mysqlConnection($b = true){
     define('MYSQL_CONNECT',$b);
   }
-  public function languageDetect($b  = true){
+  public static function languageDetect($b  = true){
     if(isset($_SERVER['HTTP_ACCEPT_LANGUAGE'])){
       $langg = substr($_SERVER['HTTP_ACCEPT_LANGUAGE'], 0, 2);
       if(file_exists("lang/{$langg}.php")){
@@ -37,7 +43,7 @@ class Config {
       }
     }
   }
-  public function cronJobs($b = true){
+  public static function cronJobs($b = true){
     define('CRON_JOBS',$b);
     $command = '* * * * * curl -L -A candyPHP-cron '.str_replace('www.','',$_SERVER['SERVER_NAME']).'/?_candy=cron';
     exec('crontab -l', $crontab);
@@ -63,11 +69,11 @@ class Config {
       }
     }
   }
-  public function autoBackup($b = true,$directory = 'backup/'){
+  public static function autoBackup($b = true,$directory = 'backup/'){
     define('AUTO_BACKUP',$b);
     define('BACKUP_DIRECTORY',$directory);
   }
-  public function runBackup(){
+  public static function runBackup(){
     global $conn;
     global $backupdirectory;
 
@@ -136,7 +142,7 @@ class Config {
       $zip->close();
     }
   }
-  public function autoUpdate($b = true){
+  public static function autoUpdate($b = true){
     set_time_limit(1000);
     if($b && date("Hi")=='0010' && $_SERVER['SERVER_ADDR'] == $_SERVER['REMOTE_ADDR'] && isset($_GET['_candy']) && $_GET['_candy']=='cron'){
       $base = 'https://raw.githubusercontent.com/emredv/Candy-PHP/master/';
@@ -202,19 +208,19 @@ class Config {
     }
   }
 
-  public function masterMail($s=''){
+  public static function masterMail($s=''){
     if(!defined('MASTER_MAIL') && $s!=''){
       define('MASTER_MAIL',$s);
     }
   }
 
-  public function infoMail($b=true){
+  public static function infoMail($b=true){
     if(!defined('INFO_MAIL')){
       define('INFO_MAIL',$b);
     }
   }
 
-  public function check($v){
+  public static function check($v){
     $return = true;
     $arr_var = explode(',',$v);
     foreach ($arr_var as $key){
@@ -233,7 +239,7 @@ class Config {
     return $return;
   }
 
-  public function backupClear(){
+  public static function backupClear(){
     $arr = ['www','mysql'];
     foreach ($arr as $key){
       $dir = substr(BACKUP_DIRECTORY,-1)=='/' ? BACKUP_DIRECTORY.$key.'/' : BACKUP_DIRECTORY.'/'.$key.'/';

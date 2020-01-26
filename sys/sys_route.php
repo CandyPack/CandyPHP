@@ -69,6 +69,9 @@ class Route {
           }
         }
       }
+      $directory = 'controller';
+      $import = array_diff(scandir($directory), array('..', '.','page','post','get'));
+      foreach ($import as $key){include('controller/'.$key);}
     if(defined('PAGE') && file_exists('controller/'.PAGE_METHOD.'/'.PAGE.'.php')){
       include('controller/'.PAGE_METHOD.'/'.PAGE.'.php');
       if(defined('DIRECT_404') && DIRECT_404 && defined('PAGE404') && file_exists('controller/page/'.PAGE404.'.php')){

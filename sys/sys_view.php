@@ -25,17 +25,17 @@ class View {
     //define('VIEW_SCRIPT',$v);
     return self::set('script',$v);
   }
-  public function skeleton($v){
+  public static function skeleton($v){
     //define('VIEW_SKELETON',$v);
     return self::set('skeleton',$v);
   }
-  public function set($c,$v){
+  public static function set($c,$v){
     global $_parts;
     define('VIEW_'.strtoupper($c),$v);
     $_parts[$c] = $v;
     return new static();
   }
-  public function printView(){
+  public static function printView(){
     global $candy;
     global $route;
     global $conn;
@@ -69,7 +69,7 @@ class View {
       }
     }
   }
-  public function cacheView($v){
+  public static function cacheView($v){
     $cache = false;
     $filepath = 'view/'.$v;
     if(!file_exists('storage/cache/')){

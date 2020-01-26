@@ -2,18 +2,15 @@
 class Lang {
   public $lang;
 
-  public function get($var){
-    global $lang;
-    return $lang[$var];
+  public static function get($var){
+    return $GLOBALS['_lang'][$var];
   }
 
-  public function echo($var){
-    global $lang;
-    echo $lang[$var];
+  public static function echo($var){
+    echo $GLOBALS['_lang'][$var];
   }
 
-  public function setArray($arr){
-    global $lang;
-    $lang = $arr;
+  public static function setArray($arr){
+    $GLOBALS['_lang'] = $arr;
   }
 }
