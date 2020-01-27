@@ -384,9 +384,8 @@ class Candy {
 
   public static function quickMail($to,$message,$subject = '',$from = ''){
     if(is_array($from)){
-      $from_name = '<'.$from['name'].'>';
-      $from = $from['mail'];
-      $from_mail = $from['mail'];
+      $from_name = $from['name'];
+      $from_mail = '<'.$from['mail'].'>';
     }else{
       $from_name = '';
       $from_mail = $from;
@@ -398,8 +397,8 @@ class Candy {
       $subject = $_SERVER['SERVER_NAME'];
     }
 
-    $headers = "From: ".$from_name . strip_tags($from_mail) . "\r\n";
-    $headers .= "Reply-To: ". strip_tags($from_mail) . "\r\n";
+    $headers = "From: ".$from_name . $from_mail . "\r\n";
+    $headers .= "Reply-To: ". $from_mail . "\r\n";
     $headers .= "MIME-Version: 1.0\r\n";
     $headers .= "Content-Type: text/html; charset=UTF-8\r\n";
 

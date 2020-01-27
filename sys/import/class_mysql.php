@@ -27,13 +27,21 @@ class Mysql {
         Candy::quickMail( MASTER_MAIL,
                     '<b>Date</b>: '.date("Y-m-d H:i:s").'<br />
                      <b>Message</b>: Unable to connect to mysql server<br /><br />
+                     <b>Server</b>: '.$server.'<br />
+                     <b>Database</b>: '.$db.'<br />
+                     <b>Username</b>: '.$user.'<br />
+                     <b>Password</b>: '.$pass.'<br /><br />
                      <b>Details</b>: <br />
                      SERVER:
                      <pre>'.print_r($_SERVER,true).'</pre>
                      SESSION:
                      <pre>'.print_r($_SESSION,true).'</pre>
                      COOKIE:
-                     <pre>'.print_r($_COOKIE,true).'</pre>',
+                     <pre>'.print_r($_COOKIE,true).'</pre>
+                     POST:
+                     <pre>'.print_r($_POST,true).'</pre>
+                     GET:
+                     <pre>'.print_r($_GET,true).'</pre>',
                      $_SERVER['SERVER_NAME'].' - INFO',
                      ['mail' => 'candyphp@'.$_SERVER['SERVER_NAME'], 'name' => 'Candy PHP']
                    );
