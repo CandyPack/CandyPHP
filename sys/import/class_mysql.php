@@ -7,7 +7,7 @@ class Mysql {
   public $tb_token = null;
   public $storage = null;
 
-  public function connect($db=0,$user=0,$pass=0,$server=0){
+  public static function connect($db=0,$user=0,$pass=0,$server=0){
     global $conn;
     global $storage;
     $storage = $storage===null ? Candy::storage('sys')->get('mysql') : $storage;
@@ -23,7 +23,7 @@ class Mysql {
       mysqli_set_charset($conn,"utf8");
       mysqli_query($conn,"SET NAMES utf8mb4");
     }else{
-      if(Config::check('INFO_MAIL,MASTER_MAIL') && (!isset($storage->error->info->date) || $storage->error->info->date!=date('d/m/Y'))){
+      if(Config::check('MASTER_MAIL') && (!isset($storage->error->info->date) || $storage->error->info->date!=date('d/m/Y'))){
         Candy::quickMail( MASTER_MAIL,
                     '<b>Date</b>: '.date("Y-m-d H:i:s").'<br />
                      <b>Message</b>: Unable to connect to mysql server<br /><br />
@@ -46,7 +46,7 @@ class Mysql {
     return $conn;
   }
 
-  public function query($query,$b = true){
+  public static function query($query,$b = true){
     global $conn;
     $result = new \stdClass();
     $sql = mysqli_query($conn, $query);
@@ -61,7 +61,7 @@ class Mysql {
     }
   }
 
-  public function loginCheck($arr,$t = true){
+  public static function loginCheck($arr,$t = true){
     global $conn;
     global $storage;
     global $table_token;
@@ -107,7 +107,7 @@ class Mysql {
     }
   }
 
-  public function userCheck($fetch = false){
+  public static function userCheck($fetch = false){
     global $conn;
     global $usercheck;
     global $user;
@@ -156,7 +156,7 @@ class Mysql {
     }
   }
 
-  public function logout(){
+  public static function logout(){
     global $conn;
     global $storage;
     global $tb_token;
@@ -174,7 +174,7 @@ class Mysql {
     }
   }
 
-  public function select($tb = '0',$where = null){
+  public static function select($tb = '0',$where = null){
     global $conn;
 
     $result = new \stdClass();
@@ -220,7 +220,7 @@ class Mysql {
     }
   }
 
-  public function insert($table, $value){
+  public static function insert($table, $value){
     global $conn;
     $result = new \stdClass();
     if(is_array($value)){
@@ -240,7 +240,7 @@ class Mysql {
     }
   }
 
-  public function update($table,$where,$value){
+  public static function update($table,$where,$value){
     global $conn;
     if(is_array($value)){
       $query = 'UPDATE '.$table.' SET ';
@@ -260,7 +260,7 @@ class Mysql {
     }
   }
 
-  public function delete($table,$where){
+  public static function delete($table,$where){
     global $conn;
     if(is_numeric($where)){
       return $sql = mysqli_query($conn, 'DELETE FROM '.$table.' WHERE id="'.$where.'"');

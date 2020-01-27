@@ -3,7 +3,7 @@ class Route {
   public $is_cron = false;
   public $request = array();
 
-  public function page($page,$controller,$type = 'page'){
+  public static function page($page,$controller,$type = 'page'){
     $get_page = isset($_GET['_page']) ? $_GET['_page'] : '';
     if($get_page==$page || self::checkRequest($page,$get_page)){
       if(!defined('PAGE')){
@@ -12,7 +12,7 @@ class Route {
       }
     }
   }
-  public function get($page,$controller,$check='',$t=true){
+  public static function get($page,$controller,$check='',$t=true){
     $arr_get = $_GET;
     unset($arr_get['_page']);
     if(Candy::getCheck($check,$t)){
@@ -25,7 +25,7 @@ class Route {
       }
     }
   }
-  public function post($page,$controller,$check='',$t=true){
+  public static function post($page,$controller,$check='',$t=true){
     if(Candy::postCheck($check,$t)){
       $get_page = isset($_GET['_page']) ? $_GET['_page'] : '';
       if(($get_page==$page || self::checkRequest($page,$get_page)) && isset($_POST)){
@@ -36,10 +36,10 @@ class Route {
       }
     }
   }
-  public function page404($controller){
+  public static function page404($controller){
       define('PAGE404',$controller);
   }
-  public function printPage(){
+  public static function printPage(){
     global $view;
     global $candy;
     global $conn;
@@ -89,31 +89,31 @@ class Route {
       unset($_SESSION['_candy']['oneshot']);
     }
   }
-  public function cron($controller,$array='*'){
+  public static function cron($controller,$array='*'){
     return Cron::controller($controller);
   }
-  public function authPage($page,$controller,$else=''){
+  public static function authPage($page,$controller,$else=''){
     if(Mysql::userCheck(false)){
       Route::page($page,$controller);
     }elseif($else!=''){
       Route::page($page,$else);
     }
   }
-  public function authGet($page,$controller,$else='',$check='',$t=true){
+  public static function authGet($page,$controller,$else='',$check='',$t=true){
     if(Mysql::userCheck(false)){
       Route::get($page,$controller,$check,$t);
     }elseif($else!=''){
       Route::get($page,$else,$check,$t);
     }
   }
-  public function authPost($page,$controller,$else='',$check='',$t=true){
+  public static function authPost($page,$controller,$else='',$check='',$t=true){
     if(Mysql::userCheck(false)){
       Route::post($page,$controller,$check,$t);
     }elseif($else!=''){
       Route::post($page,$else,$check,$t);
     }
   }
-  private function checkRequest($route,$page){
+  private static function checkRequest($route,$page){
     global $request;
     if((strpos($route, '{')!==false) && (strpos($route, '}')!==false) && $route!=''){
       $continue = true;
@@ -158,7 +158,7 @@ class Route {
     }
     return $return;
   }
-  public function print(){
+  public static function print(){
     if(isset($_GET['_candy']) && $_GET['_candy']!=''){
       switch($_GET['_candy']){
         case 'token':

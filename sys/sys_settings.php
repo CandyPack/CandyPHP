@@ -214,12 +214,6 @@ class Config {
     }
   }
 
-  public static function infoMail($b=true){
-    if(!defined('INFO_MAIL')){
-      define('INFO_MAIL',$b);
-    }
-  }
-
   public static function check($v){
     $return = true;
     $arr_var = explode(',',$v);
