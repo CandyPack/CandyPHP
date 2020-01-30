@@ -27,19 +27,19 @@ class Config {
     define('MYSQL_CONNECT',$b);
   }
   public static function languageDetect($b  = true){
+    function returnLang($l){
+      return require_once "lang/{$l}.php";
+    }
     if(isset($_SERVER['HTTP_ACCEPT_LANGUAGE'])){
       $langg = substr($_SERVER['HTTP_ACCEPT_LANGUAGE'], 0, 2);
       if(file_exists("lang/{$langg}.php")){
-        require_once "lang/{$langg}.php";
-        Lang::setArray($lang);
+        Lang::setArray(returnLang($langg));
       }elseif(file_exists("lang/lang.php")){
-        require_once "lang/lang.php";
-        Lang::setArray($lang);
+        Lang::setArray(returnLang('lang'));
       }
     }else{
       if(file_exists("lang/lang.php")){
-        require_once "lang/lang.php";
-        Lang::setArray($lang);
+        Lang::setArray(returnLang('lang'));
       }
     }
   }
