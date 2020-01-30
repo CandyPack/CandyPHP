@@ -70,7 +70,7 @@ class Route {
         }
       }
       $directory = 'controller';
-      $import = array_diff(scandir($directory), array('..', '.','page','post','get'));
+      $import = array_diff(scandir($directory), array('..', '.','page','post','get','cron'));
       foreach ($import as $key){include('controller/'.$key);}
     if(defined('PAGE') && file_exists('controller/'.PAGE_METHOD.'/'.PAGE.'.php')){
       include('controller/'.PAGE_METHOD.'/'.PAGE.'.php');
@@ -166,25 +166,26 @@ class Route {
             header("Content-Type: application/json; charset=UTF-8");
             echo Candy::token('json');
           }else{self::printPage();}
-        break;
+          break;
         case 'cron':
           if(defined('CRON_JOBS') && CRON_JOBS===true){
-              if($_SERVER['SERVER_ADDR'] == $_SERVER['REMOTE_ADDR']){
+              if((substr($_SERVER['SERVER_ADDR'],0,8)=='192.168.') || ($_SERVER['SERVER_ADDR'] == $_SERVER['REMOTE_ADDR'])){
                 if($_SERVER['HTTP_USER_AGENT']=='candyPHP-cron'){
                   function set($p,$v){
                     global $candy;
                     $candy->set($p,$v);
                   }
+                  $directory = 'controller';
+                  $import = array_diff(scandir($directory), array('..', '.','page','post','get','cron'));
+                  foreach ($import as $key){include('controller/'.$key);}
                   foreach ($GLOBALS['cron'] as $key => $value){
                     if($value){
-                      if($_SERVER['SERVER_ADDR'] == $_SERVER['REMOTE_ADDR']){
-                        include('cron/'.$key.'.php');
-                      }
+                        include('controller/cron/'.$key.'.php');
                     }
                   }
-                }
-              }
-          }
+                }else{self::printPage();}
+              }else{self::printPage();}
+            }
           break;
         default:
           self::printPage();

@@ -79,7 +79,7 @@ class Config {
 
     set_time_limit(10000);
     $b = defined('AUTO_BACKUP') && AUTO_BACKUP;
-    if($b && date("Hi")=='0000' && $_SERVER['SERVER_ADDR'] == $_SERVER['REMOTE_ADDR'] && isset($_GET['_candy']) && $_GET['_candy']=='cron'){
+    if($b && date("Hi")=='0000' && ((substr($_SERVER['SERVER_ADDR'],0,8)=='192.168.') || ($_SERVER['SERVER_ADDR']==$_SERVER['REMOTE_ADDR'])) && isset($_GET['_candy']) && $_GET['_candy']=='cron'){
       $directory = BACKUP_DIRECTORY;
       $backupdirectory = $directory;
       if (!file_exists($backupdirectory.'mysql/')) {
