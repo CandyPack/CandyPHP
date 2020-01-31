@@ -240,9 +240,7 @@ class Mysql {
       }
       $query = 'INSERT INTO '.$table.' ('.substr($query_key,0,-1).') VALUES ('.substr($query_val,0,-1).')';
       $sql = mysqli_query($conn, $query);
-      $result->query = $query;
       $result->success = $sql;
-      $result->message = mysql_errno($conn) . ": " . mysql_error($conn);
       $result->id = $conn->insert_id;
       return $result;
     }else{

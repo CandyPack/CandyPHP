@@ -478,7 +478,7 @@ class Candy {
     }
   }
 
-  public static function getImage($path,$size,$b = true){
+  public static function getImage($path,$size=null,$b = true){
     $resize = false;
     $file_raw = 'assets/img/'.$path;
     $arr_extension = explode('.',$file_raw);
@@ -486,7 +486,7 @@ class Candy {
     $extension = '.'.end($arr_extension);
     $type = $b ? '0' : '1';
     $file_min = str_replace($extension,'-'.$type.'-'.$size.$extension,$file_raw);
-    if(file_exists($file_raw)){
+    if($size!==null && file_exists($file_raw)){
       $date_min = '1';
       if(file_exists($file_min)){
         $date_raw = filemtime($file_raw);
