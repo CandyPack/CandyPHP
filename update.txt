@@ -13,4 +13,5 @@ sys/import/class_validation.php
 sys/import/class_mail.php
 sys/import/class_resizeimage.php
 assets/js/candy.js
+assets/css/candy.css
 update.txt
