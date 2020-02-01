@@ -78,40 +78,57 @@ class Mysql {
     $query = '';
     foreach ($arr as $key => $value) {
       if($key!='table_user' && $key!='table_token'){
-        $query .= $key.'="'.mysqli_real_escape_string($conn,$value).'" AND ';
+        $query .= $key.'="'.mysqli_real_escape_string($conn,$value).'" OR ';
       }
     }
-    $query = '('.substr($query,0,-4).')';
+    $query = '('.substr($query,0,-3).')';
     $sql_user = mysqli_query($conn, 'SELECT * FROM '.$arr['table_user'].' WHERE '.$query);
-    if(mysqli_num_rows($sql_user)==1){
-      $result->success = true;
-      $data = array();
-      while($row = mysqli_fetch_assoc($sql_user)){
-        $data[] = $row;
+    if(mysqli_num_rows($sql_user)>=1){
+      $is_equal = false;
+      while($get = mysqli_fetch_assoc($sql_user)){
+        if(!$is_equal){
+          $is_equal = true;
+          foreach($get as $key => $val){
+            if(isset($arr[$key])){
+              if(strpos($val, '$2y$12$')!==false){
+                $is_equal = $is_equal && Candy::hash($arr[$key],$val);
+              }else{
+                $is_equal = $is_equal && $arr[$key]==$val;
+              }
+            }
+          }
+          $data[] = $is_equal ? $get : [];
+        }
       }
       $result->fetch = $data;
-      $result->rows = mysqli_num_rows($sql_user);
-      if($t){
-        $token1 = uniqid(mt_rand(), true).rand(10000,99999).(time()*100);
-        $token2 = md5($_SERVER['REMOTE_ADDR']);
-        $token3 = md5($_SERVER['HTTP_USER_AGENT']);
-        setcookie("token1", $token1, time() + 61536000, "/");
-        setcookie("token2", $token2, time() + 61536000, "/");
-        $sql_token = mysqli_query($conn, 'INSERT INTO '.$arr['table_token'].' (userid,token1,token2,token3,ip) VALUES ("' . $result->fetch[0]['id'] . '","' . $token1 . '","' . $token2 . '","' . $token3 . '","'.$_SERVER['REMOTE_ADDR'].'")');
+      if($is_equal){
+        if($t){
+          $token1 = uniqid(mt_rand(), true).rand(10000,99999).(time()*100);
+          $token2 = md5($_SERVER['REMOTE_ADDR']);
+          $token3 = md5($_SERVER['HTTP_USER_AGENT']);
+          setcookie("token1", $token1, time() + 61536000, "/");
+          setcookie("token2", $token2, time() + 61536000, "/");
+          $table_token = isset($arr['table_token']) ? $arr['table_token'] : 'candy_token';
+          $check_table = mysqli_query($conn, 'SHOW TABLES LIKE "'.$table_token.'"');
+          if(mysqli_num_rows($check_table)==0){
+            $sql_create = mysqli_query($conn, "CREATE TABLE ".$table_token." (id INT NOT NULL AUTO_INCREMENT, userid INT NOT NULL, token1 VARCHAR(255) NOT NULL, token2 VARCHAR(255) NOT NULL, token3 VARCHAR(255) NOT NULL, ip VARCHAR(255) NOT NULL, PRIMARY KEY (id))");
+          }
+          $sql_token = mysqli_query($conn, 'INSERT INTO '.$table_token.' (userid,token1,token2,token3,ip) VALUES ("' . $result->fetch[0]['id'] . '","' . $token1 . '","' . $token2 . '","' . $token3 . '","'.$_SERVER['REMOTE_ADDR'].'")');
+        }
+        $table_user = $arr['table_user'];
+        $storage = $storage===null ? Candy::storage('sys')->get('mysql') : $storage;
+        if(!isset($storage->login->table_token) || !isset($storage->login->table_user) || $table_token!=$storage->login->table_token || $table_user!=$storage->login->table_user){
+          $storage->login = isset($storage->login) && is_object($storage->login) ? $storage->login : new \stdClass;
+          $storage->login->table_user = $arr['table_user'];
+          $storage->login->table_token = $table_token;
+          Candy::storage('sys')->set('mysql',$storage);
+        }
+        return true;
+      }else{
+        return false;
       }
-      $table_token = $arr['table_token'];
-      $table_user = $arr['table_user'];
-      $storage = $storage===null ? Candy::storage('sys')->get('mysql') : $storage;
-      if(!isset($storage->login->table_token) || !isset($storage->login->table_user) || $table_token!=$storage->login->table_token || $table_user!=$storage->login->table_user){
-        $storage->login = isset($storage->login) && is_object($storage->login) ? $storage->login : new \stdClass;
-        $storage->login->table_user = $arr['table_user'];
-        $storage->login->table_token = $arr['table_token'];
-        Candy::storage('sys')->set('mysql',$storage);
-      }
-      return $result;
     }else{
-      $result->success = false;
-      return $result;
+      return false;
     }
   }
 
@@ -240,7 +257,9 @@ class Mysql {
       }
       $query = 'INSERT INTO '.$table.' ('.substr($query_key,0,-1).') VALUES ('.substr($query_val,0,-1).')';
       $sql = mysqli_query($conn, $query);
+      $result->query = $query;
       $result->success = $sql;
+      $result->message = mysql_errno($conn) . ": " . mysql_error($conn);
       $result->id = $conn->insert_id;
       return $result;
     }else{

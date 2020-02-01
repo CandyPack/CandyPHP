@@ -1,0 +1,76 @@
+/* LAYOUT */
+.full-screen{
+  width: 100%;
+  height: 100vh;
+}
+.full{
+  width: 100%;
+  height: 100%;
+}
+
+/* MARGIN */
+.margin-t1{ margin-top: 1rem !important; }
+.margin-t2{ margin-top: 2rem !important; }
+.margin-t3{ margin-top: 3rem !important; }
+.margin-t4{ margin-top: 4rem !important; }
+.margin-t5{ margin-top: 5rem !important; }
+
+.margin-l1{ margin-left: 1rem !important; }
+.margin-l2{ margin-left: 2rem !important; }
+.margin-l3{ margin-left: 3rem !important; }
+.margin-l4{ margin-left: 4rem !important; }
+.margin-l5{ margin-left: 5rem !important; }
+
+.margin-r1{ margin-right: 1rem !important; }
+.margin-r2{ margin-right: 2rem !important; }
+.margin-r3{ margin-right: 3rem !important; }
+.margin-r4{ margin-right: 4rem !important; }
+.margin-r5{ margin-right: 5rem !important; }
+
+.margin-b1{ margin-bottom: 1rem !important; }
+.margin-b2{ margin-bottom: 2rem !important; }
+.margin-b3{ margin-bottom: 3rem !important; }
+.margin-b4{ margin-bottom: 4rem !important; }
+.margin-b5{ margin-bottom: 5rem !important; }
+
+.margin-1{ margin: 1rem !important; }
+.margin-2{ margin: 2rem !important; }
+.margin-3{ margin: 3rem !important; }
+.margin-4{ margin: 4rem !important; }
+.margin-5{ margin: 5rem !important; }
+
+/* PADDING */
+.padding-t1{ padding-top: 1rem !important; }
+.padding-t2{ padding-top: 2rem !important; }
+.padding-t3{ padding-top: 3rem !important; }
+.padding-t4{ padding-top: 4rem !important; }
+.padding-t5{ padding-top: 5rem !important; }
+
+.padding-l1{ padding-left: 1rem !important; }
+.padding-l2{ padding-left: 2rem !important; }
+.padding-l3{ padding-left: 3rem !important; }
+.padding-l4{ padding-left: 4rem !important; }
+.padding-l5{ padding-left: 5rem !important; }
+
+.padding-r1{ padding-right: 1rem !important; }
+.padding-r2{ padding-right: 2rem !important; }
+.padding-r3{ padding-right: 3rem !important; }
+.padding-r4{ padding-right: 4rem !important; }
+.padding-r5{ padding-right: 5rem !important; }
+
+.padding-b1{ padding-bottom: 1rem !important; }
+.padding-b2{ padding-bottom: 2rem !important; }
+.padding-b3{ padding-bottom: 3rem !important; }
+.padding-b4{ padding-bottom: 4rem !important; }
+.padding-b5{ padding-bottom: 5rem !important; }
+
+.padding-1{ padding: 1rem !important; }
+.padding-2{ padding: 2rem !important; }
+.padding-3{ padding: 3rem !important; }
+.padding-4{ padding: 4rem !important; }
+.padding-5{ padding: 5rem !important; }
+
+/* WIDTH */
+.width-full{ width: 100% !important; }
+.width-half{ width: 50% !important; }
+.width-quarter{ width: 50% !important; }

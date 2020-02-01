@@ -43,9 +43,11 @@ class Validation
           $result['success']['result'] = count(self::$_message)==0;
           $result['success']['message'] = count(self::$_message)==0 ? $m : '';
           $result['errors'] = self::$_message;
-          Candy::return($result);
           if(!$result['success']['result']){
+            Candy::return($result);
             die();
+          }elseif($result['success']['message']!=''){
+            Candy::return($result);
           }
         }
         break;
@@ -92,6 +94,9 @@ class Validation
               break;
             case 'equal':
               self::$_error = isset(self::$_method[self::$_name]) && isset($vars[1]) && self::$_method[self::$_name]!==$vars[1];
+              break;
+            case 'username':
+              self::$_error = isset(self::$_method[self::$_name]) && isset($vars[1]) && ctype_alnum(self::$_method[self::$_name]);
               break;
           }
         }

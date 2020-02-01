@@ -69,7 +69,7 @@ class Config {
       }
     }
   }
-  public static function autoBackup($b = true,$directory = 'backup/'){
+  public static function autoBackup($b = true,$directory = '../backup/'){
     define('AUTO_BACKUP',$b);
     define('BACKUP_DIRECTORY',$directory);
   }
