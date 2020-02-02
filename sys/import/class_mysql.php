@@ -259,7 +259,6 @@ class Mysql {
       $sql = mysqli_query($conn, $query);
       $result->query = $query;
       $result->success = $sql;
-      $result->message = mysql_errno($conn) . ": " . mysql_error($conn);
       $result->id = $conn->insert_id;
       return $result;
     }else{

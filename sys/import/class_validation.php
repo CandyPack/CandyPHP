@@ -96,7 +96,16 @@ class Validation
               self::$_error = isset(self::$_method[self::$_name]) && isset($vars[1]) && self::$_method[self::$_name]!==$vars[1];
               break;
             case 'username':
-              self::$_error = isset(self::$_method[self::$_name]) && isset($vars[1]) && ctype_alnum(self::$_method[self::$_name]);
+              self::$_error = isset(self::$_method[self::$_name]) && !(ctype_alnum(self::$_method[self::$_name]));
+              break;
+            case 'notin':
+              self::$_error = isset(self::$_method[self::$_name]) && isset($vars[1]) && (strpos(self::$_method[self::$_name], $vars[1])!==false);
+              break;
+            case 'in':
+              self::$_error = isset(self::$_method[self::$_name]) && isset($vars[1]) && (!(strpos(self::$_method[self::$_name], $vars[1])!==false));
+              break;
+            case 'not':
+              self::$_error = isset(self::$_method[self::$_name]) && isset($vars[1]) && self::$_method[self::$_name]==$vars[1];
               break;
           }
         }
