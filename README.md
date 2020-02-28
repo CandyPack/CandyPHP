@@ -9,6 +9,10 @@ Candy PHP Framework
   - Otomatik günlük web ve sql yedeği alabilme
   - Çoklu dil desteğine sahip web sayfaları
   - Güvenli POST / GET işlemleri
+  - Otomatik AJAX formları
+  - Blade tasarım ile mail gönderebilme
+  - Kolay kullanıcı giriş ve sorgulama işlemleri
+  - Composer paketleri kullanabilme
   - Ve dahası...
 
 ## Bölümler
