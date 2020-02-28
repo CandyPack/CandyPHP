@@ -14,23 +14,37 @@ Candy PHP Framework
 ## Bölümler
 > config.php ile site ön ayarlarınızı yapabilir,
 
-> route/route_check.php ile url yollarını ayarlayabilir,
+> route/www.php ile url yollarını ayarlayabilir,
  
 > skeleton/ * .skeleton ile website şablonunuzu oluşturabilir,
  
-> controller/controller_ * .php ile sayfa içeriğini oluşturabilir,
+> controller/ * .php ile tüm işlemlerde çalışacak fonksiyon veya sınıflar,
+
+> controller/page/ * .php ile sayfa içeriği,
+
+> controller/post/ * .php ile POST methodu ile görüntülenen sayfa,
+
+> controller/get/ * .php ile GET methodu ile görüntülenen sayfa,
+
+> view/head/ * .php ile sayfa head bölümü,
+
+> view/sidebar/ * .php ile sayfa sidebar bölümü,
+
+> view/content/ * .php ile sayfa içeriği,
+
+> view/footer/ * .php ile sayfa footer bölümü,
+
+> view/script/ * .php ile sayfa script bölümü,
+
+> view/mail/ * .php ile E-Posta tasarımları,
  
-> view/head_ * .php ile sayfa head bölümü,
+> cron/cron/ * .php ile zamanlanmış görevler oluşturabilir,
 
-> view/sidebar_ * .php ile sayfa sidebar bölümü,
+> assets/js dizininde javascript dosyalarınızı oluşturabilir,
 
-> view/content_ * .php ile sayfa içeriği,
+> assets/css dizininde stil dosyalarınızı oluşturabilir,
 
-> view/footer_ * .php ile sayfa footer bölümü,
-
-> view/script_ * .php ile sayfa script bölümü,
- 
-> cron/cron_ * .php ile zamanlanmış görevler oluşturabilirsiniz.
+> assets/img dizinine resim dosyalarınızı ekleyebilirsiniz.
 
 ## Kurulum
 Sadece gerekli dosyaları website ana dizinine atarak kullanmaya başlayabilirsiniz.
