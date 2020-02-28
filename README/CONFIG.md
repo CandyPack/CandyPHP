@@ -22,6 +22,18 @@ $config->autoUpdate();
 // Candy PHP sistem dosyalarını otomatik güncelleştirir.
 ```
 ```php
+$config->masterMail($email);
+// Sistem hatası durumunda bilgilendirme gönderilecek E-Posta adresi.
+```
+```php
+$config->composer($b);
+// Composer etkinleştirir. autoload.php dizini girilebilir veya otomatik yolu bulur.
+```
+```php
+$config->mysqlServer(''); // Varsayılan (Localhost / 127.0.0.1)
+// Bağlantı kurulacak mysql server adresi
+```
+```php
 $config->mysqlDatabase(''); // Otomatik mysql bağlantısı için zorunludur!
 // Bağlantı kurulacak mysql database adı
 ```
@@ -30,10 +42,10 @@ $config->mysqlUsername(''); // Otomatik mysql bağlantısı için zorunludur!
 // Bağlantı kurulacak mysql kullanıcı adı
 ```
 ```php
-$config->mysqlPassword(''); // Otomatik mysql bağlantısı için zorunludur!
+$config->mysqlPassword('');
 // Bağlantı kurulacak mysql parolası
 ```
 ```php
 $config->mysqlConnection();
-// Otomatik mysql bağlantısı gerçekleştirir
+// Otomatik mysql bağlantısı gerçekleştirir.
 ```
