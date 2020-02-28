@@ -213,6 +213,16 @@ class Config {
       define('MASTER_MAIL',$s);
     }
   }
+  public static function composer($b=true){
+    if(!defined('CANDY_COMPOSER')){
+      if(is_bool($b)){
+        define('CANDY_COMPOSER',$b);
+      }else{
+        define('CANDY_COMPOSER', true);
+        define('CANDY_COMPOSER_DIRECTORY', $b);
+      }
+    }
+  }
 
   public static function check($v){
     $return = true;
