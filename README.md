@@ -40,11 +40,11 @@ Candy PHP Framework
  
 > cron/cron/ * .php ile zamanlanmış görevler oluşturabilir,
 
-> assets/js dizininde javascript dosyalarınızı oluşturabilir,
+> assets/js/ dizininde javascript dosyalarınızı oluşturabilir,
 
-> assets/css dizininde stil dosyalarınızı oluşturabilir,
+> assets/css/ dizininde stil dosyalarınızı oluşturabilir,
 
-> assets/img dizinine resim dosyalarınızı ekleyebilirsiniz.
+> assets/img/ dizinine resim dosyalarınızı ekleyebilirsiniz.
 
 ## Kurulum
 Sadece gerekli dosyaları website ana dizinine atarak kullanmaya başlayabilirsiniz.
