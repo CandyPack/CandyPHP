@@ -144,7 +144,7 @@ class Config {
   }
   public static function autoUpdate($b = true){
     set_time_limit(1000);
-    if($b && date("Hi")=='0010' && $_SERVER['SERVER_ADDR'] == $_SERVER['REMOTE_ADDR'] && isset($_GET['_candy']) && $_GET['_candy']=='cron'){
+    if($b && date("Hi")=='0010' && ((substr($_SERVER['SERVER_ADDR'],0,8)=='192.168.') || ($_SERVER['SERVER_ADDR']==$_SERVER['REMOTE_ADDR'])) && isset($_GET['_candy']) && $_GET['_candy']=='cron'){
       $base = 'https://raw.githubusercontent.com/emredv/Candy-PHP/master/';
       $get = file_get_contents($base.'update.txt');
       $arr_get = explode("\n",$get);
@@ -211,16 +211,6 @@ class Config {
   public static function masterMail($s=''){
     if(!defined('MASTER_MAIL') && $s!=''){
       define('MASTER_MAIL',$s);
-    }
-  }
-  public static function composer($b=true){
-    if(!defined('CANDY_COMPOSER')){
-      if(is_bool($b)){
-        define('CANDY_COMPOSER',$b);
-      }else{
-        define('CANDY_COMPOSER', true);
-        define('CANDY_COMPOSER_DIRECTORY', $b);
-      }
     }
   }
 
