@@ -3,6 +3,15 @@ class Route {
   public $is_cron = false;
   public $request = array();
 
+  public static function all($controller,$type = 'page'){
+    global $request;
+    $get_page = isset($_GET['_page']) ? $_GET['_page'] : '';
+    if(!defined('PAGE')){
+      define('PAGE',$controller);
+      define('PAGE_METHOD','page');
+      $request['page'] = $get_page;
+    }
+  }
   public static function page($page,$controller,$type = 'page'){
     $get_page = isset($_GET['_page']) ? $_GET['_page'] : '';
     if($get_page==$page || self::checkRequest($page,$get_page)){

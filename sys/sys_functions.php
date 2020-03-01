@@ -46,15 +46,6 @@ class Candy {
       Config::runBackup();
       Config::backupClear();
     }
-    if(!defined('CANDY_COMPOSER') || (defined('CANDY_COMPOSER') && CANDY_COMPOSER)){
-      if(defined('CANDY_COMPOSER_DIRECTORY')){
-        include(CANDY_COMPOSER_DIRECTORY);
-      }elseif(file_exists('../vendor/autoload.php')){
-        include('../vendor/autoload.php');
-      }elseif(file_exists('vendor/autoload.php')){
-        include('vendor/autoload.php');
-      }
-    }
   }
 
   public static function token($check = 0){
