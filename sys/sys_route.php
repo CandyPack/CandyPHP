@@ -168,6 +168,18 @@ class Route {
     return $return;
   }
   public static function print(){
+    $route = new Route;
+    $arr_subs = explode('.',$_SERVER['HTTP_HOST']);
+    $domain = '';
+    $routefile = 'www';
+    foreach ($arr_subs as $key){
+      $domain .= $key.'.';
+      if(file_exists('route/'.substr($domain,0,-1).'.php')){
+        $routefile = substr($domain,0,-1);
+      }
+    }
+    $routefile = 'www';
+    require_once('route/'.$routefile.'.php');
     if(isset($_GET['_candy']) && $_GET['_candy']!=''){
       switch($_GET['_candy']){
         case 'token':
