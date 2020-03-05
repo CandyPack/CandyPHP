@@ -158,6 +158,7 @@ class Route {
             }
           }else{
             $var[$key[0]] = htmlentities($chk_page);
+            $url .= $chk_page;
           }
         }
       }
