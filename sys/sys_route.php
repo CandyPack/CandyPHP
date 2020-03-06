@@ -78,9 +78,6 @@ class Route {
           }
         }
       }
-      $directory = 'controller';
-      $import = array_diff(scandir($directory), array('..', '.','page','post','get','cron'));
-      foreach ($import as $key){include('controller/'.$key);}
       if(defined('PAGE')){
         $page = PAGE_METHOD.'/'.PAGE;
         if(strpos(PAGE, '.') !== false){
@@ -177,6 +174,9 @@ class Route {
   }
   public static function print(){
     $route = new Route;
+    $directory = 'controller';
+    $import = array_diff(scandir($directory), array('..', '.','page','post','get','cron'));
+    foreach ($import as $key){include('controller/'.$key);}
     $arr_subs = explode('.',$_SERVER['HTTP_HOST']);
     $domain = '';
     $routefile = 'www';
