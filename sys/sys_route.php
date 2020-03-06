@@ -81,10 +81,12 @@ class Route {
       $directory = 'controller';
       $import = array_diff(scandir($directory), array('..', '.','page','post','get','cron'));
       foreach ($import as $key){include('controller/'.$key);}
-      $page = PAGE_METHOD.'/'.PAGE;
-      if(strpos(PAGE, '.') !== false){
-        $page = str_replace('.','/',PAGE);
-        $page = preg_replace("((.*)\/)", "$1/".PAGE_METHOD.'/', $page);
+      if(defined('PAGE')){
+        $page = PAGE_METHOD.'/'.PAGE;
+        if(strpos(PAGE, '.') !== false){
+          $page = str_replace('.','/',PAGE);
+          $page = preg_replace("((.*)\/)", "$1/".PAGE_METHOD.'/', $page);
+        }
       }
       if(defined('PAGE') && file_exists('controller/'.$page.'.php')){
         include('controller/'.$page.'.php');
