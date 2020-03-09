@@ -204,9 +204,6 @@ class Route {
                     global $candy;
                     $candy->set($p,$v);
                   }
-                  $directory = 'controller';
-                  $import = array_diff(scandir($directory), array('..', '.','page','post','get','cron'));
-                  foreach ($import as $key){include('controller/'.$key);}
                   foreach ($GLOBALS['cron'] as $key => $value){
                     if($value){
                         include('controller/cron/'.$key.'.php');
