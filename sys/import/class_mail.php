@@ -31,7 +31,7 @@ class Mail
           }
         }
         ob_start();
-        include(View::cacheView('mail/'.self::$_arr['view'].'.php'));
+        include(View::cacheView('mail/'.self::$_arr['view'].'.blade.php'));
         $message = ob_get_clean();
         $to = self::$_arr['to'];
         $subject = isset(self::$_arr['subject']) ? self::$_arr['subject'] : '';
