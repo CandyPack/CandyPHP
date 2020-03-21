@@ -176,7 +176,11 @@ class Route {
     $route = new Route;
     $directory = 'controller';
     $import = array_diff(scandir($directory), array('..', '.','page','post','get','cron'));
-    foreach ($import as $key){include('controller/'.$key);}
+    foreach ($import as $key){
+      if(substr($key,-4)=='.php'){
+        include('controller/'.$key);
+      }
+    }
     $arr_subs = explode('.',$_SERVER['HTTP_HOST']);
     $domain = '';
     $routefile = 'www';
