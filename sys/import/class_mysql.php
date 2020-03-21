@@ -90,7 +90,7 @@ class Mysql {
           $is_equal = true;
           foreach($get as $key => $val){
             if(isset($arr[$key])){
-              if(strpos($val, '$2y$12$')!==false){
+              if(strpos($val, '$2y$')!==false){
                 $is_equal = $is_equal && Candy::hash($arr[$key],$val);
               }else{
                 $is_equal = $is_equal && $arr[$key]==$val;
