@@ -186,7 +186,6 @@ class Route {
         $routefile = substr($domain,0,-1);
       }
     }
-    $routefile = 'www';
     require_once('route/'.$routefile.'.php');
     if(isset($_GET['_candy']) && $_GET['_candy']!=''){
       switch($_GET['_candy']){
