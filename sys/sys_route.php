@@ -209,7 +209,12 @@ class Route {
                   }
                   foreach ($GLOBALS['cron'] as $key => $value){
                     if($value){
-                        include('controller/cron/'.$key.'.php');
+                      $cron = 'cron/'.$key;
+                      if(strpos($key, '.') !== false){
+                        $cron = str_replace('.','/',$key);
+                        $cron = preg_replace("((.*)\/)", "$1/".'cron'.'/', $cron);
+                      }
+                      include('controller/'.$cron.'.php');
                     }
                   }
                 }else{self::printPage();}
