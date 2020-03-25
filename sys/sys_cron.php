@@ -7,6 +7,7 @@ class Cron
     public static function controller($controller){
         self::$_var['controller'] = $controller;
         self::$_var['date'] = getdate();
+        self::$_run = true;
         return new static();
     }
 
