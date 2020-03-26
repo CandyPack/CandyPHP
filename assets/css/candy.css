@@ -75,9 +75,12 @@
 .width-half{ width: 50% !important; }
 .width-quarter{ width: 50% !important; }
 
-@media only screen and (max-width: 767px) {
-  .hide-mobile{display: block !important;}
+.hide{display:none;}
+.show{display:block;}
+
+@media only screen and (max-width: 768px) {
+  .mobile-hide{display: none !important;}
 }
 @media only screen and (min-width: 768px) {
-  .hide-desktop{display: block !important;}
+  .desktop-hide{display: none !important;}
 }
