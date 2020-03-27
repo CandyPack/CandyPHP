@@ -1,6 +1,5 @@
 var _candy_token = '';
 var _candy_page = '';
-var _candy_history = [];
 var Candy = class Candy {
   test(){
     alert('Hi, World');
@@ -82,10 +81,8 @@ var Candy = class Candy {
       var page = url_go;
       if((target==null || target=='_self') && (url_go!='' && url_go.substring(0,11)!='javascript:' && url_go.substring(0,1)!='#') && (!url_go.includes('://') || url_now.split("/")[2]==url_go.split("/")[2])){
         if(url_go!=url_now){
-          _candy_history.push(url_go);
           window.history.pushState(null, document.title, url_go);
         }
-        console.log(_candy_history);
         $.each(arr, function(index, value){
           $.ajax({
             url: url_go,
