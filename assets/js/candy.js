@@ -74,12 +74,12 @@ var Candy = class Candy {
   }
   loader(element,arr,callback){
     $(document).on('click',element,function(e){
-      e.preventDefault();
       var url_now = window.location.href;
       var url_go = $(this).attr('href');
       var target = $(this).attr('target');
       var page = url_go;
       if((target==null || target=='_self') && (url_go!='' && url_go.substring(0,11)!='javascript:' && url_go.substring(0,1)!='#') && (!url_go.includes('://') || url_now.split("/")[2]==url_go.split("/")[2])){
+        e.preventDefault();
         if(url_go!=url_now){
           window.history.pushState(null, document.title, url_go);
         }
@@ -103,9 +103,6 @@ var Candy = class Candy {
         if(callback!==undefined){
           callback();
         }
-      }else{
-        $(this).unbind('click');
-        e.currentTarget.click();
       }
     });
     $(window).on('popstate', function(){
