@@ -81,8 +81,10 @@ var Candy = class Candy {
       var target = $(this).attr('target');
       var page = url_go;
       if((target==null || target=='_self') && (url_go!='' && url_go.substring(0,11)!='javascript:' && url_go.substring(0,1)!='#') && (!url_go.includes('://') || url_now.split("/")[2]==url_go.split("/")[2])){
-        _candy_history.push(url_go);
-        window.history.pushState(null, document.title, url_go);
+        if(url_go!=url_now){
+          _candy_history.push(url_go);
+          window.history.pushState(null, document.title, url_go);
+        }
         console.log(_candy_history);
         $.each(arr, function(index, value){
           $.ajax({
@@ -102,12 +104,31 @@ var Candy = class Candy {
           });
         });
         if(callback!==undefined){
-          callback(data);
+          callback();
         }
       }else{
         $(this).unbind('click');
         e.currentTarget.click();
       }
+    });
+    $(window).on('popstate', function(){
+      $.each(arr, function(index, value){
+        $.ajax({
+          url: window.location.href,
+          type: "GET",
+          beforeSend: function(xhr){xhr.setRequestHeader('X-CANDY', 'ajaxload');xhr.setRequestHeader('X-CANDY-LOAD', index);},
+          success: function(_data){
+            $(value).fadeOut(function(){
+              $(value).html(_data);
+              $(value).fadeIn();
+            });
+          },
+          error : function(){
+            $(this).unbind('click');
+            e.currentTarget.click();
+          }
+        });
+      });
     });
   }
 }
