@@ -1,5 +1,6 @@
-var _token = '';
-var _page = '';
+var _candy_token = '';
+var _candy_page = '';
+var _candy_history = [];
 var Candy = class Candy {
   test(){
     alert('Hi, World');
@@ -17,16 +18,16 @@ var Candy = class Candy {
   getToken(){
     $.get(window.location.hostname+'?_candy=token',function(data){
       var result = JSON.parse(JSON.stringify(data));
-      _token = result.token;
+      _candy_token = result.token;
     });
   }
   token(){
     candy.getToken();
-    return _token;
+    return _candy_token;
   }
   page(){
     candy.getToken();
-    return _page;
+    return _candy_page;
   }
   form(id,callback,m){
     $('#'+id).submit(function(e){
@@ -70,6 +71,43 @@ var Candy = class Candy {
           alert('Somethings went wrong...');
         }
       });
+    });
+  }
+  loader(element,arr,callback){
+    $(document).on('click',element,function(e){
+      e.preventDefault();
+      var url_now = window.location.href;
+      var url_go = $(this).attr('href');
+      var target = $(this).attr('target');
+      var page = url_go;
+      if((target==null || target=='_self') && (url_go!='' && url_go.substring(0,11)!='javascript:' && url_go.substring(0,1)!='#') && (!url_go.includes('://') || url_now.split("/")[2]==url_go.split("/")[2])){
+        _candy_history.push(url_go);
+        window.history.pushState(null, document.title, url_go);
+        console.log(_candy_history);
+        $.each(arr, function(index, value){
+          $.ajax({
+            url: url_go,
+            type: "GET",
+            beforeSend: function(xhr){xhr.setRequestHeader('X-CANDY', 'ajaxload');xhr.setRequestHeader('X-CANDY-LOAD', index);},
+            success: function(_data){
+              $(value).fadeOut(function(){
+                $(value).html(_data);
+                $(value).fadeIn();
+              });
+            },
+            error : function(){
+              $(this).unbind('click');
+              e.currentTarget.click();
+            }
+          });
+        });
+        if(callback!==undefined){
+          callback(data);
+        }
+      }else{
+        $(this).unbind('click');
+        e.currentTarget.click();
+      }
     });
   }
 }
