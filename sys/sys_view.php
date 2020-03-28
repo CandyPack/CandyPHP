@@ -46,7 +46,17 @@ class View {
         return $candy->get($v);
       }
     }
-    if(defined('VIEW_SKELETON')){
+    $ajaxcheck = !empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest' && isset($_SERVER['HTTP_REFERER']) && parse_url($_SERVER['HTTP_REFERER'])['host']==$_SERVER['HTTP_HOST'];
+    $ajaxcheck = $ajaxcheck && isset($_SERVER['HTTP_X_CANDY']) && $_SERVER['HTTP_X_CANDY']=='ajaxload' && isset($_SERVER['HTTP_X_CANDY_LOAD']);
+    if($ajaxcheck){
+      $content = strtoupper($_SERVER['HTTP_X_CANDY_LOAD']);
+      if(defined('VIEW_'.trim($content))){
+        if(file_exists('view/'.strtolower(trim($content)).'/'.constant('VIEW_'.trim($content)).'.blade.php')){
+          include(self::cacheView(strtolower(trim($content)).'/'.constant('VIEW_'.trim($content)).'.blade.php'));
+        }
+      }
+    }
+    if(defined('VIEW_SKELETON') && !$ajaxcheck){
     $skeleton = defined('VIEW_SKELETON') ? 'skeleton/'.VIEW_SKELETON.'.skeleton' : 'skeleton/page.skeleton';
     $skeleton = file_get_contents($skeleton, FILE_USE_INCLUDE_PATH);
     $arr_test = explode('{{', $skeleton);
@@ -55,9 +65,9 @@ class View {
           $arr_key = explode('}}',$key);
           if(defined('VIEW_'.trim($arr_key[0]))){
             if(file_exists('view/'.strtolower(trim($arr_key[0])).'/'.constant('VIEW_'.trim($arr_key[0])).'.blade.php')){
-              echo "\n<!--_".md5(trim($arr_key[0]))."_-->\n";
+              //echo "\n<!--_".md5(trim($arr_key[0]))."_-->\n";
               include(self::cacheView(strtolower(trim($arr_key[0])).'/'.constant('VIEW_'.trim($arr_key[0])).'.blade.php'));
-              echo "\n<!--_".md5(trim($arr_key[0]))."_-->\n";
+              //echo "\n<!--_".md5(trim($arr_key[0]))."_-->\n";
             }
           }
           if(isset($arr_key[1])){
