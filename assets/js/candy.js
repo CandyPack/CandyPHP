@@ -56,7 +56,7 @@ var Candy = class Candy {
                     $('#'+id+' ._candy_'+index).html(value);
                     $('#'+id+' ._candy_'+index).show();
                   }else{
-                    $('#'+id+' *[name ="'+index+'"]').after('<span class="_candy_form_info" style="color:green">'+value+'</span>');
+                    $('#'+id+' *[name ="'+index+'"]').after('<span class="_candy_form_info" style="color:'+(data.success.result ? 'green' : 'red')+'">'+value+'</span>');
                   }
                 });
               }
