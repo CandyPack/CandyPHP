@@ -560,5 +560,29 @@ class Candy {
       die($msg);
     }
   }
+
+  public static function curl($url,$params=null,$header=null,$method=null){
+    $postData = '';
+    if(is_array($params)){
+      foreach ($params as $key => $val) {
+        $postData .= $postData=='' ? $key.'='.$val : '&'.$key.'='.$val;
+      }
+    }else{
+      $postData = $params;
+    }
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_URL,$url);
+    if($method=='post' || ($method!=null && $postData!='')){
+      curl_setopt($ch, CURLOPT_POST, 1);
+    }
+    if($postData!=''){
+      curl_setopt($ch, CURLOPT_POSTFIELDS, $postData);
+    }
+    curl_setopt($ch, CURLOPT_HTTPHEADER, $header);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    $result = curl_exec($ch);
+    curl_close ($ch);
+    return $result;
+  }
 }
 $candy = new Candy();
