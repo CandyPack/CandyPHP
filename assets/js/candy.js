@@ -29,7 +29,7 @@ var Candy = class Candy {
     return _candy_page;
   }
   form(id,callback,m){
-    $('#'+id).submit(function(e){
+    $(document).on("submit",'#'+id,function(e){
       e.preventDefault();
       $('#'+id+' ._candy_form_info').remove();
       $('#'+id+' ._candy').html('');
