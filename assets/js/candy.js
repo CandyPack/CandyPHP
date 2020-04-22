@@ -106,23 +106,26 @@ var Candy = class Candy {
       }
     });
     $(window).on('popstate', function(){
-      $.each(arr, function(index, value){
-        $.ajax({
-          url: window.location.href,
-          type: "GET",
-          beforeSend: function(xhr){xhr.setRequestHeader('X-CANDY', 'ajaxload');xhr.setRequestHeader('X-CANDY-LOAD', index);},
-          success: function(_data){
-            $(value).fadeOut(function(){
-              $(value).html(_data);
-              $(value).fadeIn();
-            });
-          },
-          error : function(){
-            $(this).unbind('click');
-            e.currentTarget.click();
-          }
+      var url_go = window.location.href;
+      if((url_go!='' && url_go.substring(0,11)!='javascript:' && !url_go.includes('#'))){
+        $.each(arr, function(index, value){
+          $.ajax({
+            url: window.location.href,
+            type: "GET",
+            beforeSend: function(xhr){xhr.setRequestHeader('X-CANDY', 'ajaxload');xhr.setRequestHeader('X-CANDY-LOAD', index);},
+            success: function(_data){
+              $(value).fadeOut(function(){
+                $(value).html(_data);
+                $(value).fadeIn();
+              });
+            },
+            error : function(){
+              $(this).unbind('click');
+              e.currentTarget.click();
+            }
+          });
         });
-      });
+      }
     });
   }
 }
