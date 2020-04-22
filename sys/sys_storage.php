@@ -27,7 +27,7 @@ class Storage
         self::$_arr = new \stdClass();
       }
       self::$_arr->$key = $var;
-      self::$_json = json_encode(self::$_arr,JSON_PRETTY_PRINT);
+      self::$_json = json_encode(self::$_arr);
       $_file = fopen(self::$_path, "w");
       fwrite($_file, self::$_json);
       fclose($_file);
