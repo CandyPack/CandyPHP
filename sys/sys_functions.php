@@ -476,6 +476,7 @@ class Candy {
   public static function return($v){
     header("Content-Type: application/json; charset=UTF-8");
     echo json_encode($v);
+    die();
   }
 
   public static function hash($v,$h=null){
