@@ -57,27 +57,39 @@ class Route {
       global $candy;
       $candy->set($p,$v);
     }
-    function request($v,$method=null){
+    function request($v=null,$method=null){
       global $request;
-        if($method==null){
-          if(isset($request[$v])){
-            return $request[$v];
-          }elseif(isset($_POST[$v])){
-            return $_POST[$v];
-          }elseif(isset($_GET[$v])){
-            return $_GET[$v];
-          }
+      if($v==null){
+        $rec = file_get_contents('php://input');
+        $json = json_decode($rec);
+        if(json_last_error() == JSON_ERROR_NONE){
+          return $json;
+        }
+        $xml = @simplexml_load_string($rec);
+        if($xml){
+          return new SimpleXMLElement($rec);;
         }else{
-          switch($method){
-            case 'post':
+          return false;
+        }
+      }elseif($method==null){
+        if(isset($request[$v])){
+          return $request[$v];
+        }elseif(isset($_POST[$v])){
+          return $_POST[$v];
+        }elseif(isset($_GET[$v])){
+          return $_GET[$v];
+        }
+      }else{
+        switch($method){
+          case 'post':
             return isset($_POST[$v]) ? $_POST[$v] : null;
             break;
-            case 'get':
+          case 'get':
             return isset($_GET[$v]) ? $_GET[$v] : null;
             break;
-          }
         }
       }
+    }
       if(defined('PAGE')){
         $page = PAGE_METHOD.'/'.PAGE;
         if(strpos(PAGE, '.') !== false){
@@ -173,6 +185,7 @@ class Route {
     return $return;
   }
   public static function print(){
+    global $conn;
     $route = new Route;
     $directory = 'controller';
     $import = array_diff(scandir($directory), array('..', '.','page','post','get','cron'));
