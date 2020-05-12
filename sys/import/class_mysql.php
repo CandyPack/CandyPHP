@@ -58,13 +58,13 @@ class Mysql {
     global $conn;
     $result = new \stdClass();
     $sql = mysqli_query($conn, $query);
-    $data = array();
-    while($row = mysqli_fetch_assoc($sql)){
-      $data[] = $row;
-    }
-    $result->rows = mysqli_num_rows($sql);
-    $result->fetch = $data;
-    if($b){
+    if($b){
+      $data = array();
+      while($row = mysqli_fetch_assoc($sql)){
+        $data[] = $row;
+      }
+      $result->rows = mysqli_num_rows($sql);
+      $result->fetch = $data;
       return $result;
     }
   }
