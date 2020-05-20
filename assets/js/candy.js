@@ -92,6 +92,9 @@ var Candy = class Candy {
               $(value).fadeOut(function(){
                 $(value).html(_data);
                 $(value).fadeIn();
+                if(callback!==undefined){
+                  callback();
+                }
               });
             },
             error : function(){
@@ -100,9 +103,6 @@ var Candy = class Candy {
             }
           });
         });
-        if(callback!==undefined){
-          callback();
-        }
       }
     });
     $(window).on('popstate', function(){
@@ -117,6 +117,9 @@ var Candy = class Candy {
               $(value).fadeOut(function(){
                 $(value).html(_data);
                 $(value).fadeIn();
+                if(callback!==undefined){
+                  callback();
+                }
               });
             },
             error : function(){
