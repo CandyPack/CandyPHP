@@ -45,6 +45,7 @@ var Candy = class Candy {
             if(m===undefined || m){
               if(data.success.result){
                 if ($('#'+id+' ._candy_success').length){
+                  $('#'+id+' ._candy_success').show();
                   $('#'+id+' ._candy_success').html(data.success.message);
                 }else{
                   $('#'+id).append('<span class="_candy_form_info">'+data.success.message+'</span>');
