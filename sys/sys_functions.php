@@ -174,6 +174,7 @@ class Candy {
     }else{
       $url = $link!==0 ? $link : $_SERVER['HTTP_REFERER'];
       header('Location: '.$url);
+      die();
     }
     return new class{function with($v){
       if(is_array($GLOBALS['_candy']['oneshot'])){
