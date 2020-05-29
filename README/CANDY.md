@@ -84,7 +84,16 @@ Candy::uploadCheck($name); // Upload kontrolü yapar
 // Boş bırakılırsa herhangi bir isimde upload kontrolü yapar.
 ```
 ```php
-Candy::mail($to,$message,$subject = '',$from = ''); // HTML Mail gönderir
+Candy::mail($view); // Mail gönderir
+// $view -> view/mail/ içerisinde oluşturduğunuz blade tasarımı
+->to($to) // Gönderilecek E-Posta adresi
+->subject($subject) // E-Posta Konusu
+->from($email,$name='') // E-Posta gönderen adresi ve görüntülenecek adı
+->send() // Mail gönderim işlemini başlatır
+
+```
+```php
+Candy::quickMail($to,$message,$subject = '',$from = ''); // HTML Mail gönderir
 // $to -> Gönderilecek mail adresi
 // $message -> Mail içeriği
 // $subject -> Mesaj başlığı (Boş bırakılabilir)
@@ -106,4 +115,10 @@ Candy::strFormatter($str,$format); // Veri formatını değiştirir
 // $str -> String değer.
 // $format -> ? koyulursa tek hane * koyulursa geri kalan tüm harfler yazdırılır
 // Örn.('5123456789','(???) ??? *') -> Çıktı: (512) 345 6789
+```
+```php
+Candy::validator($v=''); // Form gönderilerini kontrol eder belirlediğiniz uyarı çıktılarını verir
+// Ajax işlemleri için $v içeriği 'ajax' olmalıdır. Manuel işlem için boş bırakın.
+// Örnek kullanım;
+Candy::validator('ajax')->post('name')->check('required|minlen:3|maxlen:200|email|in:@')->message('E-Posta adresiniz geçersiz')->validate('Başarılı');
 ```
