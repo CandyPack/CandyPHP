@@ -14,8 +14,8 @@ class Route {
   }
   public static function page($page,$controller,$type = 'page'){
     $get_page = isset($_GET['_page']) ? $_GET['_page'] : '';
-    if($get_page==$page || self::checkRequest($page,$get_page)){
-      if(!defined('PAGE')){
+    if(!defined('PAGE')){
+      if($get_page==$page || self::checkRequest($page,$get_page)){
         define('PAGE',$controller);
         define('PAGE_METHOD','page');
       }
@@ -26,8 +26,8 @@ class Route {
     unset($arr_get['_page']);
     if(Candy::getCheck($check,$t)){
       $get_page = isset($_GET['_page']) ? $_GET['_page'] : '';
-      if(($get_page==$page || self::checkRequest($page,$get_page)) && isset($_GET)){
-        if(!defined('PAGE')){
+      if(!defined('PAGE')){
+        if(($get_page==$page || self::checkRequest($page,$get_page)) && isset($_GET)){
           define('PAGE',$controller);
           define('PAGE_METHOD','get');
         }
@@ -37,8 +37,8 @@ class Route {
   public static function post($page,$controller,$check='',$t=true){
     if(Candy::postCheck($check,$t)){
       $get_page = isset($_GET['_page']) ? $_GET['_page'] : '';
-      if(($get_page==$page || self::checkRequest($page,$get_page)) && isset($_POST)){
-        if(!defined('PAGE')){
+      if(!defined('PAGE')){
+        if(($get_page==$page || self::checkRequest($page,$get_page)) && isset($_POST)){
           define('PAGE',$controller);
           define('PAGE_METHOD','post');
         }
