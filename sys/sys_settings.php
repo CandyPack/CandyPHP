@@ -24,9 +24,7 @@ class Config {
     define('MYSQL_PASS',$s);
   }
   public static function mysqlConnection($b = true){
-    if(!defined('MYSQL_CONNECT')){
-      define('MYSQL_CONNECT',$b);
-    }
+    define('MYSQL_CONNECT',$b);
   }
   public static function languageDetect($b  = true){
     function returnLang($l){
@@ -274,7 +272,7 @@ class Config {
       }
     }
   }
-
+  
   public static function mysql($name='default'){
     $class = new class {
       private static $_arr = ['name' => 'default', 'host' => '127.0.0.1', 'database' => '', 'user' => '', 'password' => '', 'backup' => null, 'default' => null];
