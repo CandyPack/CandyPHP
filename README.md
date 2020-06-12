@@ -13,6 +13,7 @@ Candy PHP Framework
   - Blade tasarım ile mail gönderebilme
   - Kolay kullanıcı giriş ve sorgulama işlemleri
   - Composer paketleri kullanabilme
+  - Async fonksiyonlar yazabilme
   - Ve dahası...
 
 ## Bölümler
