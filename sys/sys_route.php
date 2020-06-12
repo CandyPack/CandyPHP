@@ -237,6 +237,9 @@ class Route {
         case 'async':
           if(isset($_GET['hash'])){
               if((substr($_SERVER['SERVER_ADDR'],0,8)=='192.168.') || ($_SERVER['SERVER_ADDR'] == $_SERVER['REMOTE_ADDR'])){
+                $storage = Candy::storage('sys')->get('cache');
+                $hash = $_GET['hash'];
+                if(isset($storage->async->$hash) && $storage->async->$hash==1){
                   function set($p,$v){
                     global $candy;
                     $candy->set($p,$v);
@@ -246,6 +249,7 @@ class Route {
                     $GLOBALS['_candy_async'] = $_GET['hash'];
                     include('storage/cache/async_'.$_GET['hash'].'.php');
                   }else{self::printPage();}
+                }else{self::printPage();}
               }else{self::printPage();}
             }
           break;

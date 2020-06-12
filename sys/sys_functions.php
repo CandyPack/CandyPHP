@@ -617,6 +617,11 @@ class Candy {
     $file = 'storage/cache/async_'.$func_hash.'.php';
     if(!file_exists($file)){
       file_put_contents($file, $body);
+      $storage = Candy::storage('sys')->get('cache');
+      $storage->async = isset($storage->async) && is_object($storage->async) ? $storage->async : new \stdClass;
+      $storage->async->$func_hash = isset($storage->async->$func_hash) && is_object($storage->async->$func_hash) ? $storage->async->$func_hash : new \stdClass;
+      $storage->async->$func_hash = '1';
+      Candy::storage('sys')->set('cache',$storage);
     }
     $ch = curl_init();
     curl_setopt($ch,CURLOPT_URL,str_replace('www.','',$_SERVER['SERVER_NAME']).'/?_candy=async&hash='.$func_hash);
