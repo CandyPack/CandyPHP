@@ -574,17 +574,61 @@ class Candy {
     }
     $ch = curl_init();
     curl_setopt($ch, CURLOPT_URL,$url);
-    if($method=='post' || ($method!=null && $postData!='')){
-      curl_setopt($ch, CURLOPT_POST, 1);
-    }
-    if($postData!=''){
-      curl_setopt($ch, CURLOPT_POSTFIELDS, $postData);
-    }
-    curl_setopt($ch, CURLOPT_HTTPHEADER, $header);
+    if($method=='post' || $postData!=''){ curl_setopt($ch, CURLOPT_POST, 1); }
+    if($postData!=''){ curl_setopt($ch, CURLOPT_POSTFIELDS, $postData); }
+    if($header!==null){ curl_setopt($ch, CURLOPT_HTTPHEADER, $header); }
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch,CURLOPT_FOLLOWLOCATION,true);
     $result = curl_exec($ch);
     curl_close ($ch);
     return $result;
+  }
+
+  public static function async($method){
+    if(isset($GLOBALS['_candy_async']) && $GLOBALS['_candy_async']!=null){
+      $method();
+      $GLOBALS['_candy_async'] = null;
+      die();
+    }
+    $func = new ReflectionFunction($method);
+    $f = $func->getFileName();
+    $start_line = $func->getStartLine() - 1;
+    $end_line = $func->getEndLine();
+    $length = $end_line - $start_line;
+    $source = file($f);
+    $source = implode('', array_slice($source, 0, count($source)));
+    $source = preg_split("/".PHP_EOL."/", $source);
+    $body = '';
+    for($i=$start_line; $i<$end_line; $i++)
+    $body.="{$source[$i]}\n";
+    $body = trim($body);
+    if(substr($body,0,1)=='$'){
+      $body = preg_replace('/'.preg_quote('$', '/').'/', '/*', $body, 1);
+      $body = preg_replace('/'.preg_quote('=', '/').'/', '*/', $body, 1);
+      if(substr($body,-1)==';'){
+        $body = 'Candy::async('.substr($body,0,-1).');';
+      }
+    }
+    if(substr($body,0,5)=='<?php'){
+      $body = preg_replace('/'.preg_quote('<?php', '/').'/', '', $body, 1);
+    }
+    $body = '<?php '.$body;
+    $func_hash = md5($body);
+    $file = 'storage/cache/async_'.$func_hash.'.php';
+    if(!file_exists($file)){
+      file_put_contents($file, $body);
+    }
+    $ch = curl_init();
+    curl_setopt($ch,CURLOPT_URL,str_replace('www.','',$_SERVER['SERVER_NAME']).'/?_candy=async&hash='.$func_hash);
+    curl_setopt($ch,CURLOPT_POST,true);
+    curl_setopt($ch,CURLOPT_SSL_VERIFYHOST, 0);
+    curl_setopt($ch,CURLOPT_POSTFIELDS,['hash' => $func_hash]);
+    curl_setopt($ch,CURLOPT_RETURNTRANSFER,true);
+    curl_setopt($ch,CURLOPT_FRESH_CONNECT ,  true);
+    curl_setopt($ch,CURLOPT_TIMEOUT ,  1);
+    curl_setopt($ch,CURLOPT_FOLLOWLOCATION,true);
+    curl_exec($ch);
+    curl_close($ch);
   }
 }
 $candy = new Candy();

@@ -234,6 +234,21 @@ class Route {
               }else{self::printPage();}
             }
           break;
+        case 'async':
+          if(isset($_GET['hash'])){
+              if((substr($_SERVER['SERVER_ADDR'],0,8)=='192.168.') || ($_SERVER['SERVER_ADDR'] == $_SERVER['REMOTE_ADDR'])){
+                  function set($p,$v){
+                    global $candy;
+                    $candy->set($p,$v);
+                  }
+                  if(file_exists('storage/cache/async_'.$_GET['hash'].'.php')){
+                    ignore_user_abort(true);
+                    $GLOBALS['_candy_async'] = $_GET['hash'];
+                    include('storage/cache/async_'.$_GET['hash'].'.php');
+                  }else{self::printPage();}
+              }else{self::printPage();}
+            }
+          break;
         default:
           self::printPage();
       }
