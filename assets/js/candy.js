@@ -34,12 +34,34 @@ var Candy = class Candy {
       $('#'+id+' ._candy_form_info').remove();
       $('#'+id+' ._candy').html('');
       $('#'+id+' ._candy').hide();
-      var datastring = $("#"+id).serialize()+'&token='+candy.token();
+      if($('#'+id+' input[type=file]').length > 0){
+        console.log('file form');
+        var datastring = new FormData();
+        $('#'+id+' input').each(function(index){
+          if($(this).attr('type')=='file'){
+            datastring.append($(this).attr('name'), $(this).prop('files')[0]);
+          }else{
+            datastring.append($(this).attr('name'), $(this).val());
+          }
+        });
+        datastring.append('token', candy.token());
+        var cache = false;
+        var contentType = false;
+        var processData = false;
+      }else{
+        var datastring = $("#"+id).serialize()+'&token='+candy.token();
+        var cache = true;
+        var contentType = "application/x-www-form-urlencoded; charset=UTF-8";
+        var processData = true;
+      }
       $.ajax({
         type: $("#"+id).attr('method'),
         url: $("#"+id).attr('action'),
         data: datastring,
         dataType: "json",
+        contentType: contentType,
+        processData: processData,
+        cache: cache,
         success: function(data) {
           if(data.success){
             if(m===undefined || m){
