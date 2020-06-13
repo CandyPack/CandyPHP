@@ -220,14 +220,16 @@ class Route {
                     global $candy;
                     $candy->set($p,$v);
                   }
-                  foreach ($GLOBALS['cron'] as $key => $value){
-                    if($value){
-                      $cron = 'cron/'.$key;
-                      if(strpos($key, '.') !== false){
-                        $cron = str_replace('.','/',$key);
-                        $cron = preg_replace("((.*)\/)", "$1/".'cron'.'/', $cron);
+                  if(isset($GLOBALS['cron'])){
+                    foreach ($GLOBALS['cron'] as $key => $value){
+                      if($value){
+                        $cron = 'cron/'.$key;
+                        if(strpos($key, '.') !== false){
+                          $cron = str_replace('.','/',$key);
+                          $cron = preg_replace("((.*)\/)", "$1/".'cron'.'/', $cron);
+                        }
+                        include('controller/'.$cron.'.php');
                       }
-                      include('controller/'.$cron.'.php');
                     }
                   }
                 }else{self::printPage();}
