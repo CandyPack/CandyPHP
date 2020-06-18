@@ -69,3 +69,8 @@ Sadece gerekli dosyaları website ana dizinine atarak kullanmaya başlayabilirsi
 
    [config.md]: <https://github.com/emredv/Candy-PHP/blob/master/README/CONFIG.md>
    [candy.md]: <https://github.com/emredv/Candy-PHP/blob/master/README/CANDY.md>
+
+## -
+[Kısacası.net][https://www.kisacasi.net]
+[Etiked.net][https://www.etiked.net]
+[Emre.red][https://www.emre.red]
