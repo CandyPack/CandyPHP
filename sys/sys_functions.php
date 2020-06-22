@@ -584,9 +584,10 @@ class Candy {
     return $result;
   }
 
-  public static function async($method){
+  public static function async($method, $data=null){
     if(isset($GLOBALS['_candy_async']) && $GLOBALS['_candy_async']!=null){
-      $method();
+      $data = json_decode($_POST['data'], $_POST['array']==1);
+      $method($_POST['array']==1 ? $data['data'] : $data->data);
       $GLOBALS['_candy_async'] = null;
       die();
     }
@@ -627,7 +628,7 @@ class Candy {
     curl_setopt($ch,CURLOPT_URL,str_replace('www.','',$_SERVER['SERVER_NAME']).'/?_candy=async&hash='.$func_hash);
     curl_setopt($ch,CURLOPT_POST,true);
     curl_setopt($ch,CURLOPT_SSL_VERIFYHOST, 0);
-    curl_setopt($ch,CURLOPT_POSTFIELDS,['hash' => $func_hash]);
+    curl_setopt($ch,CURLOPT_POSTFIELDS,['hash' => $func_hash, 'data' => json_encode(['data' => $data]), 'array' => is_array($data) ? 1 : 0]);
     curl_setopt($ch,CURLOPT_RETURNTRANSFER,true);
     curl_setopt($ch,CURLOPT_FRESH_CONNECT ,  true);
     curl_setopt($ch,CURLOPT_TIMEOUT ,  1);
