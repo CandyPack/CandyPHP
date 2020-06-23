@@ -609,6 +609,13 @@ class Candy {
       if(substr($body,-1)==';'){
         $body = 'Candy::async('.substr($body,0,-1).');';
       }
+    }else{
+      if(substr($body,0,8)=='function'){
+        $body = 'Candy::async('.$body;
+      }
+      if(substr($body,-1)=='}'){
+        $body = $body.');';
+      }
     }
     if(substr($body,0,5)=='<?php'){
       $body = preg_replace('/'.preg_quote('<?php', '/').'/', '', $body, 1);
