@@ -108,11 +108,11 @@ class View {
       }
       $php_raw = file_get_contents($filepath, FILE_USE_INCLUDE_PATH);
       $regex = [
-        '/@if\((.*)\)/',
-        '/@foreach\((.*)\)/',
-        '/@for\((.*)\)/',
-        '/@while\((.*)\)/',
-        '/@elseif\((.*)\)/',
+        '/@if *\((.*)\)/',
+        '/@foreach *\((.*)\)/',
+        '/@for *\((.*)\)/',
+        '/@while *\((.*)\)/',
+        '/@elseif *\((.*)\)/',
         '/@candy::(.*);/',
         '/@candy::\(?(.*)\)/'
       ];
