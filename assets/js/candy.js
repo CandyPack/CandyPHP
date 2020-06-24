@@ -1,5 +1,5 @@
-var _candy_token = '';
-var _candy_page = '';
+var _candy_token;
+var _candy_page;
 var Candy = class Candy {
   test(){
     alert('Hi, World');
@@ -25,7 +25,13 @@ var Candy = class Candy {
     return _candy_token;
   }
   page(){
-    candy.getToken();
+    if(_candy_page===undefined){
+      var req = new XMLHttpRequest();
+      req.open('GET', document.location, false);
+      req.send(null);
+      var headers = req.getAllResponseHeaders().toLowerCase().split("\r\n");
+      headers.forEach(element => _candy_page = ((element.split(': ')[0])=='x-candy-page') ? element.split(': ')[1] : _candy_page);
+    }
     return _candy_page;
   }
   form(id,callback,m){
@@ -111,12 +117,13 @@ var Candy = class Candy {
             url: url_go,
             type: "GET",
             beforeSend: function(xhr){xhr.setRequestHeader('X-CANDY', 'ajaxload');xhr.setRequestHeader('X-CANDY-LOAD', index);},
-            success: function(_data){
+            success: function(_data, status, request){
+              _candy_page = request.getResponseHeader('x-candy-page');
               $(value).fadeOut(function(){
                 $(value).html(_data);
                 $(value).fadeIn();
                 if(callback!==undefined){
-                  callback();
+                  callback(candy.page);
                 }
               });
             },
@@ -136,12 +143,13 @@ var Candy = class Candy {
             url: window.location.href,
             type: "GET",
             beforeSend: function(xhr){xhr.setRequestHeader('X-CANDY', 'ajaxload');xhr.setRequestHeader('X-CANDY-LOAD', index);},
-            success: function(_data){
+            success: function(_data, status, request){
+              _candy_page = request.getResponseHeader('x-candy-page');
               $(value).fadeOut(function(){
                 $(value).html(_data);
                 $(value).fadeIn();
                 if(callback!==undefined){
-                  callback();
+                  callback(candy.page());
                 }
               });
             },
