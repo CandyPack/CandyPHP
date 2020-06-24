@@ -123,7 +123,7 @@ var Candy = class Candy {
                 $(value).html(_data);
                 $(value).fadeIn();
                 if(callback!==undefined){
-                  callback(candy.page);
+                  callback(candy.page());
                 }
               });
             },
