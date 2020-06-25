@@ -18,6 +18,7 @@ class Route {
       if($get_page==$page || self::checkRequest($page,$get_page)){
         define('PAGE',$controller);
         define('PAGE_METHOD','page');
+        header('X-Candy-Page: '.PAGE);
       }
     }
   }
