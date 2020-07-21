@@ -40,9 +40,9 @@ class Lang {
 
   public static function set($code){
     function returnLang($l){
-      return require_once "lang/{$l}.php";
+      return include "lang/$l.php";
     }
-    if(file_exists("lang/{$code}.php")){
+    if(file_exists("lang/$code.php")){
       Lang::setArray(returnLang($code));
     }elseif(file_exists("lang/lang.php")){
       Lang::setArray(returnLang('lang'));
