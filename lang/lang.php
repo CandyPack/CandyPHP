@@ -1,2 +1,5 @@
 <?php
-$lang['welcome'] = 'Hi';
+
+return [
+  'welcome' => 'Hi'
+];
