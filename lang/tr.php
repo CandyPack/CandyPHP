@@ -1,2 +1,4 @@
 <?php
-$lang['welcome'] = 'Candy PHP\'ye Hoşgeldin !';
+return [
+  'welcome' => 'Candy PHP\'ye Hoşgeldin !'
+];
