@@ -29,9 +29,6 @@ class Config {
     }
   }
   public static function languageDetect($b  = true){
-    function returnLang($l){
-      return require_once "lang/{$l}.php";
-    }
     if(isset($_SERVER['HTTP_ACCEPT_LANGUAGE'])){
       $lang = substr($_SERVER['HTTP_ACCEPT_LANGUAGE'], 0, 2);
       Lang::set($lang);
