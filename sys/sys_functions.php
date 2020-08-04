@@ -643,5 +643,13 @@ class Candy {
     curl_exec($ch);
     curl_close($ch);
   }
+
+  public static function isDev($f = null){
+    if(defined('CANDY_DEVMODE') && CANDY_DEVMODE){
+      return is_callable($f) ? $f() : true;
+    }else{
+      return false;
+    }
+  }
 }
 $candy = new Candy();
