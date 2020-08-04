@@ -67,10 +67,10 @@ class Config {
   public static function runBackup(){
     global $conn;
     global $backupdirectory;
-
-    set_time_limit(10000);
     $b = defined('AUTO_BACKUP') && AUTO_BACKUP;
     if($b && date("Hi")=='0000' && ((substr($_SERVER['SERVER_ADDR'],0,8)=='192.168.') || ($_SERVER['SERVER_ADDR']==$_SERVER['REMOTE_ADDR'])) && isset($_GET['_candy']) && $_GET['_candy']=='cron'){
+      set_time_limit(0);
+      ini_set('memory_limit', '9999M');
       $directory = BACKUP_DIRECTORY;
       $backupdirectory = $directory;
       if (!file_exists($backupdirectory.'mysql/')) {
@@ -314,6 +314,22 @@ class Config {
       }
     };
     return $class->name($name);
+  }
+
+  public static function devmode($b){
+    if(is_bool($b) && $b){
+      $devmode = !defined('CANDY_DEVMODE') ? define('CANDY_DEVMODE', true) : false;
+    }
+    return new class {
+      public static function version($v){
+        $define = !defined('DEV_VERSION') ? define('DEV_VERSION', $v) : false;
+        return new static();
+      }
+      public static function errors(){
+        Config::displayError(true);
+        return new static();
+      }
+    };
   }
 }
 
