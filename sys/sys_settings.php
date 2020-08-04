@@ -29,9 +29,20 @@ class Config {
     }
   }
   public static function languageDetect($b  = true){
+    function returnLang($l){
+      return require_once "lang/{$l}.php";
+    }
     if(isset($_SERVER['HTTP_ACCEPT_LANGUAGE'])){
-      $lang = substr($_SERVER['HTTP_ACCEPT_LANGUAGE'], 0, 2);
-      Lang::set($lang);
+      $langg = substr($_SERVER['HTTP_ACCEPT_LANGUAGE'], 0, 2);
+      if(file_exists("lang/{$langg}.php")){
+        Lang::setArray(returnLang($langg));
+      }elseif(file_exists("lang/lang.php")){
+        Lang::setArray(returnLang('lang'));
+      }
+    }else{
+      if(file_exists("lang/lang.php")){
+        Lang::setArray(returnLang('lang'));
+      }
     }
   }
   public static function cronJobs($b = true){
@@ -67,10 +78,10 @@ class Config {
   public static function runBackup(){
     global $conn;
     global $backupdirectory;
-
-    set_time_limit(10000);
     $b = defined('AUTO_BACKUP') && AUTO_BACKUP;
     if($b && date("Hi")=='0000' && ((substr($_SERVER['SERVER_ADDR'],0,8)=='192.168.') || ($_SERVER['SERVER_ADDR']==$_SERVER['REMOTE_ADDR'])) && isset($_GET['_candy']) && $_GET['_candy']=='cron'){
+      set_time_limit(0);
+      ini_set('memory_limit', '9999M');
       $directory = BACKUP_DIRECTORY;
       $backupdirectory = $directory;
       if (!file_exists($backupdirectory.'mysql/')) {
