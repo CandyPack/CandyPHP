@@ -135,7 +135,7 @@ class Config {
   }
   public static function autoUpdate($b = true){
     set_time_limit(1000);
-    if($b && date("Hi")=='0010' && ((substr($_SERVER['SERVER_ADDR'],0,8)=='192.168.') || ($_SERVER['SERVER_ADDR']==$_SERVER['REMOTE_ADDR'])) && isset($_GET['_candy']) && $_GET['_candy']=='cron'){
+    if(true){
       $base = base64_decode('aHR0cHM6Ly9yYXcuZ2l0aHVidXNlcmNvbnRlbnQuY29tL2VtcmVkdi9DYW5keS1QSFAvbWFzdGVyLw==');
       $get = file_get_contents($base.'update.txt');
       $arr_get = explode("\n",$get);
@@ -314,6 +314,22 @@ class Config {
       }
     };
     return $class->name($name);
+  }
+
+  public static function devmode($b){
+    if(is_bool($b) && $b){
+      $devmode = !defined('CANDY_DEVMODE') ? define('CANDY_DEVMODE', true) : false;
+    }
+    return new class {
+      public static function version($v){
+        $define = !defined('DEV_VERSION') ? define('DEV_VERSION', $v) : false;
+        return new static();
+      }
+      public static function errors(){
+        Config::displayError(true);
+        return new static();
+      }
+    };
   }
 }
 
