@@ -29,20 +29,9 @@ class Config {
     }
   }
   public static function languageDetect($b  = true){
-    function returnLang($l){
-      return require_once "lang/{$l}.php";
-    }
     if(isset($_SERVER['HTTP_ACCEPT_LANGUAGE'])){
-      $langg = substr($_SERVER['HTTP_ACCEPT_LANGUAGE'], 0, 2);
-      if(file_exists("lang/{$langg}.php")){
-        Lang::setArray(returnLang($langg));
-      }elseif(file_exists("lang/lang.php")){
-        Lang::setArray(returnLang('lang'));
-      }
-    }else{
-      if(file_exists("lang/lang.php")){
-        Lang::setArray(returnLang('lang'));
-      }
+      $lang = substr($_SERVER['HTTP_ACCEPT_LANGUAGE'], 0, 2);
+      Lang::set($lang);
     }
   }
   public static function cronJobs($b = true){
