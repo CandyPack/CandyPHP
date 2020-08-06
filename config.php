@@ -8,5 +8,9 @@ Config::masterMail(/*E-Mail Adresi*/); // Oluşan önemli sorunları mail ile ra
   
 //Config::mysql(/*tanımlanan isim(opsiyonel)*/)->database(/*Veritabanı*/)->user(/*Kullanıcı*/)->password(/*Parola*/)->default(); // Veritabanı tanımlar
 
+//Config::devmode(true) // True ise geliştirici modunu aktifleştirir
+//        ->errors() // Oluşan hataları görüntüler
+//        ->version('2020-01-30'); // Sitenin girilen tarihteki versiyonunu çalıştırır.
+
 Config::autoBackup();  // Günlük yedek alır
 Config::autoUpdate();  // Candy PHP yeni sürümü çıktığında günceller
