@@ -162,6 +162,26 @@ var Candy = class Candy {
       }
     });
   }
+  action(arr){
+    $.each(arr, function(key, val){
+      switch(key){
+        case 'load':
+          $(function(){ val(); });
+          break;
+        case 'page':
+          
+          break;
+        default:
+        $.each(val, function(key2, val2){
+          if((typeof val[key2]) == 'function'){
+            $(document).on(key, key2, val[key2]);
+          }else{
+
+          }
+        });
+      }
+    });
+  }
 }
 var candy = new Candy;
 $(function(){
