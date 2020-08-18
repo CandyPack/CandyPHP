@@ -323,6 +323,24 @@ class Mysql {
       return $sql = mysqli_query($conn, 'DELETE FROM '.$table.' WHERE '.$where);
     }
   }
+
+  public static function close($db=null){
+    if($db===null){
+      $close = mysqli_close(self::$conn);
+    }else{
+      $db == '' ? (defined('MYSQL_DB') ? MYSQL_DB : '') : $db;
+      $close = mysqli_close(self::$arr_conn[$db]);
+      unset(self::$arr_conn[$db]);
+    }
+    return $close;
+  }
+
+  public static function closeAll($db=null){
+    foreach(self::$arr_conn as $key => $val){
+      mysqli_close($val);
+    }
+    self::$arr_conn = [];
+  }
 }
 global $mysql;
 $mysql = new Mysql();
