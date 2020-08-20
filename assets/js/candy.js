@@ -110,7 +110,7 @@ var Candy = class Candy {
       var page = url_go;
       if((target==null || target=='_self') && (url_go!='' && url_go.substring(0,11)!='javascript:' && url_go.substring(0,1)!='#') && (!url_go.includes('://') || url_now.split("/")[2]==url_go.split("/")[2])){
         e.preventDefault();
-        if(typeof _candy_action.candy.loader.start == 'function'){
+        if(_candy_action.candy.loader.start !== undefined && typeof _candy_action.candy.loader.start == 'function'){
           _candy_action.candy.loader.start();
         }
         if(url_go!=url_now){
@@ -126,10 +126,10 @@ var Candy = class Candy {
               $(value).fadeOut(function(){
                 $(value).html(_data);
                 $(value).fadeIn();
-                if(typeof _candy_action.load == 'function'){
+                if(_candy_action.load !== undefined && typeof _candy_action.load == 'function'){
                   _candy_action.load();
                 }
-                if(typeof _candy_action.page[_candy_page] == 'function'){
+                if(_candy_action.page[_candy_page] !== undefined && typeof _candy_action.page[_candy_page] == 'function'){
                   _candy_action.page[_candy_page].load();
                 }
                 if(callback!==undefined){
@@ -148,7 +148,7 @@ var Candy = class Candy {
     $(window).on('popstate', function(){
       var url_go = window.location.href;
       if((url_go!='' && url_go.substring(0,11)!='javascript:' && !url_go.includes('#'))){
-        if(typeof _candy_action.candy.loader.start == 'function'){
+        if(_candy_action.candy.loader.start !== undefined && typeof _candy_action.candy.loader.start == 'function'){
           _candy_action.candy.loader.start();
         }
         $.each(arr, function(index, value){
