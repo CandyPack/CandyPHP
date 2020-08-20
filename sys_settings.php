@@ -116,7 +116,6 @@ class Config {
       $rootPath = realpath('./');
       $zip = new ZipArchive();
       $zip->open($backupdirectory.'www/'.date("Y-m-d").'-backup.zip', ZipArchive::CREATE | ZipArchive::OVERWRITE);
-      /** @var SplFileInfo[] $files */
       $files = new RecursiveIteratorIterator(
         new RecursiveDirectoryIterator($rootPath),
         RecursiveIteratorIterator::LEAVES_ONLY
