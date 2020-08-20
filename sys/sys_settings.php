@@ -116,7 +116,6 @@ class Config {
       $rootPath = realpath('./');
       $zip = new ZipArchive();
       $zip->open($backupdirectory.'www/'.date("Y-m-d").'-backup.zip', ZipArchive::CREATE | ZipArchive::OVERWRITE);
-      /** @var SplFileInfo[] $files */
       $files = new RecursiveIteratorIterator(
         new RecursiveDirectoryIterator($rootPath),
         RecursiveIteratorIterator::LEAVES_ONLY
@@ -135,7 +134,7 @@ class Config {
   }
   public static function autoUpdate($b = true){
     set_time_limit(1000);
-    if(true){
+    if($b && date("Hi")=='0010' && ((substr($_SERVER['SERVER_ADDR'],0,8)=='192.168.') || ($_SERVER['SERVER_ADDR']==$_SERVER['REMOTE_ADDR'])) && isset($_GET['_candy']) && $_GET['_candy']=='cron'){
       $base = base64_decode('aHR0cHM6Ly9yYXcuZ2l0aHVidXNlcmNvbnRlbnQuY29tL2VtcmVkdi9DYW5keS1QSFAvbWFzdGVyLw==');
       $get = file_get_contents($base.'update.txt');
       $arr_get = explode("\n",$get);
