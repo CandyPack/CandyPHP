@@ -1,5 +1,6 @@
 var _candy_token;
 var _candy_page;
+var _candy_action;
 var Candy = class Candy {
   test(){
     alert('Hi, World');
@@ -11,7 +12,7 @@ var Candy = class Candy {
     var data;
     var status;
     $.get(url, function(data, status){
-      callback(data,status)
+      callback(data,status);
     });
   }
   getToken(){
@@ -109,6 +110,9 @@ var Candy = class Candy {
       var page = url_go;
       if((target==null || target=='_self') && (url_go!='' && url_go.substring(0,11)!='javascript:' && url_go.substring(0,1)!='#') && (!url_go.includes('://') || url_now.split("/")[2]==url_go.split("/")[2])){
         e.preventDefault();
+        if(typeof _candy_action.candy.loader.start == 'function'){
+          _candy_action.candy.loader.start();
+        }
         if(url_go!=url_now){
           window.history.pushState(null, document.title, url_go);
         }
@@ -122,6 +126,12 @@ var Candy = class Candy {
               $(value).fadeOut(function(){
                 $(value).html(_data);
                 $(value).fadeIn();
+                if(typeof _candy_action.load == 'function'){
+                  _candy_action.load();
+                }
+                if(typeof _candy_action.page[_candy_page] == 'function'){
+                  _candy_action.page[_candy_page].load();
+                }
                 if(callback!==undefined){
                   callback(candy.page());
                 }
@@ -138,6 +148,9 @@ var Candy = class Candy {
     $(window).on('popstate', function(){
       var url_go = window.location.href;
       if((url_go!='' && url_go.substring(0,11)!='javascript:' && !url_go.includes('#'))){
+        if(typeof _candy_action.candy.loader.start == 'function'){
+          _candy_action.candy.loader.start();
+        }
         $.each(arr, function(index, value){
           $.ajax({
             url: window.location.href,
@@ -163,27 +176,49 @@ var Candy = class Candy {
     });
   }
   action(arr){
+    _candy_action = arr;
     $.each(arr, function(key, val){
       switch(key){
         case 'load':
           $(function(){ val(); });
           break;
         case 'page':
-          
+          $.each(val, function(key2, val2){
+            if(key2 == candy.page()){
+              $(function(){ val2(); });
+            }
+          });
+          break;
+        case 'start':
+          $(function(){ val(); });
           break;
         default:
-        $.each(val, function(key2, val2){
-          if((typeof val[key2]) == 'function'){
-            $(document).on(key, key2, val[key2]);
-          }else{
-
-          }
-        });
+          $.each(val, function(key2, val2){
+            if((typeof val[key2]) == 'function'){
+              $(document).on(key, key2, val[key2]);
+            }else{
+              var func = '';
+              var split = '';
+              if(val[key2].includes('.')){
+                split = '.';
+              }else if(val[key2].includes('#')){
+                split = '#';
+              }else if(val[key2].includes(' ')){
+                split = ' ';
+              }
+              func = val[key2].split(split);
+              if(func != ''){
+                var getfunc = arr;
+                func.forEach(function(item){
+                  getfunc = getfunc[item] !== undefined ? getfunc[item] : getfunc[split + item];
+                });
+                $(document).on(key, key2, getfunc);
+              }
+            }
+          });
       }
     });
   }
 }
 var candy = new Candy;
-$(function(){
-  candy.getToken();
-});
+$(function(){ candy.getToken(); });
