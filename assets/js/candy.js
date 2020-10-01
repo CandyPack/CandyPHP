@@ -214,7 +214,7 @@ var Candy = class Candy {
               }else if(val[key2].includes(' ')){
                 split = ' ';
               }
-              func = val[key2].split(split);
+              func = split!='' ? val[key2].split(split) : [val[key2]];
               if(func != ''){
                 var getfunc = arr;
                 func.forEach(function(item){
