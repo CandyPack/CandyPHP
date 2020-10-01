@@ -200,6 +200,8 @@ var Candy = class Candy {
         case 'start':
           $(function(){ val(); });
           break;
+        case 'function':
+          break;
         default:
           $.each(val, function(key2, val2){
             if((typeof val[key2]) == 'function'){
