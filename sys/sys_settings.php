@@ -331,8 +331,9 @@ class Config {
     };
   }
 
-  public static function key($k){
+  public static function key($k, $stage=5){
     $define = !defined('ENCRYPT_KEY') ? define('ENCRYPT_KEY', md5($k)) : false;
+    $define = !defined('ENCRYPT_STAGE') ? define('ENCRYPT_STAGE', $stage) : false;
   }
 
 }

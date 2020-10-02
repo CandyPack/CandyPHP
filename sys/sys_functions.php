@@ -652,12 +652,13 @@ class Candy {
     }
   }
 
-  public static function encrypt($v, $key = null){
-    $key = $key===null ? ENCRYPT_KEY : $key;
+  public static function encrypt($v, $key = null, $stage = null){
+    $key = $key===null ? (defined('ENCRYPT_KEY') ? ENCRYPT_KEY : 'candy') : $key;
+    $stage = $stage===null ? (defined('ENCRYPT_STAGE') ? ENCRYPT_STAGE : 5) : $stage;
     $alphas = range('a', 'z');
     $encrypted = base64_encode($v);
     $md5 = $key;
-    for($i=0; $i < 3; $i++){
+    for($i=0; $i < $stage; $i++){
       $md5 = md5($md5);
       $arr = array_unique(array_filter(str_split($md5)));
       $loop = 0;
@@ -676,12 +677,13 @@ class Candy {
     return $encrypted;
   }
 
-  public static function decrypt($v, $key = null){
-    $key = $key===null ? ENCRYPT_KEY : $key;
+  public static function decrypt($v, $key = null, $stage = null){
+    $key = $key===null ? (defined('ENCRYPT_KEY') ? ENCRYPT_KEY : 'candy') : $key;
+    $stage = $stage===null ? (defined('ENCRYPT_STAGE') ? ENCRYPT_STAGE : 5) : $stage;
     $decrypted = str_replace(['_','-'],['==','='],$v);
     $alphas = range('a', 'z');
     $keys = [];
-    for($i=0; $i < 3; $i++){
+    for($i=0; $i < $stage; $i++){
       $key = md5($key);
       $keys[] = $key;
     }
