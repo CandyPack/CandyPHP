@@ -651,5 +651,57 @@ class Candy {
       return false;
     }
   }
+
+  public static function encrypt($v, $key = null){
+    $key = $key===null ? ENCRYPT_KEY : $key;
+    $alphas = range('a', 'z');
+    $encrypted = base64_encode($v);
+    $md5 = $key;
+    for($i=0; $i < 3; $i++){
+      $md5 = md5($md5);
+      $arr = array_unique(array_filter(str_split($md5)));
+      $loop = 0;
+      foreach($arr as $key){
+        if(is_numeric($key)){
+          $encrypted = substr($encrypted,$key).substr($encrypted,0,$key);
+        }else{
+          $encrypted = str_replace([strtolower($key),strtoupper($key)], ["{-}","{--}"], $encrypted);
+          $encrypted = str_replace([strtolower($alphas[$loop]),strtoupper($alphas[$loop])], [strtolower($key),strtoupper($key)], $encrypted);
+          $encrypted = str_replace(["{-}","{--}"], [strtolower($alphas[$loop]),strtoupper($alphas[$loop])], $encrypted);
+        }
+        $loop++;
+      }
+    }
+    $encrypted = str_replace(['==','='],['_','-'],$encrypted);
+    return $encrypted;
+  }
+
+  public static function decrypt($v, $key = null){
+    $key = $key===null ? ENCRYPT_KEY : $key;
+    $decrypted = str_replace(['_','-'],['==','='],$v);
+    $alphas = range('a', 'z');
+    $keys = [];
+    for($i=0; $i < 3; $i++){
+      $key = md5($key);
+      $keys[] = $key;
+    }
+    $keys = array_reverse($keys);
+    foreach($keys as $md5) {
+      $arr =  array_reverse(array_unique(array_filter(str_split($md5))));
+      $loop = 1;
+      foreach($arr as $key){
+        if(is_numeric($key)){
+          $decrypted = substr($decrypted,($key * -1)).substr($decrypted,0,($key * -1));
+        }else{
+          $count = count($arr) - $loop;
+          $decrypted = str_replace([strtolower($key),strtoupper($key)], ["{-}","{--}"], $decrypted);
+          $decrypted = str_replace([strtolower($alphas[$count]),strtoupper($alphas[$count])], [strtolower($key),strtoupper($key)], $decrypted);
+          $decrypted = str_replace(["{-}","{--}"], [strtolower($alphas[$count]),strtoupper($alphas[$count])], $decrypted);
+        }
+        $loop++;
+      }
+    }
+    return base64_decode($decrypted);
+  }
 }
 $candy = new Candy();

@@ -330,6 +330,11 @@ class Config {
       }
     };
   }
+
+  public static function key($k){
+    $define = !defined('ENCRYPT_KEY') ? define('ENCRYPT_KEY', md5($k)) : false;
+  }
+
 }
 
 $config = new Config();
