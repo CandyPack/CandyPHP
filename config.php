@@ -5,6 +5,7 @@ Config::languageDetect(); // Dil dosyalarını yükler (/lang)
 Config::cronJobs();       // Zamanlanmış görevleri aktifleştirir
 Config::composer();       // True veya autoload.php dizini girilebilir.
 Config::masterMail(/*E-Mail Adresi*/); // Oluşan önemli sorunları mail ile raporlar.
+Config::key(/*Anahtar*/); // Şifreleme methodu için anahtar girilmelidir. Sadece aynı anahtar ile deşifre yapılabilir.
   
 //Config::mysql(/*tanımlanan isim(opsiyonel)*/)->database(/*Veritabanı*/)->user(/*Kullanıcı*/)->password(/*Parola*/)->default(); // Veritabanı tanımlar
 
