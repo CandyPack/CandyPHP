@@ -14,6 +14,7 @@ Candy PHP Framework
   - Kolay kullanıcı giriş ve sorgulama işlemleri
   - Composer paketleri kullanabilme
   - Async fonksiyonlar yazabilme
+  - Sitenin geçmişteki bir halini çalıştırmabilme
   - Ve dahası...
 
 ## Bölümler
