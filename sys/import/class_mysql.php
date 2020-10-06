@@ -341,6 +341,59 @@ class Mysql {
     }
     self::$arr_conn = [];
   }
+
+  public static function escape($v){
+    global $conn;
+    return mysqli_real_escape_string($conn,$v);
+  }
+
+  public static function table($tb = null){
+    global $conn;
+    $table = new class {
+      private static $arr = [];
+
+      public static function query(){
+        $arr_q = ['where', 'limit'];
+        $query = "";
+        foreach($arr_q as $key){
+          if(isset(self::$arr[$key])){
+            $query .= " ".strtoupper($key)." ";
+            $query .= self::$arr[$key];
+          }
+        }
+        return $query;
+      }
+      public static function table($t){
+        self::$arr['table'] = $t;
+        return new static();
+      }
+      public static function where(){
+        self::$arr['where'] = $t;
+        return new static();
+      }
+      public static function limit($v1,$v2=null){
+        self::$arr['limit'] = $v2===null ? $v1 : "$v1, $v2";
+        return new static();
+      }
+      public static function get($b=false){
+        global $conn;
+        $query = "SELECT * FROM ".self::$arr['table'].self::query();
+        $data = [];
+        $sql = mysqli_query($conn, $query);
+        while($row = ($b ? mysqli_fetch_assoc($sql) : mysqli_fetch_object($sql))){
+          $data[] = $row;
+        }
+        mysqli_free_result($sql);
+        return $data;
+      }
+      public static function first($b=false){
+        self::$arr['limit'] = 1;
+        return self::get()[0];
+      }
+
+    };
+    return $table->table($tb);
+  }
 }
 global $mysql;
 $mysql = new Mysql();
