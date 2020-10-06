@@ -65,9 +65,7 @@ class View {
           $arr_key = explode('}}',$key);
           if(defined('VIEW_'.trim($arr_key[0]))){
             if(file_exists('view/'.strtolower(trim($arr_key[0])).'/'.constant('VIEW_'.trim($arr_key[0])).'.blade.php')){
-              //echo "\n<!--_".md5(trim($arr_key[0]))."_-->\n";
               include(self::cacheView(strtolower(trim($arr_key[0])).'/'.constant('VIEW_'.trim($arr_key[0])).'.blade.php'));
-              //echo "\n<!--_".md5(trim($arr_key[0]))."_-->\n";
             }
           }
           if(isset($arr_key[1])){
@@ -81,7 +79,7 @@ class View {
   }
   public static function cacheView($v){
     $cache = false;
-    $filepath = 'view/'.$v;
+    $filepath = defined('DEV_VERSION') ? 'zip://' . DEV_VERSION . '#view/'.$v  : 'view/'.$v;
     if(!file_exists('storage/cache/')){
       if(!file_exists('storage/')){
         mkdir('storage/', 0777, true);
@@ -92,8 +90,10 @@ class View {
     $storage = Candy::storage('sys')->get('cache');
     $storage->view = isset($storage->view) && is_object($storage->view) ? $storage->view : new \stdClass;
     $storage->view->$v = isset($storage->view->$v) && is_object($storage->view->$v) ? $storage->view->$v : new \stdClass;
-    $php_time = filemtime($filepath);
-    if(!isset($storage->view->$v)){
+    $php_time = defined('DEV_VERSION') ? 0 : filemtime($filepath);
+    if(defined('DEV_VERSION')){
+      $cache = true;
+    }elseif(!isset($storage->view->$v)){
       $cache = true;
     }elseif(!isset($storage->view->$v->time) ||  $php_time>$storage->view->$v->time){
       $cache = true;
@@ -101,7 +101,7 @@ class View {
       $cache = true;
     }
     if($cache){
-      if(isset($storage->view->$v->file)){
+      if(isset($storage->view->$v->file) && !defined('DEV_VERSION')){
         if(file_exists($storage->view->$v->file)){
           unlink($storage->view->$v->file);
         }
@@ -159,11 +159,14 @@ class View {
         '<?php } ?>'
       ];
       $php_raw = str_replace($str,$rpl,$php_raw);
-      $php_cache = 'storage/cache/'.md5($v).time().'.php';
+      $php_cache = defined('DEV_VERSION') ? 'storage/cache/dev_'.md5($v).time().'.php' : 'storage/cache/'.md5($v).time().'.php';
+      $unlk = file_exists($php_cache) ? unlink($php_cache) : false;
       file_put_contents($php_cache, $php_raw);
-      $storage->view->$v->file = $php_cache;
-      $storage->view->$v->time = $php_time;
-      Candy::storage('sys')->set('cache',$storage);
+      if(!defined('DEV_VERSION')){
+        $storage->view->$v->file = $php_cache;
+        $storage->view->$v->time = $php_time;
+        Candy::storage('sys')->set('cache',$storage);
+      }
     }else{
       $php_cache = $storage->view->$v->file;
     }

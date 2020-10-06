@@ -189,6 +189,7 @@ class Route {
   }
   public static function print(){
     global $conn;
+    Config::devmodeVersion();
     $route = new Route;
     $directory = 'controller';
     $import = array_diff(scandir($directory), array('..', '.','page','post','get','cron'));

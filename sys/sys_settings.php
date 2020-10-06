@@ -317,11 +317,11 @@ class Config {
 
   public static function devmode($b){
     if(is_bool($b) && $b){
-      $devmode = !defined('CANDY_DEVMODE') ? define('CANDY_DEVMODE', true) : false;
+      $devmode = !defined('CANDY_DEVMODE') ? define('CANDY_DEVMODE', $b) : false;
     }
     return new class {
       public static function version($v){
-        $define = !defined('DEV_VERSION') ? define('DEV_VERSION', $v) : false;
+        $GLOBALS['DEV_VERSION'] = $v;
         return new static();
       }
       public static function errors(){
@@ -334,6 +334,27 @@ class Config {
   public static function key($k, $stage=5){
     $define = !defined('ENCRYPT_KEY') ? define('ENCRYPT_KEY', md5($k)) : false;
     $define = !defined('ENCRYPT_STAGE') ? define('ENCRYPT_STAGE', $stage) : false;
+  }
+
+  public static function devmodeVersion(){
+    if(defined('CANDY_DEVMODE') && defined('BACKUP_DIRECTORY') &&   isset($GLOBALS['DEV_VERSION'])){
+      $bkdir = substr(BACKUP_DIRECTORY,-1)=='/' ? BACKUP_DIRECTORY.'www/' : BACKUP_DIRECTORY.'/www/';
+      if(defined('BACKUP_DIRECTORY')){
+        $bks = array_diff(scandir($bkdir), ['.','..']);
+        $cbk = '';
+        $dver = Candy::dateFormatter($GLOBALS['DEV_VERSION'],'Ymd');
+        $difbk = null;
+        foreach($bks as $key){
+          $kbk = intval(str_replace(['-','backup'],['',''],$key));
+          $kdiff = $kbk - $dver;
+          if($kdiff==0 || ($kdiff<0 && ($difbk===null || $kdiff>$difbk))){
+            $cbk = $key;
+            $difbk = $kdiff;
+          }
+        }
+        $define = !defined('DEV_VERSION') && $cbk!='' ? define('DEV_VERSION', $bkdir.$cbk) : false;
+      }
+    }
   }
 
 }
