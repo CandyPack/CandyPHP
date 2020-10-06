@@ -5,7 +5,7 @@ Candy PHP Framework
   - Çok sayfalı websiteleri
   - URL'ye göre içerik yükleme
   - Zamanlanmış Görevler ayarlayabilme
-  - Kolayca mysql bağlantısı ve işlemleri
+  - Çoklu mysql bağlantısı ve pratik sql işlemleri
   - Otomatik günlük web ve sql yedeği alabilme
   - Çoklu dil desteğine sahip web sayfaları
   - Güvenli POST / GET işlemleri
