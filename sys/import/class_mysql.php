@@ -348,7 +348,7 @@ class Mysql {
   }
 
   public static function raw($v){
-    $GLOBALS['candy_token_mysql'] = rand(100,999);
+    $GLOBALS['candy_token_mysql'] = isset($GLOBALS['candy_token_mysql']) ? $GLOBALS['candy_token_mysql'] : rand(100,999);
     return ['ct' => $GLOBALS['candy_token_mysql'], 'v' => $v];
   }
 
@@ -374,7 +374,9 @@ class Mysql {
         return new static();
       }
       public static function where(){
-        if(count(func_get_args()) > 0){
+        if(count(func_get_args()) == 1 && !is_array(func_get_args())){
+          self::$arr['where'] = is_numeric(func_get_args()[0]) ? "id='".func_get_args()[0]."'" : "";
+        }elseif(count(func_get_args()) > 0){
           self::$arr['where'] = isset(self::$arr['where']) && trim(self::$arr['where'])!='' ? self::$arr['where'].' AND '.self::whereExtract(func_get_args()) : self::whereExtract(func_get_args());
         }
         return new static();
@@ -391,7 +393,7 @@ class Mysql {
       }
       public static function get($b=false){
         global $conn;
-        $query = "SELECT * FROM ".self::$arr['table'].self::query();
+        $query = "SELECT * FROM `".self::$arr['table']."` ".self::query();
         $data = [];
         $sql = mysqli_query($conn, $query);
         while($row = ($b ? mysqli_fetch_assoc($sql) : mysqli_fetch_object($sql))){
@@ -399,6 +401,9 @@ class Mysql {
         }
         mysqli_free_result($sql);
         return $data;
+      }
+      public static function set($b=false){
+
       }
       public static function first($b=false){
         self::$arr['limit'] = 1;
@@ -408,24 +413,38 @@ class Mysql {
         $q = "";
         $loop = 1;
         $in_arr = false;
+        $state = '=';
+        $last = 0;
         foreach ($arr as $key){
-          if(is_array($key) && (!isset($key['ct']) || $key['ct']!=$GLOBALS['candy_token_mysql'])){
-            $q .= $q != '' ? ' AND '.self::whereExtract($key) : self::whereExtract($key);
+          if(is_array($key) && ($state != 'IN' && $state != 'NOT IN') && (!isset($key['ct']) || $key['ct']!=$GLOBALS['candy_token_mysql'])){
+            $q .= $last == 1 ? ' AND '.self::whereExtract($key) : self::whereExtract($key);
             $in_arr = true;
+            $last = 1;
           }elseif(count($arr)==2 && $loop==2){
             $q .= isset($key['v']) ? " = " . $key['v'] . " " : " = '" . Mysql::escape($key) . "' ";
           }elseif($in_arr){
             $q .= strtoupper($key)=='OR' ? " OR " : " AND ";
+            $last = 2;
           }elseif(count($arr)==3 && $loop==2){
-            $q .= in_array(strtoupper($key),self::$statements) ? " ".strtoupper($key) : " =";
+            $state = in_array(strtoupper($key),self::$statements) ? strtoupper($key) : "=";
+            $q .= " ".$state;
+            $last = 1;
           }else{
-            $q .= isset($key['v']) ? " " . $key['v'] . " " : " '".Mysql::escape($key)."'";
+            if((!isset($key['ct']) || $key['ct']!=$GLOBALS['candy_token_mysql']) && is_array($key) && ($state == 'IN' || $state == 'NOT IN')){
+              $esc = [];
+              foreach ($key as $val){
+                $esc[] = Mysql::escape($val);
+              }
+              $q .= " ('".implode("','",$esc)."')";
+            }else{
+              $q .= isset($key['v']) ? " " . $key['v'] . " " : " `".Mysql::escape($key)."`";
+            }
+            $last = 1;
           }
             $loop++;
         }
         return '('.$q.')';
       }
-
     };
     return $table->table($tb);
   }
