@@ -347,13 +347,19 @@ class Mysql {
     return mysqli_real_escape_string($conn,$v);
   }
 
+  public static function raw($v){
+    $GLOBALS['candy_token_mysql'] = rand(100,999);
+    return ['ct' => $GLOBALS['candy_token_mysql'], 'v' => $v];
+  }
+
   public static function table($tb = null){
     global $conn;
     $table = new class {
       private static $arr = [];
+      private static $statements = ['=','>','>=','<','<=','!=','LIKE','NOT LIKE','IN','NOT IN','BETWEEN','NOT BETWEEN','IS NULL','IS NOT NULL'];
 
       public static function query(){
-        $arr_q = ['where', 'limit'];
+        $arr_q = ['select','where','limit'];
         $query = "";
         foreach($arr_q as $key){
           if(isset(self::$arr[$key])){
@@ -368,7 +374,15 @@ class Mysql {
         return new static();
       }
       public static function where(){
-        self::$arr['where'] = $t;
+        if(count(func_get_args()) > 0){
+          self::$arr['where'] = isset(self::$arr['where']) && trim(self::$arr['where'])!='' ? self::$arr['where'].' AND '.self::whereExtract(func_get_args()) : self::whereExtract(func_get_args());
+        }
+        return new static();
+      }
+      public static function orWhere(){
+        if(count(func_get_args()) > 0){
+          self::$arr['where'] = isset(self::$arr['where']) && trim(self::$arr['where'])!='' ? self::$arr['where'].' OR '.self::whereExtract(func_get_args()) : self::whereExtract(func_get_args());
+        }
         return new static();
       }
       public static function limit($v1,$v2=null){
@@ -389,6 +403,27 @@ class Mysql {
       public static function first($b=false){
         self::$arr['limit'] = 1;
         return self::get()[0];
+      }
+      private static function whereExtract($arr){
+        $q = "";
+        $loop = 1;
+        $in_arr = false;
+        foreach ($arr as $key){
+          if(is_array($key) && (!isset($key['ct']) || $key['ct']!=$GLOBALS['candy_token_mysql'])){
+            $q .= $q != '' ? ' AND '.self::whereExtract($key) : self::whereExtract($key);
+            $in_arr = true;
+          }elseif(count($arr)==2 && $loop==2){
+            $q .= isset($key['v']) ? " = " . $key['v'] . " " : " = '" . Mysql::escape($key) . "' ";
+          }elseif($in_arr){
+            $q .= strtoupper($key)=='OR' ? " OR " : " AND ";
+          }elseif(count($arr)==3 && $loop==2){
+            $q .= in_array(strtoupper($key),self::$statements) ? " ".strtoupper($key) : " =";
+          }else{
+            $q .= isset($key['v']) ? " " . $key['v'] . " " : " '".Mysql::escape($key)."'";
+          }
+            $loop++;
+        }
+        return '('.$q.')';
       }
 
     };
