@@ -282,7 +282,7 @@ class Mysql {
       $query_val = '';
       foreach ($value as $key => $val) {
         $query_key .= $key.',';
-        $query_val .= '"'.mysqli_real_escape_string($conn, $val).'",';
+        $query_val .= is_numeric($val) ? $val.',' : '"'.mysqli_real_escape_string($conn, $val).'",';
       }
       $query = 'INSERT INTO '.$table.' ('.substr($query_key,0,-1).') VALUES ('.substr($query_val,0,-1).')';
       $sql = mysqli_query($conn, $query);
@@ -401,6 +401,13 @@ class Mysql {
         }
         mysqli_free_result($sql);
         return $data;
+      }
+      public static function rows($b=false){
+        global $conn;
+        $query = "SELECT * FROM `".self::$arr['table']."` ".self::query();
+        $data = [];
+        $sql = mysqli_query($conn, $query);
+        return mysqli_num_rows($sql);
       }
       public static function set($b=false){
 
