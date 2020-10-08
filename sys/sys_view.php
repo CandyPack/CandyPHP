@@ -44,7 +44,7 @@ class View {
     if($ajaxcheck){
       $content = strtoupper($_SERVER['HTTP_X_CANDY_LOAD']);
       if(defined('VIEW_'.trim($content))){
-        $v_exp = explode('.',constant('VIEW_'.trim($arr_key[0])));
+        $v_exp = explode('.',constant('VIEW_'.trim($content)));
         if(count($v_exp)>0){
           $vdir = $v_exp;
           unset($vdir[count($vdir)-1]);
@@ -52,7 +52,7 @@ class View {
         }else{
           $vdir = "";
         }
-        $vfile = $vdir.strtolower(trim($arr_key[0])).'/'.end($v_exp).'.blade.php';
+        $vfile = $vdir.strtolower(trim($content)).'/'.end($v_exp).'.blade.php';
         if(file_exists('view/'.$vfile)){
           include(self::cacheView($vfile));
         }
