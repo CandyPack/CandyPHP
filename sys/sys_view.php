@@ -2,31 +2,24 @@
 class View {
   public $_parts = array();
   public static function head($v){
-    //define('VIEW_HEAD',$v);
     return self::set('head',$v);
   }
   public static function header($v){
-    //define('VIEW_HEADER',$v);
     return self::set('header',$v);
   }
   public static function sidebar($v){
-    //define('VIEW_SIDEBAR',$v);
     return self::set('sidebar',$v);
   }
   public static function content($v){
-    //define('VIEW_CONTENT',$v);
     return self::set('content',$v);
   }
   public static function footer($v){
-    //define('VIEW_FOOTER',$v);
     return self::set('footer',$v);
   }
   public static function script($v){
-    //define('VIEW_SCRIPT',$v);
     return self::set('script',$v);
   }
   public static function skeleton($v){
-    //define('VIEW_SKELETON',$v);
     return self::set('skeleton',$v);
   }
   public static function set($c,$v){
@@ -51,8 +44,17 @@ class View {
     if($ajaxcheck){
       $content = strtoupper($_SERVER['HTTP_X_CANDY_LOAD']);
       if(defined('VIEW_'.trim($content))){
-        if(file_exists('view/'.strtolower(trim($content)).'/'.constant('VIEW_'.trim($content)).'.blade.php')){
-          include(self::cacheView(strtolower(trim($content)).'/'.constant('VIEW_'.trim($content)).'.blade.php'));
+        $v_exp = explode('.',constant('VIEW_'.trim($arr_key[0])));
+        if(count($v_exp)>0){
+          $vdir = $v_exp;
+          unset($vdir[count($vdir)-1]);
+          $vdir = implode('/',$vdir).'/';
+        }else{
+          $vdir = "";
+        }
+        $vfile = $vdir.strtolower(trim($arr_key[0])).'/'.end($v_exp).'.blade.php';
+        if(file_exists('view/'.$vfile)){
+          include(self::cacheView($vfile));
         }
       }
     }
@@ -64,8 +66,17 @@ class View {
         if(strpos($key, '}}') !== false){
           $arr_key = explode('}}',$key);
           if(defined('VIEW_'.trim($arr_key[0]))){
-            if(file_exists('view/'.strtolower(trim($arr_key[0])).'/'.constant('VIEW_'.trim($arr_key[0])).'.blade.php')){
-              include(self::cacheView(strtolower(trim($arr_key[0])).'/'.constant('VIEW_'.trim($arr_key[0])).'.blade.php'));
+            $v_exp = explode('.',constant('VIEW_'.trim($arr_key[0])));
+            if(count($v_exp)>0){
+              $vdir = $v_exp;
+              unset($vdir[count($vdir)-1]);
+              $vdir = implode('/',$vdir).'/';
+            }else{
+              $vdir = "";
+            }
+            $vfile = $vdir.strtolower(trim($arr_key[0])).'/'.end($v_exp).'.blade.php';
+            if(file_exists('view/'.$vfile)){
+              include(self::cacheView($vfile));
             }
           }
           if(isset($arr_key[1])){
