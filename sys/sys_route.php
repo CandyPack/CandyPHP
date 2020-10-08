@@ -16,9 +16,13 @@ class Route {
     $get_page = isset($_GET['_page']) ? $_GET['_page'] : '';
     if(!defined('PAGE')){
       if($get_page==$page || self::checkRequest($page,$get_page)){
-        define('PAGE',$controller);
-        define('PAGE_METHOD','page');
-        header('X-Candy-Page: '.PAGE);
+        if(is_callable($controller)){
+          $controller();
+        }else{
+          define('PAGE',$controller);
+          define('PAGE_METHOD','page');
+          header('X-Candy-Page: '.PAGE);
+        }
       }
     }
   }
