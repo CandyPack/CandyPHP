@@ -69,8 +69,15 @@ class Config {
     global $backupdirectory;
     $b = defined('AUTO_BACKUP') && AUTO_BACKUP;
     if($b && date("Hi")=='0000' && ((substr($_SERVER['SERVER_ADDR'],0,8)=='192.168.') || ($_SERVER['SERVER_ADDR']==$_SERVER['REMOTE_ADDR'])) && isset($_GET['_candy']) && $_GET['_candy']=='cron'){
+      $storage = $storage===null ? Candy::storage('sys')->get('backup') : new \stdClass;
+      $storage->last = isset($storage->last) && is_object($storage->last) ? $storage->last : new \stdClass;
+      if($storage->last==date('d/m/Y')){
+        return false;
+      }
       set_time_limit(0);
       ini_set('memory_limit', '9999M');
+      $storage->last = date('d/m/Y');
+      Candy::storage('sys')->set('backup',$storage);
       $directory = BACKUP_DIRECTORY;
       $backupdirectory = $directory;
       if (!file_exists($backupdirectory.'mysql/')) {

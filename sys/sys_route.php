@@ -14,6 +14,7 @@ class Route {
   }
   public static function page($page,$controller,$type = 'page'){
     $get_page = isset($_GET['_page']) ? $_GET['_page'] : '';
+    $page = substr($page,0,1) == '/' ? substr($page,1) : $page;
     if(!defined('PAGE')){
       if($get_page==$page || self::checkRequest($page,$get_page)){
         if(is_callable($controller)){
@@ -28,6 +29,7 @@ class Route {
   }
   public static function get($page,$controller,$check='',$t=true){
     $arr_get = $_GET;
+    $page = substr($page,0,1) == '/' ? substr($page,1) : $page;
     unset($arr_get['_page']);
     if(Candy::getCheck($check,$t)){
       $get_page = isset($_GET['_page']) ? $_GET['_page'] : '';
@@ -40,6 +42,7 @@ class Route {
     }
   }
   public static function post($page,$controller,$check='',$t=true){
+    $page = substr($page,0,1) == '/' ? substr($page,1) : $page;
     if(Candy::postCheck($check,$t)){
       $get_page = isset($_GET['_page']) ? $_GET['_page'] : '';
       if(!defined('PAGE')){
