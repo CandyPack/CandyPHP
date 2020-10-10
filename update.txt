@@ -1,4 +1,4 @@
-#version:20201008
+#version:20201010
 index.php
 sys/sys_functions.php
 sys/sys_route.php
@@ -9,6 +9,7 @@ sys/sys_cron.php
 sys/sys_storage.php
 sys/sys_language.php
 sys/import/class_mysql.php
+sys/import/class_mysql_table.php
 sys/import/class_validation.php
 sys/import/class_mail.php
 sys/import/class_resizeimage.php
