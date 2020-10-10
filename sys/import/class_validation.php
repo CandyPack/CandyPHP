@@ -4,26 +4,34 @@ class Validation
   private static $_name = '';
   private static $_request = null;
   private static $_error = false;
-  private static $_message = array();
-  private static $_method = array();
-
+  private static $_message = [];
+  private static $_method = [];
+
+  function __construct($name='',$request=null,$error=false,$message=[],$method=[]){
+    self::$_name = $name;
+    self::$_request = $request;
+    self::$_error = $error;
+    self::$_message = $message;
+    self::$_method = $method;
+  }
+
   public static function validator($m){
     self::$_request = $m;
-    return new static();
+    return new static(self::$_name,self::$_request,self::$_error,self::$_message,self::$_method);
   }
 
   public static function post($n){
     self::$_method=$_POST;
     self::$_name=$n;
     self::$_error = false;
-    return new static();
+    return new static(self::$_name,self::$_request,self::$_error,self::$_message,self::$_method);
   }
 
   public static function get($n){
     self::$_method=$_GET;
     self::$_name=$n;
     self::$_error = false;
-    return new static();
+    return new static(self::$_name,self::$_request,self::$_error,self::$_message,self::$_method);
   }
 
   public static function message($m){
@@ -31,10 +39,10 @@ class Validation
       self::$_message[self::$_name] = $m;
       self::$_error = false;
     }
-    return new static();
+    return new static(self::$_name,self::$_request,self::$_error,self::$_message,self::$_method);
   }
 
-  public static function validate($m=null){
+  public static function validate($m=null,$data = []){
     switch(self::$_request){
       case 'ajax':
         if(!isset($_SERVER['HTTP_X_REQUESTED_WITH']) || strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) != 'xmlhttprequest'){
@@ -42,11 +50,12 @@ class Validation
         }else{
           $result['success']['result'] = count(self::$_message)==0;
           $result['success']['message'] = count(self::$_message)==0 ? $m : '';
+          $result['data'] = count(self::$_message)==0 ? $data : [];
           $result['errors'] = self::$_message;
           if(!$result['success']['result']){
             Candy::return($result);
             die();
-          }elseif($result['success']['message']!=''){
+          }elseif($result['success']['message']!==null){
             Candy::return($result);
           }
         }
@@ -111,7 +120,7 @@ class Validation
         }
       }
     }
-    return new static();
+    return new static(self::$_name,self::$_request,self::$_error,self::$_message,self::$_method);
   }
 
   public static function result($v){

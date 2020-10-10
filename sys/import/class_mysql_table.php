@@ -40,6 +40,10 @@ class Mysql_Table {
     }
     return new static(self::$arr);
   }
+  public static function whereJson($col,$val){
+    //return 'JSON_SEARCH('.$col.', "one", "'.$val.'") IS NOT NULL';
+    return new static(self::$arr);
+  }
   public static function limit($v1,$v2=null){
     self::$arr['limit'] = $v2===null ? $v1 : "$v1, $v2";
     return new static(self::$arr);
@@ -75,6 +79,18 @@ class Mysql_Table {
       $vars .= '`'.Mysql::escape($key).'` = '.(is_numeric($val) ? $val : '"'.Mysql::escape($val).'"').',';
     }
     $query = "UPDATE `".self::$arr['table']."` SET ".substr($vars,0,-1)." ".self::query();
+    $sql = mysqli_query($conn, $query);
+    return $sql;
+  }
+  public static function add($arr){
+    global $conn;
+    $query_key = '';
+    $query_val = '';
+    foreach ($arr as $key => $val){
+      $query_key .= '`'.Mysql::escape($key).'`,';
+      $query_val .= is_numeric($val) ? $val.',' : '"'.Mysql::escape($conn, $val).'",';
+    }
+    $query = "INSERT INTO `".self::$arr['table']."` ".' ('.substr($query_key,0,-1).') VALUES ('.substr($query_val,0,-1).')';
     $sql = mysqli_query($conn, $query);
     return $sql;
   }

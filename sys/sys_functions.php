@@ -465,11 +465,15 @@ class Candy {
     return $validation->validator($v);
   }
 
-  public static function session($key,$val=null){
-    if($val===null){
+  public static function session($key){
+    if(count(func_get_args())==1){
       return isset($_SESSION[$key]) ? $_SESSION[$key] : null;
     }else{
-      $_SESSION[$key] = $val;
+      if(func_get_args()[1] === null){
+        $_SESSION[$key] = func_get_args()[1];
+      }else{
+        unset($_SESSION[$key]);
+      }
       return true;
     }
   }

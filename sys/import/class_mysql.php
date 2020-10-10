@@ -98,7 +98,7 @@ class Mysql {
     }
   }
 
-  public static function loginCheck($arr,$t = true){
+  public static function loginCheck($arr,$t = true,$fetch = false){
     global $conn;
     global $storage;
     global $table_token;
@@ -115,6 +115,7 @@ class Mysql {
     if(mysqli_num_rows($sql_user)>=1){
       $is_equal = false;
       while($get = mysqli_fetch_assoc($sql_user)){
+      $user = (object)$get;
         if(!$is_equal){
           $is_equal = true;
           foreach($get as $key => $val){
@@ -152,7 +153,11 @@ class Mysql {
           $storage->login->table_token = $table_token;
           Candy::storage('sys')->set('mysql',$storage);
         }
-        return true;
+        if($fetch){
+          return $user;
+        }else{
+          return true;
+        }
       }else{
         return false;
       }
@@ -183,7 +188,7 @@ class Mysql {
         $token2 = mysqli_real_escape_string($conn, $_COOKIE['token2']);
         $token3 = md5($_SERVER['HTTP_USER_AGENT']);
         $sql_token = mysqli_query($conn, 'SELECT * FROM '.mysqli_real_escape_string($conn,$tb_token).' WHERE token1="'.$token1.'" AND token2="'.$token2.'" AND token3="'.$token3.'"');
-        if(mysqli_num_rows($sql_token) == 1){
+        if($sql_token && mysqli_num_rows($sql_token) == 1){
           if($fetch){
             $get_token = mysqli_fetch_assoc($sql_token);
             $sql_user = mysqli_query($conn,'SELECT * FROM '.$tb_user.' WHERE id="'.$get_token['userid'].'"');
