@@ -23,6 +23,16 @@ var Candy = class Candy {
     });
   }
   token(){
+    if(_candy_token===undefined){
+      var req = new XMLHttpRequest();
+      req.open('GET', document.location, false);
+      req.send(null);
+      var headers = req.getAllResponseHeaders().toLowerCase().split("\r\n");
+      for (var i = 0, len = headers.length; i < len; i++) {
+        var element = headers[i];
+        _candy_token = ((element.split(': ')[0])=='x-candy-token') ? element.split(': ')[1] : _candy_token;
+      }
+    }
     candy.getToken();
     return _candy_token;
   }
@@ -143,8 +153,8 @@ var Candy = class Candy {
                   }
                 }
                 if(_candy_action.page !== undefined){
-                  if(typeof _candy_action.page[_candy_page] == 'function'){
-                    _candy_action.page[_candy_page].load();
+                  if(typeof _candy_action.page[_candy_page] == "function"){
+                    _candy_action.page[_candy_page]();
                   }
                 }
                 if(callback!==undefined){
@@ -193,6 +203,9 @@ var Candy = class Candy {
     });
   }
   action(arr){
+    if(typeof arr !== 'object'){
+      return _candy_action
+    }
     _candy_action = arr;
     $.each(arr, function(key, val){
       switch(key){
@@ -240,4 +253,3 @@ var Candy = class Candy {
   }
 }
 var candy = new Candy;
-$(function(){ candy.getToken(); });
