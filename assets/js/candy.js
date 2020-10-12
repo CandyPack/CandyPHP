@@ -48,7 +48,6 @@ var Candy = class Candy {
       $('#'+id+' ._candy').html('');
       $('#'+id+' ._candy').hide();
       if($('#'+id+' input[type=file]').length > 0){
-        console.log('file form');
         var datastring = new FormData();
         $('#'+id+' input').each(function(index){
           if($(this).attr('type')=='file'){
@@ -98,7 +97,7 @@ var Candy = class Candy {
               }
             }
             if(callback!==undefined){
-              if(typeof v === "function"){
+              if(typeof callback === "function"){
                 callback(data);
               }else if(data.success.result){
                 window.location.replace(callback);
@@ -121,7 +120,7 @@ var Candy = class Candy {
       if((target==null || target=='_self') && (url_go!='' && url_go.substring(0,11)!='javascript:' && url_go.substring(0,1)!='#') && (!url_go.includes('://') || url_now.split("/")[2]==url_go.split("/")[2])){
         e.preventDefault();
         if(_candy_action !== undefined && _candy_action.candy !== undefined && _candy_action.candy.loader.start !== undefined){
-          if(typeof _candy_action.candy.loader.start == 'function'){
+          if(_candy_action.candy.loader.start !== undefined && typeof _candy_action.candy.loader.start == 'function'){
             _candy_action.candy.loader.start();
           }
         }
@@ -143,7 +142,7 @@ var Candy = class Candy {
                     _candy_action.load();
                   }
                 }
-                if(_candy_action !== undefined && _candy_action.page !== undefined){
+                if(_candy_action.page !== undefined){
                   if(typeof _candy_action.page[_candy_page] == 'function'){
                     _candy_action.page[_candy_page].load();
                   }
