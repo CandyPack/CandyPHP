@@ -1,6 +1,7 @@
 var _candy_token;
 var _candy_page;
 var _candy_action;
+var _candy_forms = [];
 var Candy = class Candy {
   test(){
     alert('Hi, World');
@@ -36,6 +37,11 @@ var Candy = class Candy {
     return _candy_page;
   }
   form(id,callback,m){
+    if(_candy_forms.includes(id)){
+      return false;
+    }else{
+      _candy_forms.push(id);
+    }
     $(document).on("submit",'#'+id,function(e){
       e.preventDefault();
       $('#'+id+' ._candy_form_info').remove();
@@ -92,7 +98,11 @@ var Candy = class Candy {
               }
             }
             if(callback!==undefined){
-              callback(data);
+              if(typeof v === "function"){
+                callback(data);
+              }else if(data.success.result){
+                window.location.replace(callback);
+              }
             }
           }
         },
