@@ -23,6 +23,7 @@ class Route {
           define('PAGE',$controller);
           define('PAGE_METHOD','page');
           header('X-Candy-Page: '.PAGE);
+          header('X-Candy-Token: '.Candy::token());
         }
       }
     }

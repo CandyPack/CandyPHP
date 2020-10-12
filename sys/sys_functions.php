@@ -469,7 +469,7 @@ class Candy {
     if(count(func_get_args())==1){
       return isset($_SESSION[$key]) ? $_SESSION[$key] : null;
     }else{
-      if(func_get_args()[1] === null){
+      if(func_get_args()[1] !== null){
         $_SESSION[$key] = func_get_args()[1];
       }else{
         unset($_SESSION[$key]);

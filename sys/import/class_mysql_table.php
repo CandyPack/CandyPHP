@@ -12,7 +12,7 @@ class Mysql_Table {
   }
 
   public static function query(){
-    $arr_q = ['select','where','limit'];
+    $arr_q = ['where','limit'];
     $query = "";
     foreach($arr_q as $key){
       if(isset(self::$arr[$key])){
@@ -48,9 +48,22 @@ class Mysql_Table {
     self::$arr['limit'] = $v2===null ? $v1 : "$v1, $v2";
     return new static(self::$arr);
   }
+  public static function select(){
+    self::$arr['select'] = isset(self::$arr['select']) ? self::$arr['select'] : '';
+    $select = array_filter(explode(',',self::$arr['select']));
+    foreach(func_get_args() as $key){
+      if(is_array($key)){
+
+      }else{
+        $select[] = "`".Mysql::escape($key)."`";
+      }
+      self::$arr['select'] = implode(',',$select);
+    }
+    return new static(self::$arr);
+  }
   public static function get($b=false){
     global $conn;
-    $query = "SELECT * FROM `".self::$arr['table']."` ".self::query();
+    $query = "SELECT ".(isset(self::$arr['select']) ? self::$arr['select'] : '*')." FROM `".self::$arr['table']."` ".self::query();
     $data = [];
     $sql = mysqli_query($conn, $query);
     while($row = ($b ? mysqli_fetch_assoc($sql) : mysqli_fetch_object($sql))){
