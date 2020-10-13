@@ -480,6 +480,7 @@ class Candy {
 
   public static function return($v){
     header("Content-Type: application/json; charset=UTF-8");
+    $v = is_array($v) || is_object($v) ? $v : ['result' => $v];
     echo json_encode($v);
     die();
   }

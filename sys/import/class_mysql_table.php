@@ -89,7 +89,9 @@ class Mysql_Table {
     global $conn;
     $vars = "";
     foreach($arr as $key => $val) {
-      $vars .= '`'.Mysql::escape($key).'` = '.(is_numeric($val) ? $val : '"'.Mysql::escape($val).'"').',';
+      $k = isset($key['v']) ? " " . $key['v'] . " " : "`".Mysql::escape($key)."`";
+      $v = is_numeric($val) ? $val : (isset($val['v']) ? " " . $val['v'] . " " : '"'.Mysql::escape($val).'"');
+      $vars .= $k.' = '. $v .',';
     }
     $query = "UPDATE `".self::$arr['table']."` SET ".substr($vars,0,-1)." ".self::query();
     $sql = mysqli_query($conn, $query);
@@ -139,7 +141,11 @@ class Mysql_Table {
           }
           $q .= " ('".implode("','",$esc)."')";
         }else{
-          $q .= isset($key['v']) ? " " . $key['v'] . " " : " `".Mysql::escape($key)."`";
+          if($loop==1){
+            $q .= isset($key['v']) ? " " . $key['v'] . " " : " `".Mysql::escape($key)."`";
+          }else{
+            $q .= isset($key['v']) ? " " . $key['v'] . " " : ' "'.Mysql::escape($key).'"';
+          }
         }
         $last = 1;
       }
