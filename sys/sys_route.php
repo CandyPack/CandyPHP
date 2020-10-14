@@ -1,15 +1,14 @@
 <?php
 class Route {
-  public $is_cron = false;
-  public $request = array();
+  protected static $is_cron = false;
+  protected static $request = [];
 
   public static function all($controller,$type = 'page'){
-    global $request;
     $get_page = isset($_GET['_page']) ? $_GET['_page'] : '';
     if(!defined('PAGE')){
       define('PAGE',$controller);
       define('PAGE_METHOD','page');
-      $request['page'] = $get_page;
+      self::$request['page'] = $get_page;
     }
   }
   public static function page($page,$controller,$type = 'page'){
@@ -54,20 +53,36 @@ class Route {
       }
     }
   }
+  public static function error($code, $controller){
+    if(is_callable($controller)){
+      $controller();
+    }else{
+      if(!isset($GLOBALS['_candy'])) $GLOBALS['_candy'] = [];
+      if(!isset($GLOBALS['_candy']['route'])) $GLOBALS['_candy']['route'] = [];
+      if(!isset($GLOBALS['_candy']['route']['error'])) $GLOBALS['_candy']['route']['error'] = [];
+      if(strpos($controller, '.') !== false){
+        $controller = str_replace('.','/',$controller);
+        $controller = preg_replace("((.*)\/)", "$1/error/", $controller);
+      }
+      $GLOBALS['_candy']['route']['error'][$code] = $controller;
+    }
+  }
   public static function page404($controller){
-      define('PAGE404',$controller);
+    if(!isset($GLOBALS['_candy'])) $GLOBALS['_candy'] = [];
+    if(!isset($GLOBALS['_candy']['route'])) $GLOBALS['_candy']['route'] = [];
+    if(!isset($GLOBALS['_candy']['route']['error'])) $GLOBALS['_candy']['route']['error'] = [];
+    if(!isset($GLOBALS['_candy']['route']['error']['404'])) $GLOBALS['_candy']['route']['error']['404'] = 'page/'.$controller;
   }
   public static function printPage(){
     global $view;
     global $candy;
     global $conn;
-    global $request;
+    define('CANDY_REQUESTS',self::$request);
     function set($p,$v){
       global $candy;
       $candy->set($p,$v);
     }
     function request($v=null,$method=null){
-      global $request;
       if($v==null){
         $rec = file_get_contents('php://input');
         $json = json_decode($rec);
@@ -81,8 +96,8 @@ class Route {
           return false;
         }
       }elseif($method==null){
-        if(isset($request[$v])){
-          return $request[$v];
+        if(isset(CANDY_REQUESTS[$v])){
+          return CANDY_REQUESTS[$v];
         }elseif(isset($_POST[$v])){
           return $_POST[$v];
         }elseif(isset($_GET[$v])){
@@ -108,13 +123,9 @@ class Route {
       }
       if(defined('PAGE') && file_exists('controller/'.$page.'.php')){
         include('controller/'.$page.'.php');
-        if(defined('DIRECT_404') && DIRECT_404 && defined('PAGE404') && file_exists('controller/page/'.PAGE404.'.php')){
-          http_response_code(404);
-          include('controller/page/'.PAGE404.'.php');
-        }
-      }elseif(defined('PAGE404') && file_exists('controller/page/'.PAGE404.'.php')){
+      }elseif(isset($GLOBALS['_candy']['route']['error']['404']) && file_exists('controller/'.$GLOBALS['_candy']['route']['error']['404'].'.php')){
         http_response_code(404);
-        include('controller/page/'.PAGE404.'.php');
+        include('controller/'.$GLOBALS['_candy']['route']['error']['404'].'.php');
       }
       $view->printView();
       if(isset($GLOBALS['_candy']['oneshot'])){
@@ -148,7 +159,6 @@ class Route {
     }
   }
   private static function checkRequest($route,$page){
-    global $request;
     if((strpos($route, '{')!==false) && (strpos($route, '}')!==false) && $route!=''){
       $continue = true;
       $var = array();
@@ -184,15 +194,16 @@ class Route {
       }
       if($url==$page){
         $return = $continue;
-        $request = $var;
+        self::$request = $var;
       }else{
         $return = false;
-        $request = [];
+        self::$request = [];
       }
     }else{
       $return = false;
-      $request = [];
+      self::$request = [];
     }
+    if(!$return) self::$request = [];
     return $return;
   }
   public static function print(){

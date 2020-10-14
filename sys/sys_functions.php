@@ -166,13 +166,11 @@ class Candy {
     return count($arr_get)==$count;
   }
 
-  public static function direct($link=0){
+  public static function direct($link=null){
     if($link===404){
-      if(!defined('DIRECT_404')){
-        define('DIRECT_404',true);
-      }
+      self::abort(404);
     }else{
-      $url = $link!==0 ? $link : $_SERVER['HTTP_REFERER'];
+      $url = $link!==null ? $link : $_SERVER['HTTP_REFERER'];
       header('Location: '.$url);
       die();
     }
@@ -186,7 +184,6 @@ class Candy {
   }
 
   public static function uploadImage($postname="upload",$target = "uploads/",$filename='0',$maxsize=500000){
-
     $result = new \stdClass();
     $result->success = false;
     $target_dir = $target;
@@ -564,6 +561,9 @@ class Candy {
       http_response_code(intval($exc));
     }
     if($die){
+      if(isset($GLOBALS['_candy']['route']['error'][$exc]) && file_exists('controller/'.$GLOBALS['_candy']['route']['error'][$exc].'.php')){
+        include('controller/'.$GLOBALS['_candy']['route']['error'][$exc].'.php');
+      }
       die($msg);
     }
   }

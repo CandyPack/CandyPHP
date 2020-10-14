@@ -12,7 +12,7 @@ class Mysql_Table {
   }
 
   public static function query(){
-    $arr_q = ['where','limit'];
+    $arr_q = ['where','order by','limit'];
     $query = "";
     foreach($arr_q as $key){
       if(isset(self::$arr[$key])){
@@ -44,28 +44,12 @@ class Mysql_Table {
     //return 'JSON_SEARCH('.$col.', "one", "'.$val.'") IS NOT NULL';
     return new static(self::$arr);
   }
-  public static function limit($v1,$v2=null){
-    self::$arr['limit'] = $v2===null ? $v1 : "$v1, $v2";
-    return new static(self::$arr);
-  }
-  public static function select(){
-    self::$arr['select'] = isset(self::$arr['select']) ? self::$arr['select'] : '';
-    $select = array_filter(explode(',',self::$arr['select']));
-    foreach(func_get_args() as $key){
-      if(is_array($key)){
-
-      }else{
-        $select[] = "`".Mysql::escape($key)."`";
-      }
-      self::$arr['select'] = implode(',',$select);
-    }
-    return new static(self::$arr);
-  }
   public static function get($b=false){
     global $conn;
     $query = "SELECT ".(isset(self::$arr['select']) ? self::$arr['select'] : '*')." FROM `".self::$arr['table']."` ".self::query();
     $data = [];
     $sql = mysqli_query($conn, $query);
+    if($sql === false) return false;
     while($row = ($b ? mysqli_fetch_assoc($sql) : mysqli_fetch_object($sql))){
       $data[] = $row;
     }
@@ -103,7 +87,7 @@ class Mysql_Table {
     $query_val = '';
     foreach ($arr as $key => $val){
       $query_key .= '`'.Mysql::escape($key).'`,';
-      $query_val .= is_numeric($val) ? $val.',' : '"'.Mysql::escape($conn, $val).'",';
+      $query_val .= is_numeric($val) ? $val.',' : '"'.Mysql::escape($val).'",';
     }
     $query = "INSERT INTO `".self::$arr['table']."` ".' ('.substr($query_key,0,-1).') VALUES ('.substr($query_val,0,-1).')';
     $sql = mysqli_query($conn, $query);
@@ -111,7 +95,31 @@ class Mysql_Table {
   }
   public static function first($b=false){
     self::$arr['limit'] = 1;
-    return self::get()[0];
+    $sql = self::get($b);
+    if($sql === false) return false;
+    return $sql[0];
+  }
+  public static function select(){
+    self::$arr['select'] = isset(self::$arr['select']) ? self::$arr['select'] : '';
+    $select = array_filter(explode(',',self::$arr['select']));
+    foreach(func_get_args() as $key){
+      if(is_array($key)){
+
+      }else{
+        $select[] = "`".Mysql::escape($key)."`";
+      }
+      self::$arr['select'] = implode(',',$select);
+    }
+    return new static(self::$arr);
+  }
+  public static function orderBy($v1,$v2='asc'){
+    $v1 = is_array($v1) && isset($v1['v']) ? $v1 : "`".Mysql::escape($v1)."`";
+    self::$arr['order by'] = $v1.' '.($v2 === 'desc' ? 'DESC' : 'ASC');
+    return new static(self::$arr);
+  }
+  public static function limit($v1,$v2=null){
+    self::$arr['limit'] = $v2===null ? $v1 : "$v1, $v2";
+    return new static(self::$arr);
   }
   private static function whereExtract($arr){
     $q = "";
