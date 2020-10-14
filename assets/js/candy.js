@@ -152,7 +152,7 @@ var Candy = class Candy {
                     _candy_action.load();
                   }
                 }
-                if(_candy_action.page !== undefined){
+                if(_candy_action !== undefined && _candy_action.page !== undefined){
                   if(typeof _candy_action.page[_candy_page] == "function"){
                     _candy_action.page[_candy_page]();
                   }
@@ -188,7 +188,7 @@ var Candy = class Candy {
                     _candy_action.load();
                   }
                 }
-                if(_candy_action.page !== undefined){
+                if(_candy_action !== undefined && _candy_action.page !== undefined){
                   if(typeof _candy_action.page[_candy_page] == "function"){
                     _candy_action.page[_candy_page]();
                   }
