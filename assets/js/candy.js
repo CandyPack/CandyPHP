@@ -173,11 +173,6 @@ var Candy = class Candy {
     $(window).on('popstate', function(){
       var url_go = window.location.href;
       if((url_go!='' && url_go.substring(0,11)!='javascript:' && !url_go.includes('#'))){
-        if(_candy_action !== undefined){
-          if(typeof _candy_action.candy.loader.start == 'function'){
-            _candy_action.candy.loader.start();
-          }
-        }
         $.each(arr, function(index, value){
           $.ajax({
             url: window.location.href,
@@ -188,6 +183,16 @@ var Candy = class Candy {
               $(value).fadeOut(function(){
                 $(value).html(_data);
                 $(value).fadeIn();
+                if(_candy_action !== undefined){
+                  if(typeof _candy_action.load == 'function'){
+                    _candy_action.load();
+                  }
+                }
+                if(_candy_action.page !== undefined){
+                  if(typeof _candy_action.page[_candy_page] == "function"){
+                    _candy_action.page[_candy_page]();
+                  }
+                }
                 if(callback!==undefined){
                   callback(candy.page());
                 }
