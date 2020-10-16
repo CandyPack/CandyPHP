@@ -67,7 +67,7 @@ class Mysql_Table {
     $query = "SELECT * FROM `".self::$arr['table']."` ".self::query();
     $data = [];
     $sql = mysqli_query($conn, $query);
-    return mysqli_num_rows($sql);
+    return $sql===false ? false : mysqli_num_rows($sql);
   }
   public static function set($arr){
     global $conn;
@@ -96,7 +96,7 @@ class Mysql_Table {
   public static function first($b=false){
     self::$arr['limit'] = 1;
     $sql = self::get($b);
-    if($sql === false) return false;
+    if($sql === false || !isset($sql[0])) return false;
     return $sql[0];
   }
   public static function select(){

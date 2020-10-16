@@ -141,7 +141,7 @@ class Mysql {
           $table_token = isset($arr['table_token']) ? $arr['table_token'] : 'candy_token';
           $check_table = mysqli_query($conn, 'SHOW TABLES LIKE "'.$table_token.'"');
           if(mysqli_num_rows($check_table)==0){
-            $sql_create = mysqli_query($conn, "CREATE TABLE ".$table_token." (id INT NOT NULL AUTO_INCREMENT, userid INT NOT NULL, token1 VARCHAR(255) NOT NULL, token2 VARCHAR(255) NOT NULL, token3 VARCHAR(255) NOT NULL, ip VARCHAR(255) NOT NULL, PRIMARY KEY (id))");
+            $sql_create = mysqli_query($conn, "CREATE TABLE ".$table_token." (id INT NOT NULL AUTO_INCREMENT, userid INT NOT NULL, token1 VARCHAR(255) NOT NULL, token2 VARCHAR(255) NOT NULL, token3 VARCHAR(255) NOT NULL, ip VARCHAR(255) NOT NULL, `date` TIMESTAMP on update CURRENT_TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, PRIMARY KEY (id))");
           }
           $sql_token = mysqli_query($conn, 'INSERT INTO '.$table_token.' (userid,token1,token2,token3,ip) VALUES ("' . $result->fetch[0]['id'] . '","' . $token1 . '","' . $token2 . '","' . $token3 . '","'.$_SERVER['REMOTE_ADDR'].'")');
         }

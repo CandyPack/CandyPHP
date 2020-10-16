@@ -78,7 +78,7 @@ class Route {
     global $candy;
     global $conn;
     define('CANDY_REQUESTS',self::$request);
-    function set($p,$v){
+    function set($p,$v=null){
       global $candy;
       $candy->set($p,$v);
     }
@@ -239,7 +239,7 @@ class Route {
           if(defined('CRON_JOBS') && CRON_JOBS===true){
               if((substr($_SERVER['SERVER_ADDR'],0,8)=='192.168.') || ($_SERVER['SERVER_ADDR'] == $_SERVER['REMOTE_ADDR'])){
                 if($_SERVER['HTTP_USER_AGENT']=='candyPHP-cron'){
-                  function set($p,$v){
+                  function set($p,$v=null){
                     global $candy;
                     $candy->set($p,$v);
                   }
@@ -265,7 +265,7 @@ class Route {
                 $storage = Candy::storage('sys')->get('cache');
                 $hash = $_GET['hash'];
                 if(isset($storage->async->$hash) && $storage->async->$hash==1){
-                  function set($p,$v){
+                  function set($p,$v=null){
                     global $candy;
                     $candy->set($p,$v);
                   }

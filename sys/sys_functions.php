@@ -28,12 +28,18 @@ class Candy {
     return isset($var->$p) ? $var->$p : null;
   }
 
-  public static function set($p,$v){
+  public static function set($p,$v=null){
     global $var;
     if(empty($var)){
       $var = new \stdClass();
     }
-    $var->$p = $v;
+    if(is_array($p) && $v===null){
+      foreach ($p as $key => $value) {
+        $var->$key = $value;
+      }
+    }else{
+      $var->$p = $v;
+    }
   }
 
   public static function configCheck(){
@@ -432,7 +438,7 @@ class Candy {
       <!--<![endif]-->'.$message.'</html>';
     }
 
-    return mail($to, $subject, $message, $headers);
+    return mail($to, $subject, $message, $headers, "-f ".$from_mail);
   }
 
   public static function storage($s){
