@@ -68,9 +68,6 @@ class Route {
     }
   }
   public static function page404($controller){
-    if(!isset($GLOBALS['_candy'])) $GLOBALS['_candy'] = [];
-    if(!isset($GLOBALS['_candy']['route'])) $GLOBALS['_candy']['route'] = [];
-    if(!isset($GLOBALS['_candy']['route']['error'])) $GLOBALS['_candy']['route']['error'] = [];
     if(!isset($GLOBALS['_candy']['route']['error']['404'])) $GLOBALS['_candy']['route']['error']['404'] = 'page/'.$controller;
   }
   public static function printPage(){
@@ -227,6 +224,7 @@ class Route {
       }
     }
     require_once('route/'.$routefile.'.php');
+    $GLOBALS['_candy']['route']['name'] = $routefile;
     if(isset($_GET['_candy']) && $_GET['_candy']!=''){
       switch($_GET['_candy']){
         case 'token':
@@ -239,6 +237,14 @@ class Route {
           if(defined('CRON_JOBS') && CRON_JOBS===true){
               if((substr($_SERVER['SERVER_ADDR'],0,8)=='192.168.') || ($_SERVER['SERVER_ADDR'] == $_SERVER['REMOTE_ADDR'])){
                 if($_SERVER['HTTP_USER_AGENT']=='candyPHP-cron'){
+                  $now = date('Y-m-d H:i');
+                  $storage = Candy::storage('sys')->get('cron');
+                  $storage->route = isset($storage->route) ? $storage->route : new \stdClass;
+                  $storage->route->$routefile = isset($storage->route->$routefile) ? $storage->route->$routefile : new \stdClass;
+                  if(!isset($storage->route->$routefile->run)) $storage->route->$routefile->run = '0000-00-00 00:00';
+                  if($storage->route->$routefile->run == $now) return false;
+                  $storage->route->$routefile->run = $now;
+                  Candy::storage('sys')->set('cron',$storage);
                   function set($p,$v=null){
                     global $candy;
                     $candy->set($p,$v);
