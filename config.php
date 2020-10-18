@@ -1,6 +1,5 @@
 <?php
 
-Config::displayError();   // Oluşan hataları gösterir
 Config::languageDetect(); // Dil dosyalarını yükler (/lang)
 Config::cronJobs();       // Zamanlanmış görevleri aktifleştirir
 Config::composer();       // True veya autoload.php dizini girilebilir.
