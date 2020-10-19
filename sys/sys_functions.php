@@ -273,11 +273,11 @@ class Candy {
     return $date;
   }
 
-  public static function getJs($path){
+  public static function getJs($path, $min = true){
     $minify = false;
     $file_raw = 'assets/js/'.$path;
     $file_min = str_replace('.js','.min.js',$file_raw);
-    if(file_exists($file_raw)){
+    if($min && file_exists($file_raw)){
       $date_min = '1';
       if(file_exists($file_min)){
         $date_raw = filemtime($file_raw);
@@ -296,8 +296,8 @@ class Candy {
       echo '/'.$file_min.'?_v='.$date_min;
       return $file_min.'?_v='.$date_min;
     }else{
-      echo 'assets/js/'.$path;
-      return 'assets/js/'.$path;
+      echo '/assets/js/'.$path;
+      return '/assets/js/'.$path;
     }
   }
 
@@ -591,6 +591,7 @@ class Candy {
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
     curl_setopt($ch,CURLOPT_FOLLOWLOCATION,true);
     $result = curl_exec($ch);
+    if(curl_errno($ch)) return curl_error($ch);
     curl_close ($ch);
     return $result;
   }
