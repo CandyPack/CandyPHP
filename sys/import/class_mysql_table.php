@@ -74,7 +74,7 @@ class Mysql_Table {
     $vars = "";
     foreach($arr as $key => $val) {
       $k = isset($key['v']) ? " " . $key['v'] . " " : "`".Mysql::escape($key)."`";
-      $v = is_numeric($val) ? $val : (isset($val['v']) ? " " . $val['v'] . " " : '"'.Mysql::escape($val).'"');
+      $v = is_numeric($val) ? $val : (isset($val['v']) && isset($val['ct']) && $val['ct']==$GLOBALS['candy_token_mysql'] ? " " . $val['v'] . " " : '"'.Mysql::escape($val).'"');
       $vars .= $k.' = '. $v .',';
     }
     $query = "UPDATE `".self::$arr['table']."` SET ".substr($vars,0,-1)." ".self::query();
@@ -87,7 +87,7 @@ class Mysql_Table {
     $query_val = '';
     foreach ($arr as $key => $val){
       $query_key .= '`'.Mysql::escape($key).'`,';
-      $query_val .= is_numeric($val) ? $val.',' : '"'.Mysql::escape($val).'",';
+      $query_val .= is_numeric($val) ? $val.',' : (isset($val['v']) && isset($val['ct']) && $val['ct']==$GLOBALS['candy_token_mysql'] ? $val['v'].',' : '"'.Mysql::escape($val).'",');
     }
     $query = "INSERT INTO `".self::$arr['table']."` ".' ('.substr($query_key,0,-1).') VALUES ('.substr($query_val,0,-1).')';
     $sql = mysqli_query($conn, $query);
