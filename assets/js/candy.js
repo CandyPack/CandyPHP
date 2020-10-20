@@ -57,6 +57,7 @@ var Candy = class Candy {
       $('#'+id+' ._candy_form_info').remove();
       $('#'+id+' ._candy').html('');
       $('#'+id+' ._candy').hide();
+      $('#'+id+' ._candy_error').removeClass('_candy_error');
       if($('#'+id+' input[type=file]').length > 0){
         var datastring = new FormData();
         $('#'+id+' input').each(function(index){
@@ -101,8 +102,9 @@ var Candy = class Candy {
                     $('#'+id+' ._candy_'+index).html(value);
                     $('#'+id+' ._candy_'+index).show();
                   }else{
-                    $('#'+id+' *[name ="'+index+'"]').after('<span class="_candy_form_info" style="color:'+(data.success.result ? 'green' : 'red')+'">'+value+'</span>');
+                    $('#'+id+' *[name ="'+index+'"]').after('<span class="_candy_form_info" style="color:red">'+value+'</span>');
                   }
+                  $('#'+id+' *[name ="'+index+'"]').addClass('_candy_error');
                 });
               }
             }
