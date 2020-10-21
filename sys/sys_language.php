@@ -1,7 +1,7 @@
-<?php
-class Lang {
-  public $lang;
-
+<?php
+class Lang {
+  public $lang;
+
   public static function get($var, $arr = null){
     $return =isset($GLOBALS['_lang'][$var]) ? $GLOBALS['_lang'][$var] : "";
     if($array!=null){
@@ -15,10 +15,10 @@ class Lang {
         $return = str_replace('$0', $arr, $return);
       }
     }
-    return $return;
-  }
-
-  public static function echo($var){
+    return $return;
+  }
+
+  public static function echo($var){
     $return = isset($GLOBALS['_lang'][$var]) ? $GLOBALS['_lang'][$var] : "";
     if($array!=null){
       if(is_array($arr)){
@@ -32,11 +32,11 @@ class Lang {
       }
     }
     echo $return;
-  }
-
-  public static function setArray($arr){
-    $GLOBALS['_lang'] = $arr;
-  }
+  }
+
+  public static function setArray($arr){
+    $GLOBALS['_lang'] = $arr;
+  }
 
   public static function set($code){
     function returnLang($l){
@@ -49,4 +49,4 @@ class Lang {
     }
   }
 
-}
+}

@@ -45,10 +45,9 @@ class Mysql_Table {
     return new static(self::$arr);
   }
   public static function get($b=false){
-    global $conn;
     $query = "SELECT ".(isset(self::$arr['select']) ? self::$arr['select'] : '*')." FROM `".self::$arr['table']."` ".self::query();
     $data = [];
-    $sql = mysqli_query($conn, $query);
+    $sql = mysqli_query(Mysql::$conn, $query);
     if($sql === false) return false;
     while($row = ($b ? mysqli_fetch_assoc($sql) : mysqli_fetch_object($sql))){
       $data[] = $row;
@@ -57,20 +56,17 @@ class Mysql_Table {
     return $data;
   }
   public static function delete($b=false){
-    global $conn;
     $query = "DELETE FROM `".self::$arr['table']."` ".self::query();
-    $sql = mysqli_query($conn, $query);
+    $sql = mysqli_query(Mysql::$conn, $query);
     return $sql;
   }
   public static function rows($b=false){
-    global $conn;
     $query = "SELECT * FROM `".self::$arr['table']."` ".self::query();
     $data = [];
-    $sql = mysqli_query($conn, $query);
+    $sql = mysqli_query(Mysql::$conn, $query);
     return $sql===false ? false : mysqli_num_rows($sql);
   }
   public static function set($arr){
-    global $conn;
     $vars = "";
     foreach($arr as $key => $val) {
       $k = isset($key['v']) ? " " . $key['v'] . " " : "`".Mysql::escape($key)."`";
@@ -78,11 +74,10 @@ class Mysql_Table {
       $vars .= $k.' = '. $v .',';
     }
     $query = "UPDATE `".self::$arr['table']."` SET ".substr($vars,0,-1)." ".self::query();
-    $sql = mysqli_query($conn, $query);
+    $sql = mysqli_query(Mysql::$conn, $query);
     return $sql;
   }
   public static function add($arr){
-    global $conn;
     $query_key = '';
     $query_val = '';
     foreach ($arr as $key => $val){
@@ -90,7 +85,7 @@ class Mysql_Table {
       $query_val .= is_numeric($val) ? $val.',' : (isset($val['v']) && isset($val['ct']) && $val['ct']==$GLOBALS['candy_token_mysql'] ? $val['v'].',' : '"'.Mysql::escape($val).'",');
     }
     $query = "INSERT INTO `".self::$arr['table']."` ".' ('.substr($query_key,0,-1).') VALUES ('.substr($query_val,0,-1).')';
-    $sql = mysqli_query($conn, $query);
+    $sql = mysqli_query(Mysql::$conn, $query);
     return $sql;
   }
   public static function first($b=false){
@@ -104,7 +99,6 @@ class Mysql_Table {
     $select = array_filter(explode(',',self::$arr['select']));
     foreach(func_get_args() as $key){
       if(is_array($key)){
-
       }else{
         $select[] = "`".Mysql::escape($key)."`";
       }
