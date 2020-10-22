@@ -163,7 +163,7 @@ class Mysql {
   public static function userCheck($fetch = false){
     if(self::$user_signed !== null && $fetch===false) return self::$user_signed;
     self::$storage = self::$storage===null ? Candy::storage('sys')->get('mysql') : self::$storage;
-    if(self::$tb_token===null) self::$tb_token = isset(self::$storage->login->table_token) ? self::$storage->login->table_token : 'tb_token';
+    if(self::$tb_token===null) self::$tb_token = isset(self::$storage->login->table_token) ? self::$storage->login->table_token : 'candy_token';
     if(self::$tb_user===null) self::$tb_user = isset(self::$storage->login->table_user) ? self::$storage->login->table_user : 'tb_user';
     if(self::$user_signed!==null && $fetch===false) return self::$user_signed===true;
     $result = new \stdClass();
@@ -188,7 +188,7 @@ class Mysql {
   public static function logout(){
     self::$storage = self::$storage===null ? Candy::storage('sys')->get('mysql') : self::$storage;
     if(self::$tb_token===null){
-      self::$tb_token = isset(self::$storage->login->table_token) ? self::$storage->login->table_token : 'tb_token';
+      self::$tb_token = isset(self::$storage->login->table_token) ? self::$storage->login->table_token : 'candy_token';
     }
     if(isset($_COOKIE['token1']) && isset($_COOKIE['token2'])){
       $token1 = mysqli_real_escape_string(self::$conn, $_COOKIE['token1']);
