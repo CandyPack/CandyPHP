@@ -196,7 +196,11 @@ class Candy {
     $target_file = $filename=='0' ? $target_dir . basename($_FILES[$postname]["name"]) : $target_dir.$filename;
     $uploadOk = 1;
     $imageFileType = strtolower(pathinfo($target_file,PATHINFO_EXTENSION));
-    $check = (!file_exists($_FILES[$postname]['tmp_name']) || !is_uploaded_file($_FILES[$postname]['tmp_name'])) ? false : getimagesize($_FILES[$postname]["tmp_name"]);
+    if(isset($_FILES[$postname])){
+      $check = (!file_exists($_FILES[$postname]['tmp_name']) || !is_uploaded_file($_FILES[$postname]['tmp_name'])) ? false : getimagesize($_FILES[$postname]["tmp_name"]);
+    }else{
+      $check = false;
+    }
 
     if($check !== false) {
       $result->message = "File is an image - " . $check["mime"] . ".";
@@ -211,12 +215,12 @@ class Candy {
       $uploadOk = 0;
     }
 
-    if ($_FILES[$postname]["size"] > $maxsize) {
+    if ($check !== false && $_FILES[$postname]["size"] > $maxsize) {
       $result->message = "Sorry, your file is too large.";
       $uploadOk = 0;
     }
 
-    if($imageFileType != "jpg" && $imageFileType != "png" && $imageFileType != "jpeg" && $imageFileType != "gif" ) {
+    if($check !== false && $imageFileType != "jpg" && $imageFileType != "png" && $imageFileType != "jpeg" && $imageFileType != "gif" ) {
       $result->message = "Sorry, only JPG, JPEG, PNG & GIF files are allowed.";
       $uploadOk = 0;
     }
