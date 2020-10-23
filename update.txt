@@ -1,5 +1,4 @@
 #version:20201023
-index.php
 assets/css/candy.css
 assets/js/candy.js
 sys/import/class_mail.php
@@ -15,4 +14,5 @@ sys/sys_settings.php
 sys/sys_start.php
 sys/sys_storage.php
 sys/sys_view.php
+index.php
 update.txt
