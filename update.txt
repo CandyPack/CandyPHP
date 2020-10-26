@@ -1,4 +1,4 @@
-#version:20201023
+#version:20201026
 assets/css/candy.css
 assets/js/candy.js
 sys/import/class_mail.php
