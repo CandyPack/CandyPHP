@@ -173,11 +173,11 @@ class Mysql {
     $token3 = md5($_SERVER['HTTP_USER_AGENT']);
     $sql_token = Mysql::table(self::$tb_token)->where(['token1',$token1],['token2',$token2],['token3',$token3]);
     if($sql_token->rows() != 1) return false;
-    $sql_token->set(['ip' => $_SERVER['REMOTE_ADDR']]);
+    $get_token = $sql_token->first();
+    $ip_update = isset($get_token->date) && (intval(Candy::dateFormatter($get_token->date,'YmdH'))+1 < intval(date('YmdH'))) ? $sql_token->set(['ip' => $_SERVER['REMOTE_ADDR']]) : false;
     self::$user_signed = true;
     if($fetch === false) return true;
     $result->success = true;
-    $get_token = $sql_token->first();
     $sql_user = Mysql::table(self::$tb_user)->where($get_token->userid);
     $user = $sql_user->first(true);
     $result->fetch = $user;
