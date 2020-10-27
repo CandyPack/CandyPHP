@@ -74,6 +74,7 @@ class Route {
     global $view;
     global $candy;
     global $conn;
+    Config::checkBruteForce();
     define('CANDY_REQUESTS',self::$request);
     function set($p,$v=null){
       global $candy;

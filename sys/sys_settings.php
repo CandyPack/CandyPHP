@@ -364,6 +364,28 @@ class Config {
     }
   }
 
+  public static function bruteForce($try=250){
+    if(!isset($GLOBALS['_candy'])) $GLOBALS['_candy'] = [];
+    if(!isset($GLOBALS['_candy']['settings'])) $GLOBALS['_candy']['settings'] = [];
+    if(!isset($GLOBALS['_candy']['settings']['bruteforce'])) $GLOBALS['_candy']['settings']['bruteforce'] = ['try' => $try];
+  }
+
+  public static function checkBruteForce(){
+    if(!isset($GLOBALS['_candy']['settings']['bruteforce'])) return false;
+    if($_SERVER['REQUEST_METHOD'] !== 'POST') return false;
+    $try = $GLOBALS['_candy']['settings']['bruteforce']['try'];
+    $storage = Candy::storage('sys')->get('bruteforce');
+    $ip = $_SERVER['REMOTE_ADDR'];
+    $now = date('YmdH');
+
+    $storage = !isset($storage->$now) ? new \stdClass : $storage;
+    $storage->$now = isset($storage->$now) ? $storage->$now : new \stdClass;
+    $storage->$now->$ip = !isset($storage->$now->$ip) ? 1 : $storage->$now->$ip + 1;
+
+    if($storage->$now->$ip >= $try) Candy::abort(403);
+    Candy::storage('sys')->set('bruteforce',$storage);
+  }
+
 }
 
 $config = new Config();
