@@ -132,7 +132,8 @@ class Route {
       }
     }
   public static function cron($controller,$array='*'){
-    return Cron::controller($controller);
+    $cron = new Cron();
+    return $cron->controller($controller);
   }
   public static function authPage($page,$controller,$else=''){
     if(Mysql::userCheck(false)){

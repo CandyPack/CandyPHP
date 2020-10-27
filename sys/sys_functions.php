@@ -396,13 +396,14 @@ class Candy {
 
   public static function mail($view){
     self::import('mail');
-    return Mail::view($view);
+    $mail = new Mail();
+    return $mail->view($view);
   }
 
   public static function quickMail($to,$message,$subject = '',$from = ''){
     if(is_array($from)){
       $from_name = $from['name'];
-      $from_mail = '<'.$from['mail'].'>';
+      $from_mail = $from['mail'];
     }else{
       $from_name = '';
       $from_mail = $from;
@@ -414,7 +415,7 @@ class Candy {
       $subject = $_SERVER['SERVER_NAME'];
     }
 
-    $headers = "From: ".$from_name . $from_mail . "\r\n";
+    $headers = "From: $from_name <$from_mail>" . "\r\n";
     $headers .= "Reply-To: ". $from_mail . "\r\n";
     $headers .= "MIME-Version: 1.0\r\n";
     $headers .= "Content-Type: text/html; charset=UTF-8\r\n";
@@ -442,7 +443,7 @@ class Candy {
       <!--<![endif]-->'.$message.'</html>';
     }
 
-    return mail($to, $subject, $message, $headers, "-f ".$from_mail);
+    return !empty($from_mail) ? mail($to, $subject, $message, $headers, "-f $from_mail") : mail($to, $subject, $message, $headers);
   }
 
   public static function storage($s){
