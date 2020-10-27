@@ -571,6 +571,7 @@ class Candy {
     }else{
       http_response_code(intval($exc));
     }
+    Config::checkBruteForce(10);
     if($die){
       if(isset($GLOBALS['_candy']['route']['error'][$exc]) && file_exists('controller/'.$GLOBALS['_candy']['route']['error'][$exc].'.php')){
         include('controller/'.$GLOBALS['_candy']['route']['error'][$exc].'.php');
