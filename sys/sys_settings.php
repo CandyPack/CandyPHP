@@ -370,7 +370,7 @@ class Config {
     if(!isset($GLOBALS['_candy']['settings']['bruteforce'])) $GLOBALS['_candy']['settings']['bruteforce'] = ['try' => $try];
   }
 
-  public static function checkBruteForce(){
+  public static function checkBruteForce($c = 1){
     if(!isset($GLOBALS['_candy']['settings']['bruteforce'])) return false;
     if($_SERVER['REQUEST_METHOD'] !== 'POST') return false;
     $try = $GLOBALS['_candy']['settings']['bruteforce']['try'];
@@ -380,7 +380,7 @@ class Config {
 
     $storage = !isset($storage->$now) ? new \stdClass : $storage;
     $storage->$now = isset($storage->$now) ? $storage->$now : new \stdClass;
-    $storage->$now->$ip = !isset($storage->$now->$ip) ? 1 : $storage->$now->$ip + 1;
+    $storage->$now->$ip = !isset($storage->$now->$ip) ? $c : $storage->$now->$ip + $c;
 
     if($storage->$now->$ip >= $try) Candy::abort(403);
     Candy::storage('sys')->set('bruteforce',$storage);
