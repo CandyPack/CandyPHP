@@ -167,12 +167,13 @@ class Mysql {
     if(self::$tb_user===null) self::$tb_user = isset(self::$storage->login->table_user) ? self::$storage->login->table_user : 'tb_user';
     if(self::$user_signed!==null && $fetch===false) return self::$user_signed===true;
     $result = new \stdClass();
-    if(!isset($_COOKIE['token1']) || !isset($_COOKIE['token2'])) return false;
+    $result->success = false;
+    if(!isset($_COOKIE['token1']) || !isset($_COOKIE['token2'])) return $fetch === false ? false : $result;
     $token1 = mysqli_real_escape_string(self::$conn, $_COOKIE['token1']);
     $token2 = mysqli_real_escape_string(self::$conn, $_COOKIE['token2']);
     $token3 = md5($_SERVER['HTTP_USER_AGENT']);
     $sql_token = Mysql::table(self::$tb_token)->where(['token1',$token1],['token2',$token2],['token3',$token3]);
-    if($sql_token->rows() != 1) return false;
+    if($sql_token->rows() != 1) return $fetch === false ? false : $result;
     $get_token = $sql_token->first();
     $ip_update = isset($get_token->date) && (intval(Candy::dateFormatter($get_token->date,'YmdH'))+1 < intval(date('YmdH'))) ? $sql_token->set(['ip' => $_SERVER['REMOTE_ADDR']]) : false;
     self::$user_signed = true;
