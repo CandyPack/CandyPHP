@@ -48,7 +48,7 @@ class Mysql_Table {
     $query = "SELECT ".(isset($this->arr['select']) ? $this->arr['select'] : '*')." FROM `".$this->arr['table']."` ".self::query();
     $data = [];
     $sql = mysqli_query(Mysql::$conn, $query);
-    if($sql === false) return false;
+    if($sql === false) return self::error();
     while($row = ($b ? mysqli_fetch_assoc($sql) : mysqli_fetch_object($sql))){
       $data[] = $row;
     }
@@ -75,6 +75,7 @@ class Mysql_Table {
     }
     $query = "UPDATE `".$this->arr['table']."` SET ".substr($vars,0,-1)." ".self::query();
     $sql = mysqli_query(Mysql::$conn, $query);
+    if($sql === false) return self::error();
     return $sql;
   }
   function add($arr){
@@ -86,6 +87,7 @@ class Mysql_Table {
     }
     $query = "INSERT INTO `".$this->arr['table']."` ".' ('.substr($query_key,0,-1).') VALUES ('.substr($query_val,0,-1).')';
     $sql = mysqli_query(Mysql::$conn, $query);
+    if($sql === false) return self::error();
     return $sql;
   }
   function first($b=false){
@@ -98,11 +100,11 @@ class Mysql_Table {
     $this->arr['select'] = isset($this->arr['select']) ? $this->arr['select'] : '';
     $select = array_filter(explode(',',$this->arr['select']));
     foreach(func_get_args() as $key){
-      if(is_array($key)){
+      if(is_array($key) && (!isset($key['v']) || !isset($key['ct']) || $key['ct']!=$GLOBALS['candy_token_mysql'])){
       }else{
-        $select[] = "`".Mysql::escape($key)."`";
+        $select[] = (isset($key['v']) && isset($key['ct']) && $key['ct']==$GLOBALS['candy_token_mysql']) ? $key['v'] : "`".Mysql::escape($key)."`";
       }
-      $this->arr['select'] = implode(',',$select);
+      $this->arr['select'] = implode(', ',$select);
     }
     return new static($this->arr);
   }
@@ -154,5 +156,9 @@ class Mysql_Table {
         $loop++;
     }
     return '('.$q.')';
+  }
+  private function error(){
+    if(Candy::isDev()) printf("Candy Mysql Error: %s\n", mysqli_error(Mysql::$conn));
+    return false;
   }
 }
