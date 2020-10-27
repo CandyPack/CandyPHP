@@ -102,7 +102,11 @@ var Candy = class Candy {
                     $('#'+id+' ._candy_'+index).html(value);
                     $('#'+id+' ._candy_'+index).show();
                   }else{
-                    $('#'+id+' *[name ="'+index+'"]').after('<span class="_candy_form_info" style="color:red">'+value+'</span>');
+                    if(index == '_candy_form'){
+                      $('#'+id).append('<span class="_candy_form_info" style="color:red">'+value+'</span>');
+                    }else{
+                      $('#'+id+' *[name ="'+index+'"]').after('<span class="_candy_form_info" style="color:red">'+value+'</span>');
+                    }
                   }
                   $('#'+id+' *[name ="'+index+'"]').addClass('_candy_error');
                 });
@@ -228,6 +232,15 @@ var Candy = class Candy {
           break;
         case 'start':
           $(function(){ val(); });
+          break;
+        case 'interval':
+          $.each(val, function(key2, val2){
+            $(function(){
+              setInterval(function(){
+                val2();
+              }, key2);
+            });
+          });
           break;
         case 'function':
           break;
