@@ -12,7 +12,7 @@ class Mysql_Table {
   }
 
   function query(){
-    $arr_q = ['left join', 'where','order by','limit'];
+    $arr_q = ['inner join', 'right join', 'left join', 'where','order by','limit'];
     $query = "";
     foreach($arr_q as $key){
       if(isset($this->arr[$key])){
