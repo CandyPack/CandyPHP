@@ -151,7 +151,7 @@ var Candy = class Candy {
             success: function(_data, status, request){
               _candy_page = request.getResponseHeader('x-candy-page');
               $(value).fadeOut(function(){
-                $(value).html(_data);
+                $(value).html(_data.output[index]);
                 $(value).fadeIn();
                 if(_candy_action !== undefined){
                   if(typeof _candy_action.load == 'function'){
@@ -164,12 +164,12 @@ var Candy = class Candy {
                   }
                 }
                 if(callback!==undefined){
-                  callback(candy.page());
+                  callback(candy.page(),_data.variables);
                 }
               });
             },
             error : function(){
-              $(this).unbind('click');
+              $(document).unbind('click');
               e.currentTarget.click();
             }
           });
@@ -187,7 +187,7 @@ var Candy = class Candy {
             success: function(_data, status, request){
               _candy_page = request.getResponseHeader('x-candy-page');
               $(value).fadeOut(function(){
-                $(value).html(_data);
+                $(value).html(_data.output[index]);
                 $(value).fadeIn();
                 if(_candy_action !== undefined){
                   if(typeof _candy_action.load == 'function'){
@@ -200,13 +200,12 @@ var Candy = class Candy {
                   }
                 }
                 if(callback!==undefined){
-                  callback(candy.page());
+                  callback(candy.page(),_data.variables);
                 }
               });
             },
             error : function(){
-              $(this).unbind('click');
-              e.currentTarget.click();
+              window.location.replace(window.location.href);
             }
           });
         });
