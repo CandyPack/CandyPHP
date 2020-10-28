@@ -12,12 +12,16 @@ class Mysql_Table {
   }
 
   function query(){
-    $arr_q = ['where','order by','limit'];
+    $arr_q = ['left join', 'where','order by','limit'];
     $query = "";
     foreach($arr_q as $key){
       if(isset($this->arr[$key])){
-        $query .= " ".strtoupper($key)." ";
-        $query .= $this->arr[$key];
+        if(is_array($this->arr[$key])){
+          $query .= " ".strtoupper($key)." ".implode(" ".strtoupper($key)." ",$this->arr[$key]);
+        }else{
+          $query .= " ".strtoupper($key)." ";
+          $query .= $this->arr[$key];
+        }
       }
     }
     return $query;
@@ -48,7 +52,11 @@ class Mysql_Table {
     $query = "SELECT ".(isset($this->arr['select']) ? $this->arr['select'] : '*')." FROM `".$this->arr['table']."` ".self::query();
     $data = [];
     $sql = mysqli_query(Mysql::$conn, $query);
-    if($sql === false) return self::error();
+    if($sql === false){
+      $bt = debug_backtrace();
+      $caller = array_shift($bt);
+      return self::error($caller);
+    }
     while($row = ($b ? mysqli_fetch_assoc($sql) : mysqli_fetch_object($sql))){
       $data[] = $row;
     }
@@ -66,16 +74,26 @@ class Mysql_Table {
     $sql = mysqli_query(Mysql::$conn, $query);
     return $sql===false ? false : mysqli_num_rows($sql);
   }
-  function set($arr){
+  function set($arr,$val=null){
     $vars = "";
-    foreach($arr as $key => $val) {
-      $k = isset($key['v']) ? " " . $key['v'] . " " : "`".Mysql::escape($key)."`";
+    if(!is_array($arr) && $val !== null){
+      $k = isset($arr['v']) ? " " . $arr['v'] . " " : "`".Mysql::escape($arr)."`";
       $v = is_numeric($val) ? $val : (isset($val['v']) && isset($val['ct']) && $val['ct']==$GLOBALS['candy_token_mysql'] ? " " . $val['v'] . " " : '"'.Mysql::escape($val).'"');
       $vars .= $k.' = '. $v .',';
+    }else{
+      foreach($arr as $key => $val) {
+        $k = isset($key['v']) ? " " . $key['v'] . " " : "`".Mysql::escape($key)."`";
+        $v = is_numeric($val) ? $val : (isset($val['v']) && isset($val['ct']) && $val['ct']==$GLOBALS['candy_token_mysql'] ? " " . $val['v'] . " " : '"'.Mysql::escape($val).'"');
+        $vars .= $k.' = '. $v .',';
+      }
     }
     $query = "UPDATE `".$this->arr['table']."` SET ".substr($vars,0,-1)." ".self::query();
     $sql = mysqli_query(Mysql::$conn, $query);
-    if($sql === false) return self::error();
+    if($sql === false){
+      $bt = debug_backtrace();
+      $caller = array_shift($bt);
+      return self::error($caller);
+    }
     return $sql;
   }
   function add($arr){
@@ -87,7 +105,11 @@ class Mysql_Table {
     }
     $query = "INSERT INTO `".$this->arr['table']."` ".' ('.substr($query_key,0,-1).') VALUES ('.substr($query_val,0,-1).')';
     $sql = mysqli_query(Mysql::$conn, $query);
-    if($sql === false) return self::error();
+    if($sql === false){
+      $bt = debug_backtrace();
+      $caller = array_shift($bt);
+      return self::error($caller);
+    }
     return $sql;
   }
   function first($b=false){
@@ -102,7 +124,12 @@ class Mysql_Table {
     foreach(func_get_args() as $key){
       if(is_array($key) && (!isset($key['v']) || !isset($key['ct']) || $key['ct']!=$GLOBALS['candy_token_mysql'])){
       }else{
-        $select[] = (isset($key['v']) && isset($key['ct']) && $key['ct']==$GLOBALS['candy_token_mysql']) ? $key['v'] : "`".Mysql::escape($key)."`";
+        if(isset($key['v']) && isset($key['ct']) && $key['ct']==$GLOBALS['candy_token_mysql']){
+          $select[] = $key['v'];
+        }else{
+          $exp_key = explode('.',$key);
+          $select[] = isset($exp_key[1]) ? Mysql::escape($exp_key[0]).".`".Mysql::escape($exp_key[1])."`" : "`".Mysql::escape($key)."`";
+        }
       }
       $this->arr['select'] = implode(', ',$select);
     }
@@ -115,6 +142,30 @@ class Mysql_Table {
   }
   function limit($v1,$v2=null){
     $this->arr['limit'] = $v2===null ? $v1 : "$v1, $v2";
+    return new static($this->arr);
+  }
+  function leftJoin($tb,$col1,$st,$col2=null){
+    return self::join($tb,$col1,$st,$col2=null,$type='left join');
+  }
+  function rightJoin($tb,$col1,$st,$col2=null){
+    return self::join($tb,$col1,$st,$col2=null,$type='right join');
+  }
+  function join($tb,$col1,$st,$col2=null,$type='inner join'){
+    $this->arr[$type] = isset($this->arr[$type]) ? $this->arr[$type] : [];
+    $tb = "`".Mysql::escape($tb)."`";
+    $exp_col1 = explode('.',$col1);
+    $col1 = isset($exp_col1[1]) ? Mysql::escape($exp_col1[0]).".`".Mysql::escape($exp_col1[1])."`" : "`".Mysql::escape($col1)."`";
+    if($col2 !== null){
+      $exp_col2 = explode('.',$col2);
+      $col2 = isset($exp_col2[1]) ? Mysql::escape($exp_col2[0]).".`".Mysql::escape($exp_col2[1])."`" : "`".Mysql::escape($col2)."`";
+      $state = in_array(strtoupper($st),$this->statements) ? strtoupper($st) : "=";
+    }else{
+      $exp_col2 = explode('.',$st);
+      $col2 = isset($exp_col2[1]) ? Mysql::escape($exp_col2[0]).".`".Mysql::escape($exp_col2[1])."`" : "`".Mysql::escape($st)."`";
+      $state = "=";
+    }
+
+    $this->arr[$type][] = $tb . ' ON ' . $col1 . ($state . $col2);
     return new static($this->arr);
   }
   private function whereExtract($arr){
@@ -157,8 +208,8 @@ class Mysql_Table {
     }
     return '('.$q.')';
   }
-  private function error(){
-    if(Candy::isDev()) printf("Candy Mysql Error: %s\n", mysqli_error(Mysql::$conn));
+  private function error($caller){
+    if(Candy::isDev()) printf("Candy Mysql Error: %s\n<br />".$caller['file'].' : '.$caller['line'], mysqli_error(Mysql::$conn));
     return false;
   }
 }
