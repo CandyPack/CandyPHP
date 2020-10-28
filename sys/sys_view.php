@@ -42,6 +42,7 @@ class View {
     $ajaxcheck = !empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest' && isset($_SERVER['HTTP_REFERER']) && parse_url($_SERVER['HTTP_REFERER'])['host']==$_SERVER['HTTP_HOST'];
     $ajaxcheck = $ajaxcheck && isset($_SERVER['HTTP_X_CANDY']) && $_SERVER['HTTP_X_CANDY']=='ajaxload' && isset($_SERVER['HTTP_X_CANDY_LOAD']);
     if($ajaxcheck){
+      $output = [];
       $content = strtoupper($_SERVER['HTTP_X_CANDY_LOAD']);
       if(defined('VIEW_'.trim($content))){
         $v_exp = explode('.',constant('VIEW_'.trim($content)));
@@ -54,9 +55,15 @@ class View {
         }
         $vfile = $vdir.strtolower(trim($content)).'/'.end($v_exp).'.blade.php';
         if(file_exists('view/'.$vfile)){
+          ob_start();
           include(self::cacheView($vfile));
+          $output[$_SERVER['HTTP_X_CANDY_LOAD']] = ob_get_clean();
         }
       }
+      Candy::return([
+        'output' => $output,
+        'variables' => Candy::$ajax_var
+      ]);
     }
     if(defined('VIEW_SKELETON') && !$ajaxcheck){
     $skeleton = defined('VIEW_SKELETON') ? 'skeleton/'.VIEW_SKELETON.'.skeleton' : 'skeleton/page.skeleton';

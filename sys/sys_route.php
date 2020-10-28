@@ -76,9 +76,8 @@ class Route {
     global $conn;
     Config::checkBruteForce();
     define('CANDY_REQUESTS',self::$request);
-    function set($p,$v=null){
-      global $candy;
-      $candy->set($p,$v);
+    function set($p,$v=null,$a=null){
+      return Candy::set($p,$v,$a);
     }
     function request($v=null,$method=null){
       if($v==null){
@@ -247,9 +246,8 @@ class Route {
                   if($storage->route->$routefile->run == $now) return false;
                   $storage->route->$routefile->run = $now;
                   Candy::storage('sys')->set('cron',$storage);
-                  function set($p,$v=null){
-                    global $candy;
-                    $candy->set($p,$v);
+                  function set($p,$v=null,$a=null){
+                    return Candy::set($p,$v,$a);
                   }
                   if(isset($GLOBALS['cron'])){
                     foreach ($GLOBALS['cron'] as $key => $value){
@@ -273,9 +271,8 @@ class Route {
                 $storage = Candy::storage('sys')->get('cache');
                 $hash = $_GET['hash'];
                 if(isset($storage->async->$hash) && $storage->async->$hash==1){
-                  function set($p,$v=null){
-                    global $candy;
-                    $candy->set($p,$v);
+                  function set($p,$v=null,$a=null){
+                    return Candy::set($p,$v,$a);
                   }
                   if(file_exists('storage/cache/async_'.$_GET['hash'].'.php')){
                     ignore_user_abort(true);

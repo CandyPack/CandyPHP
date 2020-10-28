@@ -1,6 +1,7 @@
 <?php
 class Candy {
   public $var;
+  public static $ajax_var;
   public $imported;
   public $token;
   public $postToken;
@@ -28,17 +29,18 @@ class Candy {
     return isset($var->$p) ? $var->$p : null;
   }
 
-  public static function set($p,$v=null){
+  public static function set($p,$v=null,$ajax=false){
     global $var;
-    if(empty($var)){
-      $var = new \stdClass();
-    }
-    if(is_array($p) && $v===null){
-      foreach ($p as $key => $value) {
+    if(empty($var)) $var = new \stdClass();
+    if(empty(self::$ajax_var)) self::$ajax_var = new \stdClass();
+    if(is_array($p) && ($v===null || is_bool($v))){
+      foreach ($p as $key => $value){
         $var->$key = $value;
+        if($v === true) self::$ajax_var->$key = $value;
       }
     }else{
       $var->$p = $v;
+      if($ajax != false) self::$ajax_var->$p = $ajax===true ? $v : $ajax;
     }
   }
 
