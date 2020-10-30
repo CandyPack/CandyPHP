@@ -1,6 +1,7 @@
 <?php
 class Mysql_Table {
   protected $arr = [];
+  protected $result = [];
   protected $statements = ['=','>','>=','<','<=','!=','LIKE','NOT LIKE','IN','NOT IN','BETWEEN','NOT BETWEEN','IS NULL','IS NOT NULL'];
 
  function __construct($arr=null) {
@@ -94,6 +95,8 @@ class Mysql_Table {
       $caller = array_shift($bt);
       return self::error($caller);
     }
+    $this->affected = mysqli_affected_rows(Mysql::$conn);
+    return new static($this->arr);
     return $sql;
   }
   function add($arr){
@@ -110,7 +113,10 @@ class Mysql_Table {
       $caller = array_shift($bt);
       return self::error($caller);
     }
-    return $sql;
+    $result = new stdClass();
+    $result->success = $sql;
+    $result->id = mysqli_insert_id(Mysql::$conn);
+    return $result;
   }
   function first($b=false){
     $this->arr['limit'] = 1;
