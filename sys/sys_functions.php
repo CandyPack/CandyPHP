@@ -725,5 +725,43 @@ class Candy {
     }
     return base64_decode($decrypted);
   }
+
+  public static function plugin($name){
+    if(!is_dir("plugin")) mkdir('plugin');
+    $plug_dir = "plugin/$name";
+    if(!file_exists("$plug_dir/candy_loader.php")){
+      $plugin_url = "https://gist.githubusercontent.com/emredv/fd84e69233f6bd4ee41544335fc12b9f/raw/CandyPHP-Plugins";
+      $plugins = explode("\n",file_get_contents($plugin_url));
+      foreach($plugins as $key){
+        $plugin = explode('|',$key);
+        if(strtolower($plugin[0])==strtolower($name)){
+          $plug_dir = "plugin/".$plugin[0];
+          if(file_exists("$plug_dir/candy_loader.php")) return include("$plug_dir/candy_loader.php");
+          mkdir("$plug_dir");
+          if(file_exists("$plug_dir/git.zip")) unlink("$plug_dir/git.zip");
+          $get = file_get_contents($plugin[1]);
+          $save = file_put_contents("$plug_dir/git.zip",$get);
+          $zip = new ZipArchive;
+          if($zip->open("$plug_dir/git.zip") !== TRUE) return false;
+          $zip->extractTo("$plug_dir/");
+          $zip->close();
+          if(file_exists("$plug_dir/git.zip")) unlink("$plug_dir/git.zip");
+          $dirs = array_diff(scandir($plug_dir),['.','..','candy_loader.php']);
+          foreach($dirs as $dir){
+            $loader_dir = is_dir($plug_dir."/".$dir) ? "/".$dir : "";
+          }
+          $loader = "<?php \n";
+          $arr_loader = $plugin;
+          unset($arr_loader[0]);
+          unset($arr_loader[1]);
+          foreach($arr_loader as $key){
+            $loader .= substr($key,0,1)=='#' ? "return new ".substr($key,1)."();" : "include (__DIR__.'$loader_dir/$key');\n";
+          }
+          file_put_contents("$plug_dir/candy_loader.php", $loader);
+        }
+      }
+    }
+    return include("$plug_dir/candy_loader.php");
+  }
 }
 $candy = new Candy();
