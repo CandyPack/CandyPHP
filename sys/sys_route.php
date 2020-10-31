@@ -230,8 +230,12 @@ class Route {
       switch($_GET['_candy']){
         case 'token':
           if(!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest' && isset($_SERVER['HTTP_REFERER']) && parse_url($_SERVER['HTTP_REFERER'])['host']==$_SERVER['HTTP_HOST']){
+            header('Access-Control-Allow-Origin: '.($_SERVER['SERVER_PORT']==443 ? 'https://' : 'http://').$_SERVER['HTTP_HOST']);
             header("Content-Type: application/json; charset=UTF-8");
-            echo Candy::token('json');
+            Candy::return([
+              'page' => defined('PAGE') ? PAGE : '',
+              'token' => Candy::token()
+            ]);
           }else{self::printPage();}
           break;
         case 'cron':
