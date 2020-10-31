@@ -104,6 +104,18 @@ class Validation
             case 'email':
               $this->_error = isset($this->_method[$this->_name]) && $this->_method[$this->_name]!='' && !filter_var($this->_method[$this->_name], FILTER_VALIDATE_EMAIL);
               break;
+            case 'ip':
+              $this->_error = isset($this->_method[$this->_name]) && $this->_method[$this->_name]!='' && !filter_var($this->_method[$this->_name], FILTER_VALIDATE_IP);
+              break;
+            case 'float':
+              $this->_error = isset($this->_method[$this->_name]) && $this->_method[$this->_name]!='' && !filter_var($this->_method[$this->_name], FILTER_VALIDATE_FLOAT);
+              break;
+            case 'mac':
+              $this->_error = isset($this->_method[$this->_name]) && $this->_method[$this->_name]!='' && !filter_var($this->_method[$this->_name], FILTER_VALIDATE_MAC);
+              break;
+            case 'domain':
+              $this->_error = isset($this->_method[$this->_name]) && $this->_method[$this->_name]!='' && !filter_var($this->_method[$this->_name], FILTER_VALIDATE_DOMAIN);
+              break;
             case 'url':
               $this->_error = isset($this->_method[$this->_name]) && $this->_method[$this->_name]!='' && (!preg_match("/\b(?:(?:https?|ftp):\/\/|www\.)[-a-z0-9+&@#\/%?=~_|!:,.;]*[-a-z0-9+&@#\/%=~_|]/i",$this->_method[$this->_name]));
               break;
