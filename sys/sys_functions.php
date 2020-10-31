@@ -750,12 +750,22 @@ class Candy {
           foreach($dirs as $dir){
             $loader_dir = is_dir($plug_dir."/".$dir) ? "/".$dir : "";
           }
+          if(!isset($GLOBALS["_candy"])) $GLOBALS["_candy"] = [];
+          if(!isset($GLOBALS["_candy"]["plugin"])) $GLOBALS["_candy"]["plugin"] = [];
           $loader = "<?php \n";
+          $loader .= '$_plug = "'.$plugin[0].'";'."\n";
+          $loader .= 'if(isset($GLOBALS["_candy"]["plugin"][$_plug])) return $GLOBALS["_candy"]["plugin"][$_plug];'."\n";
           $arr_loader = $plugin;
           unset($arr_loader[0]);
           unset($arr_loader[1]);
           foreach($arr_loader as $key){
-            $loader .= substr($key,0,1)=='#' ? "return new ".substr($key,1)."();" : "include (__DIR__.'$loader_dir/$key');\n";
+            if(substr($key,0,1)=='#'){
+              $loader .= '$GLOBALS["_candy"]["plugin"][$_plug] = new '.substr($key,1)."();\n";
+              $loader .= 'return $GLOBALS["_candy"]["plugin"][$_plug];';
+            }else{
+              $loader .= "include (__DIR__.'$loader_dir/$key');\n";
+            }
+
           }
           file_put_contents("$plug_dir/candy_loader.php", $loader);
         }
