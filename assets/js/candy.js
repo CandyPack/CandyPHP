@@ -2,7 +2,7 @@ var _candy_token;
 var _candy_page;
 var _candy_action;
 var _candy_forms = [];
-var Candy = class Candy {
+class Candy {
   test(){
     alert('Hi, World');
   }
@@ -17,9 +17,10 @@ var Candy = class Candy {
     });
   }
   getToken(){
-    $.get(window.location.hostname+'?_candy=token',function(data){
+    $.get('?_candy=token',function(data){
       var result = JSON.parse(JSON.stringify(data));
       _candy_token = result.token;
+      _candy_page = result.page;
     });
   }
   token(){
@@ -38,11 +39,7 @@ var Candy = class Candy {
   }
   page(){
     if(_candy_page===undefined){
-      var req = new XMLHttpRequest();
-      req.open('GET', document.location, false);
-      req.send(null);
-      var headers = req.getAllResponseHeaders().toLowerCase().split("\r\n");
-      headers.forEach(element => _candy_page = ((element.split(': ')[0])=='x-candy-page') ? element.split(': ')[1] : _candy_page);
+      candy.getToken();
     }
     return _candy_page;
   }
