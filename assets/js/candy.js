@@ -169,8 +169,7 @@ var Candy = class Candy {
               });
             },
             error : function(){
-              $(document).unbind('click');
-              e.currentTarget.click();
+              window.location.replace(url_go);
             }
           });
         });
