@@ -582,12 +582,9 @@ class Candy {
     }
   }
 
-  public static function curl($url,$params=null,$header=null,$method=null){
-    $postData = '';
+  public static function curl($url,$params=null,$header=null,$method=null,$conf=[]){
     if(is_array($params)){
-      foreach ($params as $key => $val) {
-        $postData .= $postData=='' ? $key.'='.$val : '&'.$key.'='.$val;
-      }
+      $postData = http_build_query($params);
     }else{
       $postData = $params;
     }
@@ -598,6 +595,9 @@ class Candy {
     if($header!==null){ curl_setopt($ch, CURLOPT_HTTPHEADER, $header); }
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
     curl_setopt($ch,CURLOPT_FOLLOWLOCATION,true);
+    foreach($conf as $key => $val) {
+      curl_setopt($ch, constant($key),$val);
+    }
     $result = curl_exec($ch);
     if(curl_errno($ch)) return curl_error($ch);
     curl_close ($ch);
@@ -606,10 +606,14 @@ class Candy {
 
   public static function async($method, $data=null){
     if(isset($GLOBALS['_candy_async']) && $GLOBALS['_candy_async']!=null){
-      $data = json_decode($_POST['data'], $_POST['array']==1);
-      $method($_POST['array']==1 ? $data['data'] : $data->data);
+      $data_id = $_GET['async_data'];
+      $storage = Candy::storage('sys')->get('async')->data;
+      foreach($storage as $key){ $datas = $key; }
+      $storage = $datas->$data_id;
+      $data = ($storage->array==1) ? ((array)($storage->data)) : $storage->data;
+      $method($data);
       $GLOBALS['_candy_async'] = null;
-      die();
+      return die();
     }
     $func = new ReflectionFunction($method);
     $f = $func->getFileName();
@@ -651,17 +655,26 @@ class Candy {
       $storage->async->$func_hash = '1';
       Candy::storage('sys')->set('cache',$storage);
     }
-    $ch = curl_init();
-    curl_setopt($ch,CURLOPT_URL,str_replace('www.','',$_SERVER['SERVER_NAME']).'/?_candy=async&hash='.$func_hash);
-    curl_setopt($ch,CURLOPT_POST,true);
-    curl_setopt($ch,CURLOPT_SSL_VERIFYHOST, 0);
-    curl_setopt($ch,CURLOPT_POSTFIELDS,['hash' => $func_hash, 'data' => json_encode(['data' => $data]), 'array' => is_array($data) ? 1 : 0]);
-    curl_setopt($ch,CURLOPT_RETURNTRANSFER,true);
-    curl_setopt($ch,CURLOPT_FRESH_CONNECT ,  true);
-    curl_setopt($ch,CURLOPT_TIMEOUT ,  1);
-    curl_setopt($ch,CURLOPT_FOLLOWLOCATION,true);
-    curl_exec($ch);
-    curl_close($ch);
+    $datas = ['hash' => $func_hash, 'data' => $data, 'array' => is_array($data) ? 1 : 0];
+
+    $date = date('YmdH');
+    $storage = Candy::storage('sys')->get('async');
+    $storage->data = isset($storage->data->$date) ? $storage->data : new \stdClass;
+    $storage->data->$date = isset($storage->data->$date) ? $storage->data->$date : new \stdClass;
+    $data_id = mt_rand().time().rand(100,999);
+    $storage->data->$date->$data_id = ['hash' => $func_hash, 'data' => $data, 'array' => is_array($data) ? 1 : 0];
+    Candy::storage('sys')->set('async',$storage);
+
+    self::curl(str_replace('www.','',$_SERVER['SERVER_NAME']).'/?_candy=async&hash='.$func_hash.'&async_data='.$data_id,
+               $datas,
+               null,
+               'post',
+               ['CURLOPT_TIMEOUT' => 1,
+                'CURLOPT_FRESH_CONNECT' => true,
+                'CURLOPT_FOLLOWLOCATION' => true,
+                'CURLOPT_RETURNTRANSFER' => true,
+                'CURLOPT_POST' => true,
+                'CURLOPT_SSL_VERIFYHOST' => 0]);
   }
 
   public static function isDev($f = null){

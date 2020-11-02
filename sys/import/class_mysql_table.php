@@ -2,7 +2,8 @@
 class Mysql_Table {
   protected $arr = [];
   protected $result = [];
-  protected $statements = ['=','>','>=','<','<=','!=','LIKE','NOT LIKE','IN','NOT IN','BETWEEN','NOT BETWEEN','IS NULL','IS NOT NULL'];
+  protected $statements = ['=','>','>=','<','<=','!=','LIKE','NOT LIKE','IN','NOT IN','BETWEEN','NOT BETWEEN'];
+  protected $val_statements = ['IS NULL','IS NOT NULL'];
 
  function __construct($arr=null) {
     if(is_array($arr)){
@@ -186,7 +187,11 @@ class Mysql_Table {
         $in_arr = true;
         $last = 1;
       }elseif(count($arr)==2 && $loop==2){
-        $q .= isset($key['v']) ? " = " . $key['v'] . " " : " = '" . Mysql::escape($key) . "' ";
+        if(in_array(strtoupper($key),$this->val_statements)){
+          $q .= " ".strtoupper($key);
+        }else{
+          $q .= isset($key['v']) ? " = " . $key['v'] . " " : " = '" . Mysql::escape($key) . "' ";
+        }
       }elseif($in_arr){
         $q .= strtoupper($key)=='OR' ? " OR " : " AND ";
         $last = 2;

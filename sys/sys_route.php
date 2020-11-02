@@ -270,22 +270,18 @@ class Route {
             }
           break;
         case 'async':
-          if(isset($_GET['hash'])){
-              if((substr($_SERVER['SERVER_ADDR'],0,8)=='192.168.') || ($_SERVER['SERVER_ADDR'] == $_SERVER['REMOTE_ADDR'])){
-                $storage = Candy::storage('sys')->get('cache');
-                $hash = $_GET['hash'];
-                if(isset($storage->async->$hash) && $storage->async->$hash==1){
-                  function set($p,$v=null,$a=null){
-                    return Candy::set($p,$v,$a);
-                  }
-                  if(file_exists('storage/cache/async_'.$_GET['hash'].'.php')){
-                    ignore_user_abort(true);
-                    $GLOBALS['_candy_async'] = $_GET['hash'];
-                    include('storage/cache/async_'.$_GET['hash'].'.php');
-                  }else{self::printPage();}
-                }else{self::printPage();}
-              }else{self::printPage();}
-            }
+          if(!isset($_GET['hash'])) break;
+          if(!((substr($_SERVER['SERVER_ADDR'],0,8)=='192.168.') || ($_SERVER['SERVER_ADDR'] == $_SERVER['REMOTE_ADDR']))) return self::printPage();
+          $storage = Candy::storage('sys')->get('cache');
+          $hash = $_GET['hash'];
+          if(!(isset($storage->async->$hash) && $storage->async->$hash==1)) return self::printPage();
+          if(!file_exists('storage/cache/async_'.$_GET['hash'].'.php')) return self::printPage();
+          function set($p,$v=null,$a=null){
+            return Candy::set($p,$v,$a);
+          }
+          ignore_user_abort(true);
+          $GLOBALS['_candy_async'] = $_GET['hash'];
+          include('storage/cache/async_'.$_GET['hash'].'.php');
           break;
         default:
           self::printPage();
