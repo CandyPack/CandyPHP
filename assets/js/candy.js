@@ -35,7 +35,9 @@ class Candy {
   }
   token(){
     candy.getToken();
-    return _candy_token;
+    var return_token = _candy_token;
+    _candy_token = undefined;
+    return return_token;
   }
   page(){
     if(_candy_page===undefined) candy.getToken();
