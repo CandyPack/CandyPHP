@@ -17,29 +17,29 @@ class Candy {
     });
   }
   getToken(){
-    $.get('?_candy=token',function(data){
-      var result = JSON.parse(JSON.stringify(data));
-      _candy_token = result.token;
-      _candy_page = result.page;
-    });
+    if(_candy_token === undefined){
+      var req = new XMLHttpRequest();
+      req.open('GET', '?_candy=token', false);
+      req.setRequestHeader("X_REQUESTED_WITH", "xmlhttprequest");
+      req.send(null);
+      var req_data = JSON.parse(req.response);
+      _candy_page = req_data.page;
+      _candy_token = req_data.token;
+    }else{
+      $.get('?_candy=token',function(data){
+        var result = JSON.parse(JSON.stringify(data));
+        _candy_token = result.token;
+        _candy_page = result.page;
+      });
+    }
   }
   token(){
-    if(_candy_token===undefined){
-      var req = new XMLHttpRequest();
-      req.open('GET', document.location, false);
-      req.send(null);
-      var headers = req.getAllResponseHeaders().toLowerCase().split("\r\n");
-      for (var i = 0, len = headers.length; i < len; i++) {
-        var element = headers[i];
-        _candy_token = ((element.split(': ')[0])=='x-candy-token') ? element.split(': ')[1] : _candy_token;
-      }
-    }
     candy.getToken();
     return _candy_token;
   }
   page(){
     if(_candy_page===undefined){
-      candy.getToken();
+      candy.token();
     }
     return _candy_page;
   }
@@ -268,3 +268,4 @@ class Candy {
   }
 }
 var candy = new Candy;
+candy.getToken();
