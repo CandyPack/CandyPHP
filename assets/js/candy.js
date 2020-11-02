@@ -25,22 +25,20 @@ class Candy {
       var req_data = JSON.parse(req.response);
       _candy_page = req_data.page;
       _candy_token = req_data.token;
-    }else{
-      $.get('?_candy=token',function(data){
-        var result = JSON.parse(JSON.stringify(data));
-        _candy_token = result.token;
-        _candy_page = result.page;
-      });
+      return true;
     }
+    $.get('?_candy=token',function(data){
+      var result = JSON.parse(JSON.stringify(data));
+      _candy_token = result.token;
+      _candy_page = result.page;
+    });
   }
   token(){
     candy.getToken();
     return _candy_token;
   }
   page(){
-    if(_candy_page===undefined){
-      candy.token();
-    }
+    if(_candy_page===undefined) candy.getToken();
     return _candy_page;
   }
   form(id,callback,m){
