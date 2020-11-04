@@ -750,7 +750,7 @@ class Candy {
         if(strtolower($plugin[0])==strtolower($name)){
           $plug_dir = "plugin/".$plugin[0];
           if(file_exists("$plug_dir/candy_loader.php")) return include("$plug_dir/candy_loader.php");
-          mkdir("$plug_dir");
+          if(!is_dir($plug_dir)) mkdir($plug_dir);
           if(file_exists("$plug_dir/git.zip")) unlink("$plug_dir/git.zip");
           $get = file_get_contents($plugin[1]);
           $save = file_put_contents("$plug_dir/git.zip",$get);
@@ -773,8 +773,10 @@ class Candy {
           unset($arr_loader[1]);
           foreach($arr_loader as $key){
             if(substr($key,0,1)=='#'){
-              $loader .= '$GLOBALS["_candy"]["plugin"][$_plug] = new '.substr($key,1)."();\n";
-              $loader .= 'return $GLOBALS["_candy"]["plugin"][$_plug];';
+              $loader .= '$reflection = new ReflectionClass($_plug);'."\n";
+              $loader .= '$params = $reflection->getConstructor()->getParameters();'."\n";
+              $loader .= '$GLOBALS["_candy"]["plugin"][$_plug] = count($params)>0 ? true : new '.substr($key,1)."();\n";
+              $loader .= 'return count($params)>0 ? true : $GLOBALS["_candy"]["plugin"][$_plug];'."\n";
             }else{
               $loader .= "include (__DIR__.'$loader_dir/$key');\n";
             }
