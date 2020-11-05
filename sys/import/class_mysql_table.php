@@ -110,7 +110,7 @@ class Mysql_Table {
   function first($b=false){
     $this->arr['limit'] = 1;
     $sql = self::get($b);
-    if($sql === false || !isset($sql[0])) return $sql;
+    if($sql === false || !isset($sql[0])) return false;
     return $sql[0];
   }
   function select(){
@@ -206,7 +206,7 @@ class Mysql_Table {
   private function error($sql){
     $bt = debug_backtrace();
     $caller = array_shift($bt);
-    if(Candy::isDev()) printf("Candy Mysql Error: %s\n<br />".$caller['file'].' : '.$caller['line'], mysqli_error(Mysql::$conn));
+    if(Candy::isDev() && defined('DEV_ERRORS')) printf("Candy Mysql Error: %s\n<br />".$caller['file'].' : '.$caller['line'], mysqli_error(Mysql::$conn));
     return false;
   }
 }
