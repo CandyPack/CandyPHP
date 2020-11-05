@@ -54,11 +54,7 @@ class Mysql_Table {
     $query = "SELECT ".(isset($this->arr['select']) ? $this->arr['select'] : '*')." FROM `".$this->arr['table']."` ".self::query();
     $data = [];
     $sql = mysqli_query(Mysql::$conn, $query);
-    if($sql === false){
-      $bt = debug_backtrace();
-      $caller = array_shift($bt);
-      return self::error($caller);
-    }
+    if($sql === false) return self::error($caller);
     while($row = ($b ? mysqli_fetch_assoc($sql) : mysqli_fetch_object($sql))){
       $data[] = $row;
     }
@@ -87,11 +83,7 @@ class Mysql_Table {
     }
     $query = "UPDATE `".$this->arr['table']."` SET ".substr($vars,0,-1)." ".self::query();
     $sql = mysqli_query(Mysql::$conn, $query);
-    if($sql === false){
-      $bt = debug_backtrace();
-      $caller = array_shift($bt);
-      return self::error($caller);
-    }
+    if($sql === false) return self::error($caller);
     $this->affected = mysqli_affected_rows(Mysql::$conn);
     return new static($this->arr);
     return $sql;
@@ -118,7 +110,7 @@ class Mysql_Table {
   function first($b=false){
     $this->arr['limit'] = 1;
     $sql = self::get($b);
-    if($sql === false || !isset($sql[0])) return false;
+    if($sql === false || !isset($sql[0])) return $sql;
     return $sql[0];
   }
   function select(){
@@ -211,7 +203,9 @@ class Mysql_Table {
       return in_array(strtoupper($v),$this->statements) ? strtoupper($v) : "=";
     }
   }
-  private function error($caller){
+  private function error($sql){
+    $bt = debug_backtrace();
+    $caller = array_shift($bt);
     if(Candy::isDev()) printf("Candy Mysql Error: %s\n<br />".$caller['file'].' : '.$caller['line'], mysqli_error(Mysql::$conn));
     return false;
   }
