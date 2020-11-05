@@ -143,8 +143,8 @@ class Mysql_Table {
     return new static($this->arr);
   }
   function orderBy($v1,$v2='asc'){
-    $v1 = is_array($v1) && isset($v1['v']) ? $v1 : "`".Mysql::escape($v1)."`";
-    $this->arr['order by'] = $v1.' '.($v2 === 'desc' ? 'DESC' : 'ASC');
+    $v1 = is_array($v1) && isset($v1['v']) ? $v1['v'] : "`".Mysql::escape($v1)."`";
+    $this->arr['order by'] = $v1.' '.($v2 == 'desc' || $v2 == 'DESC' ? 'DESC' : 'ASC');
     return new static($this->arr);
   }
   function limit($v1,$v2=null){

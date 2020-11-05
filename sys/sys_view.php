@@ -22,6 +22,9 @@ class View {
   public static function skeleton($v){
     return self::set('skeleton',$v);
   }
+  public static function all($v){
+    return self::set('all',$v);
+  }
   public static function set($c,$v){
     global $_parts;
     define('VIEW_'.strtoupper($c),$v);
@@ -43,9 +46,12 @@ class View {
     $ajaxcheck = $ajaxcheck && isset($_SERVER['HTTP_X_CANDY']) && $_SERVER['HTTP_X_CANDY']=='ajaxload' && isset($_SERVER['HTTP_X_CANDY_LOAD']);
     if($ajaxcheck){
       $output = [];
+      $load_content = null;
       $content = strtoupper($_SERVER['HTTP_X_CANDY_LOAD']);
-      if(defined('VIEW_'.trim($content))){
-        $v_exp = explode('.',constant('VIEW_'.trim($content)));
+      if(defined('VIEW_ALL')) $load_content = constant('VIEW_ALL');
+      if(defined('VIEW_'.trim($content))) $load_content = constant('VIEW_'.trim($content));
+      if($load_content !== null){
+        $v_exp = explode('.',$load_content);
         if(count($v_exp)>0){
           $vdir = $v_exp;
           unset($vdir[count($vdir)-1]);
@@ -65,15 +71,20 @@ class View {
         'variables' => Candy::$ajax_var
       ]);
     }
-    if(defined('VIEW_SKELETON') && !$ajaxcheck){
+    if((defined('VIEW_SKELETON') || defined('VIEW_ALL')) && !$ajaxcheck){
+    if(defined('VIEW_ALL')) $skeleton = 'skeleton/'.VIEW_ALL.'.skeleton';
     $skeleton = defined('VIEW_SKELETON') ? 'skeleton/'.VIEW_SKELETON.'.skeleton' : 'skeleton/page.skeleton';
     $skeleton = file_get_contents($skeleton, FILE_USE_INCLUDE_PATH);
     $arr_test = explode('{{', $skeleton);
       foreach ($arr_test as $key) {
+        $load_content = null;
         if(strpos($key, '}}') !== false){
           $arr_key = explode('}}',$key);
-          if(defined('VIEW_'.trim($arr_key[0]))){
-            $v_exp = explode('.',constant('VIEW_'.trim($arr_key[0])));
+          $load_key = trim($arr_key[0]);
+          if(defined('VIEW_ALL')) $load_content = constant('VIEW_ALL');
+          if(defined('VIEW_'.$load_key)) $load_content = constant('VIEW_'.$load_key);
+          if($load_content !== null){
+            $v_exp = explode('.', $load_content);
             if(count($v_exp)>0){
               $vdir = $v_exp;
               unset($vdir[count($vdir)-1]);
@@ -81,10 +92,12 @@ class View {
             }else{
               $vdir = "";
             }
-            $vfile = $vdir.strtolower(trim($arr_key[0])).'/'.end($v_exp).'.blade.php';
+            $vfile = $vdir.strtolower($load_key).'/'.end($v_exp).'.blade.php';
             if(file_exists('view/'.$vfile)){
               include(self::cacheView($vfile));
             }
+          }else{
+            print($key);
           }
           if(isset($arr_key[1])){
             print($arr_key[1]);
