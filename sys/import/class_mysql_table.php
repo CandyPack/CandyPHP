@@ -100,10 +100,10 @@ class Mysql_Table {
     $query_key = '';
     $query_val = '';
     foreach ($arr as $key => $val){
-      $query_key .= self::escape($key,'col');
-      $query_val .= self::escape($val);
+      $query_key .= self::escape($key,'col').',';
+      $query_val .= self::escape($val).',';
     }
-    $query = "INSERT INTO `".$this->arr['table']."` ".' ('.substr($query_key,0,-1).') VALUES ('.substr($query_val,0,-1).')';
+    $query = "INSERT INTO ".self::escape($this->arr['table'],'table').' ('.substr($query_key,0,-1).') VALUES ('.substr($query_val,0,-1).')';
     $sql = mysqli_query(Mysql::$conn, $query);
     if($sql === false){
       $bt = debug_backtrace();
