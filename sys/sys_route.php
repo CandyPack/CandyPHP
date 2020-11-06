@@ -5,25 +5,20 @@ class Route {
 
   public static function all($controller,$type = 'page'){
     $get_page = isset($_GET['_page']) ? $_GET['_page'] : '';
-    if(!defined('PAGE')){
-      define('PAGE',$controller);
-      define('PAGE_METHOD','page');
-      self::$request['page'] = $get_page;
-    }
+    $GLOBALS['_candy']['route']['page'] = $controller;
+    $GLOBALS['_candy']['route']['method'] = 'page';
+    self::$request['page'] = $get_page;
   }
+
   public static function page($page,$controller,$type = 'page'){
     $get_page = isset($_GET['_page']) ? $_GET['_page'] : '';
     $page = substr($page,0,1) == '/' ? substr($page,1) : $page;
-    if(!defined('PAGE')){
-      if($get_page==$page || self::checkRequest($page,$get_page)){
-        if(is_callable($controller)){
-          $controller();
-        }else{
-          define('PAGE',$controller);
-          define('PAGE_METHOD','page');
-          header('X-Candy-Page: '.PAGE);
-          header('X-Candy-Token: '.Candy::token());
-        }
+    if($get_page==$page || self::checkRequest($page,$get_page)){
+      if(is_callable($controller)){
+        $controller();
+      }else{
+        $GLOBALS['_candy']['route']['page'] = $controller;
+        $GLOBALS['_candy']['route']['method'] = 'page';
       }
     }
   }
@@ -33,11 +28,9 @@ class Route {
     unset($arr_get['_page']);
     if(Candy::getCheck($check,$t)){
       $get_page = isset($_GET['_page']) ? $_GET['_page'] : '';
-      if(!defined('PAGE')){
-        if(($get_page==$page || self::checkRequest($page,$get_page)) && isset($_GET)){
-          define('PAGE',$controller);
-          define('PAGE_METHOD','get');
-        }
+      if(($get_page==$page || self::checkRequest($page,$get_page)) && isset($_GET)){
+        $GLOBALS['_candy']['route']['page'] = $controller;
+        $GLOBALS['_candy']['route']['method'] = 'get';
       }
     }
   }
@@ -45,26 +38,26 @@ class Route {
     $page = substr($page,0,1) == '/' ? substr($page,1) : $page;
     if(Candy::postCheck($check,$t)){
       $get_page = isset($_GET['_page']) ? $_GET['_page'] : '';
-      if(!defined('PAGE')){
-        if(($get_page==$page || self::checkRequest($page,$get_page)) && isset($_POST)){
-          define('PAGE',$controller);
-          define('PAGE_METHOD','post');
-        }
+      if(($get_page==$page || self::checkRequest($page,$get_page)) && isset($_POST)){
+        $GLOBALS['_candy']['route']['page'] = $controller;
+        $GLOBALS['_candy']['route']['method'] = 'post';
       }
     }
   }
-  public static function error($code, $controller){
-    if(is_callable($controller)){
-      $controller();
+  public static function error($code, $page){
+    if(is_callable($page)){
+      $page();
     }else{
       if(!isset($GLOBALS['_candy'])) $GLOBALS['_candy'] = [];
       if(!isset($GLOBALS['_candy']['route'])) $GLOBALS['_candy']['route'] = [];
       if(!isset($GLOBALS['_candy']['route']['error'])) $GLOBALS['_candy']['route']['error'] = [];
-      if(strpos($controller, '.') !== false){
-        $controller = str_replace('.','/',$controller);
+      if(!isset($GLOBALS['_candy']['route']['error']['controller'])) $GLOBALS['_candy']['route']['error']['controller'] = [];
+      if(strpos($page, '.') !== false){
+        $controller = str_replace('.','/',$page);
         $controller = preg_replace("((.*)\/)", "$1/error/", $controller);
       }
       $GLOBALS['_candy']['route']['error'][$code] = $controller;
+      $GLOBALS['_candy']['route']['error']['controller'][$code] = $page;
     }
   }
   public static function page404($controller){
@@ -75,58 +68,64 @@ class Route {
     global $candy;
     global $conn;
     Config::checkBruteForce();
-    define('CANDY_REQUESTS',self::$request);
-    function set($p,$v=null,$a=null){
-      return Candy::set($p,$v,$a);
+    if(!defined('PAGE')) define('PAGE', $GLOBALS['_candy']['route']['page']);
+    if(!defined('CANDY_REQUESTS')) define('CANDY_REQUESTS',self::$request);
+    if(!function_exists('set')){
+      function set($p,$v=null,$a=null){
+        return Candy::set($p,$v,$a);
+      }
     }
-    function request($v=null,$method=null){
-      if($v==null){
-        $rec = file_get_contents('php://input');
-        $json = json_decode($rec);
-        if(json_last_error() == JSON_ERROR_NONE){
-          return $json;
-        }
-        $xml = @simplexml_load_string($rec);
-        if($xml){
-          return new SimpleXMLElement($rec);;
+    if(!function_exists('request')){
+      function request($v=null,$method=null){
+        if($v==null){
+          $rec = file_get_contents('php://input');
+          $json = json_decode($rec);
+          if(json_last_error() == JSON_ERROR_NONE){
+            return $json;
+          }
+          $xml = @simplexml_load_string($rec);
+          if($xml){
+            return new SimpleXMLElement($rec);;
+          }else{
+            return false;
+          }
+        }elseif($method==null){
+          if(isset(CANDY_REQUESTS[$v])){
+            return CANDY_REQUESTS[$v];
+          }elseif(isset($_POST[$v])){
+            return $_POST[$v];
+          }elseif(isset($_GET[$v])){
+            return $_GET[$v];
+          }
         }else{
-          return false;
-        }
-      }elseif($method==null){
-        if(isset(CANDY_REQUESTS[$v])){
-          return CANDY_REQUESTS[$v];
-        }elseif(isset($_POST[$v])){
-          return $_POST[$v];
-        }elseif(isset($_GET[$v])){
-          return $_GET[$v];
-        }
-      }else{
-        switch($method){
-          case 'post':
-            return isset($_POST[$v]) ? $_POST[$v] : null;
-            break;
-          case 'get':
-            return isset($_GET[$v]) ? $_GET[$v] : null;
-            break;
+          switch($method){
+            case 'post':
+              return isset($_POST[$v]) ? $_POST[$v] : null;
+              break;
+              case 'get':
+              return isset($_GET[$v]) ? $_GET[$v] : null;
+              break;
+            }
+          }
         }
       }
-    }
-      if(defined('PAGE')){
-        $page = PAGE_METHOD.'/'.PAGE;
-        if(strpos(PAGE, '.') !== false){
-          $page = str_replace('.','/',PAGE);
-          $page = preg_replace("((.*)\/)", "$1/".PAGE_METHOD.'/', $page);
+      if(isset($GLOBALS['_candy']['route']['page'])){
+        $page = $GLOBALS['_candy']['route']['method'].'/'.$GLOBALS['_candy']['route']['page'];
+        if(strpos($GLOBALS['_candy']['route']['page'], '.') !== false){
+          $page = str_replace('.','/',$GLOBALS['_candy']['route']['page']);
+          $page = preg_replace("((.*)\/)", "$1/".$GLOBALS['_candy']['route']['method'].'/', $page);
         }
       }
-      if(defined('PAGE') && file_exists('controller/'.$page.'.php')){
+      if(file_exists('controller/'.$page.'.php')){
         include('controller/'.$page.'.php');
       }elseif(isset($GLOBALS['_candy']['route']['error']['404']) && file_exists('controller/'.$GLOBALS['_candy']['route']['error']['404'].'.php')){
         http_response_code(404);
         include('controller/'.$GLOBALS['_candy']['route']['error']['404'].'.php');
       }
+      header('X-Candy-Page: '.(isset($GLOBALS['_candy']['route']['page']) ? $GLOBALS['_candy']['route']['page'] : ''));
       $view->printView();
       if(isset($GLOBALS['_candy']['oneshot'])){
-      $_SESSION['_candy']['oneshot'] = $GLOBALS['_candy']['oneshot'];
+        $_SESSION['_candy']['oneshot'] = $GLOBALS['_candy']['oneshot'];
       }else{
         unset($_SESSION['_candy']['oneshot']);
       }
@@ -159,7 +158,7 @@ class Route {
   private static function checkRequest($route,$page){
     if((strpos($route, '{')!==false) && (strpos($route, '}')!==false) && $route!=''){
       $continue = true;
-      $var = array();
+      $var = [];
       $arr_route1 = explode('{',$route);
       $url = "";
       foreach ($arr_route1 as $key => $value) {
@@ -195,13 +194,10 @@ class Route {
         self::$request = $var;
       }else{
         $return = false;
-        self::$request = [];
       }
     }else{
       $return = false;
-      self::$request = [];
     }
-    if(!$return) self::$request = [];
     return $return;
   }
   public static function print(){
@@ -233,7 +229,7 @@ class Route {
             header('Access-Control-Allow-Origin: '.($_SERVER['SERVER_PORT']==443 ? 'https://' : 'http://').$_SERVER['HTTP_HOST']);
             header("Content-Type: application/json; charset=UTF-8");
             Candy::return([
-              'page' => defined('PAGE') ? PAGE : '',
+              'page' => $GLOBALS['_candy']['route']['page'],
               'token' => Candy::token()
             ]);
           }else{self::printPage();}

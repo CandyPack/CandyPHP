@@ -13,7 +13,7 @@ class Mysql_Table {
     }
   }
 
-  function query(){
+  function query($type = null){
     $arr_q = ['inner join', 'right join', 'left join', 'where','order by','limit'];
     $query = "";
     foreach($arr_q as $key){
@@ -26,6 +26,10 @@ class Mysql_Table {
         }
       }
     }
+    if($type == 'add') return "INSERT INTO ".$this->escape($this->arr['table'],'table').' ('.$this->arr['into'].') VALUES ('.$this->arr['values'].')';
+    if($type == 'get') return "SELECT ".(isset($this->arr['select']) ? $this->arr['select'] : '*')." FROM `".$this->arr['table']."` ".$query;
+    if($type == 'set') return "UPDATE `".$this->arr['table']."` SET ".$this->arr['set']." ".$query;
+    if($type == 'delete') return "DELETE FROM `".$this->arr['table']."` ".$query;
     return $query;
   }
   function table($t){
@@ -36,13 +40,13 @@ class Mysql_Table {
     if(count(func_get_args()) == 1 && !is_array(func_get_args()[0])){
       $this->arr['where'] = is_numeric(func_get_args()[0]) ? "id='".func_get_args()[0]."'" : "";
     }elseif(count(func_get_args()) > 0){
-      $this->arr['where'] = isset($this->arr['where']) && trim($this->arr['where'])!='' ? $this->arr['where'].' AND '.self::whereExtract(func_get_args()) : self::whereExtract(func_get_args());
+      $this->arr['where'] = isset($this->arr['where']) && trim($this->arr['where'])!='' ? $this->arr['where'].' AND '.$this->whereExtract(func_get_args()) : $this->whereExtract(func_get_args());
     }
     return new static($this->arr);
   }
   function orWhere(){
     if(count(func_get_args()) > 0){
-      $this->arr['where'] = isset($this->arr['where']) && trim($this->arr['where'])!='' ? $this->arr['where'].' OR '.self::whereExtract(func_get_args()) : self::whereExtract(func_get_args());
+      $this->arr['where'] = isset($this->arr['where']) && trim($this->arr['where'])!='' ? $this->arr['where'].' OR '.$this->whereExtract(func_get_args()) : $this->whereExtract(func_get_args());
     }
     return new static($this->arr);
   }
@@ -51,10 +55,10 @@ class Mysql_Table {
     return new static($this->arr);
   }
   function get($b=false){
-    $query = "SELECT ".(isset($this->arr['select']) ? $this->arr['select'] : '*')." FROM `".$this->arr['table']."` ".self::query();
+    $query = $this->query('get');
     $data = [];
     $sql = mysqli_query(Mysql::$conn, $query);
-    if($sql === false) return self::error($caller);
+    if($sql === false) return $this->error();
     while($row = ($b ? mysqli_fetch_assoc($sql) : mysqli_fetch_object($sql))){
       $data[] = $row;
     }
@@ -62,12 +66,12 @@ class Mysql_Table {
     return $data;
   }
   function delete($b=false){
-    $query = "DELETE FROM `".$this->arr['table']."` ".self::query();
+    $query = $this->query('delete');
     $sql = mysqli_query(Mysql::$conn, $query);
     return $sql;
   }
   function rows($b=false){
-    $query = "SELECT * FROM `".$this->arr['table']."` ".self::query();
+    $query = $this->query('get');
     $data = [];
     $sql = mysqli_query(Mysql::$conn, $query);
     return $sql===false ? false : mysqli_num_rows($sql);
@@ -75,15 +79,16 @@ class Mysql_Table {
   function set($arr,$val=null){
     $vars = "";
     if(!is_array($arr) && $val !== null){
-      $vars .= self::escape($arr,'col').' = '. self::escape($val) .',';
+      $vars .= $this->escape($arr,'col').' = '. $this->escape($val) .',';
     }else{
       foreach($arr as $key => $val) {
-        $vars .= self::escape($key,'col').' = '. self::escape($val) .',';
+        $vars .= $this->escape($key,'col').' = '. $this->escape($val) .',';
       }
     }
-    $query = "UPDATE `".$this->arr['table']."` SET ".substr($vars,0,-1)." ".self::query();
+    $this->arr['set'] = substr($vars,0,-1);
+    $query = $this->query('set');
     $sql = mysqli_query(Mysql::$conn, $query);
-    if($sql === false) return self::error($caller);
+    if($sql === false) return $this->error();
     $this->affected = mysqli_affected_rows(Mysql::$conn);
     return new static($this->arr);
     return $sql;
@@ -92,24 +97,21 @@ class Mysql_Table {
     $query_key = '';
     $query_val = '';
     foreach ($arr as $key => $val){
-      $query_key .= self::escape($key,'col').',';
-      $query_val .= self::escape($val).',';
+      $query_key .= $this->escape($key,'col').',';
+      $query_val .= $this->escape($val).',';
     }
-    $query = "INSERT INTO ".self::escape($this->arr['table'],'table').' ('.substr($query_key,0,-1).') VALUES ('.substr($query_val,0,-1).')';
+    $this->arr['into'] = substr($query_key,0,-1);
+    $this->arr['values'] = substr($query_val,0,-1);
+    $query = $this->query('add');
     $sql = mysqli_query(Mysql::$conn, $query);
-    if($sql === false){
-      $bt = debug_backtrace();
-      $caller = array_shift($bt);
-      return self::error($caller);
-    }
-    $result = new stdClass();
-    $result->success = $sql;
-    $result->id = mysqli_insert_id(Mysql::$conn);
-    return $result;
+    if($sql === false) return $this->error();
+    $this->success = $sql;
+    $this->id = mysqli_insert_id(Mysql::$conn);
+    return new static($this->arr);
   }
   function first($b=false){
     $this->arr['limit'] = 1;
-    $sql = self::get($b);
+    $sql = $this->get($b);
     if($sql === false || !isset($sql[0])) return false;
     return $sql[0];
   }
@@ -118,19 +120,19 @@ class Mysql_Table {
     $select = array_filter(explode(',',$this->arr['select']));
     if(count(func_get_args())==1 && is_array(func_get_args()[0])){
       foreach(func_get_args()[0] as $key => $value){
-        $select[] = self::escape($key,'col').' AS '.self::escape($value);
+        $select[] = $this->escape($key,'col').' AS '.$this->escape($value);
         $this->arr['select'] = implode(', ',$select);
       }
     }else{
       foreach(func_get_args() as $key){
-        $select[] = self::escape($key,'col');
+        $select[] = $this->escape($key,'col');
         $this->arr['select'] = implode(', ',$select);
       }
     }
     return new static($this->arr);
   }
   function orderBy($v1,$v2='asc'){
-    $this->arr['order by'] = self::escape($v1,'col').(strtolower($v2) == 'desc' ? 'DESC' : 'ASC');
+    $this->arr['order by'] = $this->escape($v1,'col').(strtolower($v2) == 'desc' ? 'DESC' : 'ASC');
     return new static($this->arr);
   }
   function limit($v1,$v2=null){
@@ -138,17 +140,17 @@ class Mysql_Table {
     return new static($this->arr);
   }
   function leftJoin($tb,$col1,$st,$col2=null){
-    return self::join($tb,$col1,$st,$col2=null,$type='left join');
+    return $this->join($tb,$col1,$st,$col2=null,$type='left join');
   }
   function rightJoin($tb,$col1,$st,$col2=null){
-    return self::join($tb,$col1,$st,$col2=null,$type='right join');
+    return $this->join($tb,$col1,$st,$col2=null,$type='right join');
   }
   function join($tb,$col1,$st,$col2=null,$type='inner join'){
     $this->arr[$type] = isset($this->arr[$type]) ? $this->arr[$type] : [];
-    $tb = self::escape($tb,'col');
-    $col1 = self::escape($col1,'col');
-    $col2 = self::escape(($col2 !== null ? $col2 : $st),'col');
-    $state = self::escape(($col2 !== null ? $st : '='),'st');
+    $tb = $this->escape($tb,'col');
+    $col1 = $this->escape($col1,'col');
+    $col2 = $this->escape(($col2 !== null ? $col2 : $st),'col');
+    $state = $this->escape(($col2 !== null ? $st : '='),'st');
     $this->arr[$type][] = $tb . ' ON ' . $col1 . $state . $col2;
     return new static($this->arr);
   }
@@ -160,14 +162,14 @@ class Mysql_Table {
     $last = 0;
     foreach ($arr as $key){
       if(is_array($key) && ($state != 'IN' && $state != 'NOT IN') && (!isset($key['ct']) || $key['ct']!=$GLOBALS['candy_token_mysql'])){
-        $q .= $last == 1 ? ' AND '.self::whereExtract($key) : self::whereExtract($key);
+        $q .= $last == 1 ? ' AND '.$this->whereExtract($key) : $this->whereExtract($key);
         $in_arr = true;
         $last = 1;
       }elseif(count($arr)==2 && $loop==2){
         if(in_array(strtoupper($key),$this->val_statements)){
           $q .= " ".strtoupper($key);
         }else{
-          $q .= " =" . self::escape($key);
+          $q .= " =" . $this->escape($key);
         }
       }elseif($in_arr){
         $q .= strtoupper($key)=='OR' ? " OR " : " AND ";
@@ -177,7 +179,7 @@ class Mysql_Table {
         $q .= " ".$state;
         $last = 1;
       }else{
-        $q .= ' '.self::escape($key,($loop==1 ? 'table' : 'value')).' ';
+        $q .= ' '.$this->escape($key,($loop==1 ? 'table' : 'value')).' ';
         $last = 1;
       }
         $loop++;
@@ -203,7 +205,7 @@ class Mysql_Table {
       return in_array(strtoupper($v),$this->statements) ? strtoupper($v) : "=";
     }
   }
-  private function error($sql){
+  private function error($sql=null){
     $bt = debug_backtrace();
     $caller = array_shift($bt);
     if(Candy::isDev() && defined('DEV_ERRORS')) printf("Candy Mysql Error: %s\n<br />".$caller['file'].' : '.$caller['line'], mysqli_error(Mysql::$conn));

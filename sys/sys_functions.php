@@ -297,6 +297,15 @@ class Candy {
       if($minify){
         $js_raw = file_get_contents($file_raw, FILE_USE_INCLUDE_PATH);
         $js_min = self::jsMinifier($js_raw);
+        if(empty($js_min)) $js_min = "console.error('Candy JS', 'Error: $path file could not be minimized')\n".$js_raw;
+        if(substr_count($js_min,"\n") == 2){
+          $arr_errors = explode("\n",$js_min);
+          $error = count($arr_errors)==3;
+          $error = $error && substr($arr_errors[0],0,11) == '// Error : ';
+          $error = $error && substr($arr_errors[1],0,11) == '// Line  : ';
+          $error = $error && substr($arr_errors[2],0,11) == '// Col   : ';
+          if($error) $js_min = "console.error('Candy JS Error','\\n','Error:','".substr($arr_errors[0],11)."','\\n','JS:','$path file could not be minimized.','\\n','Line:','".substr($arr_errors[1],11)."', '\\n','Col:','".substr($arr_errors[2],11)."');";
+        }
         file_put_contents($file_min, $js_min);
       }
       echo '/'.$file_min.'?_v='.$date_min;
@@ -576,7 +585,10 @@ class Candy {
     Config::checkBruteForce(10);
     if($die){
       if(isset($GLOBALS['_candy']['route']['error'][$exc]) && file_exists('controller/'.$GLOBALS['_candy']['route']['error'][$exc].'.php')){
+        $GLOBALS['_candy']['route']['page'] = $GLOBALS['_candy']['route']['error']['controller'][$exc];
+        header('X-Candy-Page: '.(isset($GLOBALS['_candy']['route']['page']) ? $GLOBALS['_candy']['route']['page'] : ''));
         include('controller/'.$GLOBALS['_candy']['route']['error'][$exc].'.php');
+        View::printView();
       }
       die($msg);
     }
@@ -787,6 +799,10 @@ class Candy {
       }
     }
     return include("$plug_dir/candy_loader.php");
+  }
+
+  public static function page($page=null){
+    return $page==null ? $GLOBALS['_candy']['route']['page'] : $page==$GLOBALS['_candy']['route']['page'];
   }
 }
 $candy = new Candy();

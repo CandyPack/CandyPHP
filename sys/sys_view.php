@@ -1,6 +1,5 @@
 <?php
 class View {
-  public $_parts = array();
   public static function head($v){
     return self::set('head',$v);
   }
@@ -20,22 +19,24 @@ class View {
     return self::set('script',$v);
   }
   public static function skeleton($v){
-    return self::set('skeleton',$v);
+    $GLOBALS['_candy']['view']['part']['skeleton'] = $v;
+    return new static();
   }
   public static function all($v){
-    return self::set('all',$v);
+    $GLOBALS['_candy']['view']['part']['all'] = $v;
+    return new static();
   }
   public static function set($c,$v){
-    global $_parts;
-    define('VIEW_'.strtoupper($c),$v);
-    $_parts[$c] = $v;
+    if(!isset($GLOBALS['_candy'])) $GLOBALS['_candy'] = [];
+    if(!isset($GLOBALS['_candy']['view'])) $GLOBALS['_candy']['view'] = [];
+    if(!isset($GLOBALS['_candy']['view']['parts'])) $GLOBALS['_candy']['view']['parts'] = [];
+    $GLOBALS['_candy']['view']['parts'][strtoupper($c)] = $v;
     return new static();
   }
   public static function printView(){
     global $candy;
     global $route;
     global $conn;
-
     if(!function_exists('get')){
       function get($v){
         global $candy;
@@ -48,8 +49,8 @@ class View {
       $output = [];
       $load_content = null;
       $content = strtoupper($_SERVER['HTTP_X_CANDY_LOAD']);
-      if(defined('VIEW_ALL')) $load_content = constant('VIEW_ALL');
-      if(defined('VIEW_'.trim($content))) $load_content = constant('VIEW_'.trim($content));
+      if(isset($GLOBALS['_candy']['view']['part']['all'])) $load_content = $GLOBALS['_candy']['view']['part']['all'];
+      if(isset($GLOBALS['_candy']['view']['parts'][strtoupper(trim($content))])) $load_content = $GLOBALS['_candy']['view']['parts'][strtoupper(trim($content))];
       if($load_content !== null){
         $v_exp = explode('.',$load_content);
         if(count($v_exp)>0){
@@ -71,18 +72,18 @@ class View {
         'variables' => Candy::$ajax_var
       ]);
     }
-    if((defined('VIEW_SKELETON') || defined('VIEW_ALL')) && !$ajaxcheck){
-    if(defined('VIEW_ALL')) $skeleton = 'skeleton/'.VIEW_ALL.'.skeleton';
-    $skeleton = defined('VIEW_SKELETON') ? 'skeleton/'.VIEW_SKELETON.'.skeleton' : 'skeleton/page.skeleton';
+    if((isset($GLOBALS['_candy']['view']['part']['skeleton']) || isset($GLOBALS['_candy']['view']['part']['all'])) && !$ajaxcheck){
+    if(isset($GLOBALS['_candy']['view']['part']['all'])) $skeleton = 'skeleton/'.$GLOBALS['_candy']['view']['part']['all'].'.skeleton';
+    $skeleton = isset($GLOBALS['_candy']['view']['part']['skeleton']) ? 'skeleton/'.$GLOBALS['_candy']['view']['part']['skeleton'].'.skeleton' : 'skeleton/page.skeleton';
     $skeleton = file_get_contents($skeleton, FILE_USE_INCLUDE_PATH);
     $arr_test = explode('{{', $skeleton);
       foreach ($arr_test as $key) {
         $load_content = null;
         if(strpos($key, '}}') !== false){
           $arr_key = explode('}}',$key);
-          $load_key = trim($arr_key[0]);
-          if(defined('VIEW_ALL')) $load_content = constant('VIEW_ALL');
-          if(defined('VIEW_'.$load_key)) $load_content = constant('VIEW_'.$load_key);
+          $load_key = strtoupper(trim($arr_key[0]));
+          if(isset($GLOBALS['_candy']['view']['part']['all'])) $load_content = $GLOBALS['_candy']['view']['part']['all'];
+          if(isset($GLOBALS['_candy']['view']['parts'][$load_key])) $load_content = $GLOBALS['_candy']['view']['parts'][$load_key];
           if($load_content !== null){
             $v_exp = explode('.', $load_content);
             if(count($v_exp)>0){
