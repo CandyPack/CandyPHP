@@ -13,7 +13,7 @@ class Route {
   public static function page($page,$controller,$type = 'page'){
     $get_page = isset($_GET['_page']) ? $_GET['_page'] : '';
     $page = substr($page,0,1) == '/' ? substr($page,1) : $page;
-    if($get_page==$page || self::checkRequest($page,$get_page)){
+    if(self::checkRequest($page,$get_page)){
       if(is_callable($controller)){
         $controller();
       }else{
@@ -28,7 +28,7 @@ class Route {
     unset($arr_get['_page']);
     if(Candy::getCheck($check,$t)){
       $get_page = isset($_GET['_page']) ? $_GET['_page'] : '';
-      if(($get_page==$page || self::checkRequest($page,$get_page)) && isset($_GET)){
+      if(self::checkRequest($page,$get_page) && isset($_GET)){
         $GLOBALS['_candy']['route']['page'] = $controller;
         $GLOBALS['_candy']['route']['method'] = 'get';
       }
@@ -38,7 +38,7 @@ class Route {
     $page = substr($page,0,1) == '/' ? substr($page,1) : $page;
     if(Candy::postCheck($check,$t)){
       $get_page = isset($_GET['_page']) ? $_GET['_page'] : '';
-      if(($get_page==$page || self::checkRequest($page,$get_page)) && isset($_POST)){
+      if(self::checkRequest($page,$get_page) && isset($_POST)){
         $GLOBALS['_candy']['route']['page'] = $controller;
         $GLOBALS['_candy']['route']['method'] = 'post';
       }
@@ -156,7 +156,11 @@ class Route {
     }
   }
   private static function checkRequest($route,$page){
-    if((strpos($route, '{')!==false) && (strpos($route, '}')!==false) && $route!=''){
+    if($route==$page){
+      self::$request = [];
+      return true;
+    }
+    if(!((strpos($route, '{')!==false) && (strpos($route, '}')!==false) && $route!='')) return false;
       $continue = true;
       $var = [];
       $arr_route1 = explode('{',$route);
@@ -195,10 +199,7 @@ class Route {
       }else{
         $return = false;
       }
-    }else{
-      $return = false;
-    }
-    return $return;
+      return $return;
   }
   public static function print(){
     global $conn;
