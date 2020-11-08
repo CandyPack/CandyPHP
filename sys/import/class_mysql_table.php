@@ -119,16 +119,19 @@ class Mysql_Table {
     $this->arr['select'] = isset($this->arr['select']) ? $this->arr['select'] : '';
     $select = array_filter(explode(',',$this->arr['select']));
     if(count(func_get_args())==1 && is_array(func_get_args()[0])){
-      foreach(func_get_args()[0] as $key => $value){
-        $select[] = $this->escape($key,'col').' AS '.$this->escape($value);
-        $this->arr['select'] = implode(', ',$select);
+      if(isset(func_get_args()[0]['ct']) && isset(func_get_args()[0]['v']) && func_get_args()[0]['ct'] == $GLOBALS['candy_token_mysql']){
+        $select[] = func_get_args()[0]['v'];
+      }else{
+        foreach(func_get_args()[0] as $key => $value){
+          $select[] = $this->escape($key,'col').' AS '.$this->escape($value);
+        }
       }
     }else{
       foreach(func_get_args() as $key){
         $select[] = $this->escape($key,'col');
-        $this->arr['select'] = implode(', ',$select);
       }
     }
+    $this->arr['select'] = implode(', ',$select);
     return new static($this->arr);
   }
   function orderBy($v1,$v2='asc'){
