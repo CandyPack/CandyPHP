@@ -68,7 +68,6 @@ class Route {
     global $candy;
     global $conn;
     Config::checkBruteForce();
-    if(!defined('PAGE')) define('PAGE', $GLOBALS['_candy']['route']['page']);
     if(!defined('CANDY_REQUESTS')) define('CANDY_REQUESTS',self::$request);
     if(!function_exists('set')){
       function set($p,$v=null,$a=null){
@@ -115,15 +114,16 @@ class Route {
           $page = str_replace('.','/',$GLOBALS['_candy']['route']['page']);
           $page = preg_replace("((.*)\/)", "$1/".$GLOBALS['_candy']['route']['method'].'/', $page);
         }
+      }elseif(isset($GLOBALS['_candy']['route']['error']['404'])){
+        http_response_code(404);
+        $page = $GLOBALS['_candy']['route']['error']['404'];
       }
       if(defined('MASTER_MAIL') && (!defined('CANDY_DEVMODE') || !CANDY_DEVMODE)) set_error_handler(function($c,$m,$b,$s){
         Candy::quickMail(MASTER_MAIL,"Candy PHP Error:\n\n$c\n$m\n$b\nLine: $s",$subject = '',$from = '');
       });
       if(file_exists('controller/'.$page.'.php')){
+        if(!defined('PAGE')) define('PAGE', $GLOBALS['_candy']['route']['page']);
         include('controller/'.$page.'.php');
-      }elseif(isset($GLOBALS['_candy']['route']['error']['404']) && file_exists('controller/'.$GLOBALS['_candy']['route']['error']['404'].'.php')){
-        http_response_code(404);
-        include('controller/'.$GLOBALS['_candy']['route']['error']['404'].'.php');
       }
       header('X-Candy-Page: '.(isset($GLOBALS['_candy']['route']['page']) ? $GLOBALS['_candy']['route']['page'] : ''));
       $view->printView();
