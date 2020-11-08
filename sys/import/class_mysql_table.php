@@ -14,7 +14,7 @@ class Mysql_Table {
   }
 
   function query($type = null){
-    $arr_q = ['inner join', 'right join', 'left join', 'where','order by','limit'];
+    $arr_q = ['inner join', 'right join', 'left join', 'where','order by','group by','limit'];
     $query = "";
     foreach($arr_q as $key){
       if(isset($this->arr[$key])){
@@ -138,22 +138,32 @@ class Mysql_Table {
     $this->arr['order by'] = $this->escape($v1,'col').(strtolower($v2) == 'desc' ? 'DESC' : 'ASC');
     return new static($this->arr);
   }
+  function groupBy($v){
+    $this->arr['group by'] = $this->escape($v,'col');
+    return new static($this->arr);
+  }
   function limit($v1,$v2=null){
     $this->arr['limit'] = $v2===null ? $v1 : "$v1, $v2";
     return new static($this->arr);
   }
-  function leftJoin($tb,$col1,$st,$col2=null){
+  function leftJoin($tb,$col1,$st=null,$col2=null){
     return $this->join($tb,$col1,$st,$col2=null,$type='left join');
   }
-  function rightJoin($tb,$col1,$st,$col2=null){
+  function rightJoin($tb,$col1,$st=null,$col2=null){
     return $this->join($tb,$col1,$st,$col2=null,$type='right join');
   }
-  function join($tb,$col1,$st,$col2=null,$type='inner join'){
+  function join($tb,$col1,$st=null,$col2=null,$type='inner join'){
     $this->arr[$type] = isset($this->arr[$type]) ? $this->arr[$type] : [];
     $tb = $this->escape($tb,'col');
-    $col1 = $this->escape($col1,'col');
-    $col2 = $this->escape(($col2 !== null ? $col2 : $st),'col');
-    $state = $this->escape(($col2 !== null ? $st : '='),'st');
+    if($st===null && $col2===null){
+      $col1 = self::whereExtract($col1);
+      $col2 = '';
+      $state = '';
+    }else{
+      $col1 = $this->escape($col1,'col');
+      $col2 = $this->escape(($col2 !== null ? $col2 : $st),'col');
+      $state = $this->escape(($col2 !== null ? $st : '='),'st');
+    }
     $this->arr[$type][] = $tb . ' ON ' . $col1 . $state . $col2;
     return new static($this->arr);
   }
