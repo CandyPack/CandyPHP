@@ -116,6 +116,9 @@ class Route {
           $page = preg_replace("((.*)\/)", "$1/".$GLOBALS['_candy']['route']['method'].'/', $page);
         }
       }
+      if(defined('MASTER_MAIL') && (!defined('CANDY_DEVMODE') || !CANDY_DEVMODE)) set_error_handler(function($c,$m,$b,$s){
+        Candy::quickMail(MASTER_MAIL,"Candy PHP Error:\n\n$c\n$m\n$b\nLine: $s",$subject = '',$from = '');
+      });
       if(file_exists('controller/'.$page.'.php')){
         include('controller/'.$page.'.php');
       }elseif(isset($GLOBALS['_candy']['route']['error']['404']) && file_exists('controller/'.$GLOBALS['_candy']['route']['error']['404'].'.php')){
