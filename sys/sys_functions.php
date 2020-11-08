@@ -419,9 +419,6 @@ class Candy {
       $from_name = '';
       $from_mail = $from;
     }
-    if($from=='' && defined('MASTER_MAIL')){
-      $from = MASTER_MAIL;
-    }
     if($subject==''){
       $subject = $_SERVER['SERVER_NAME'];
     }

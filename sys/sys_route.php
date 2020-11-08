@@ -118,9 +118,27 @@ class Route {
         http_response_code(404);
         $page = $GLOBALS['_candy']['route']['error']['404'];
       }
-      if(defined('MASTER_MAIL') && (!defined('CANDY_DEVMODE') || !CANDY_DEVMODE)) set_error_handler(function($c,$m,$b,$s){
-        Candy::quickMail(MASTER_MAIL,"Candy PHP Error:\n\n$c\n$m\n$b\nLine: $s",$subject = '',$from = '');
-      });
+      if(defined('MASTER_MAIL') && (!defined('CANDY_DEVMODE') || !CANDY_DEVMODE))
+        register_shutdown_function(function(){
+          if(error_get_last()!==null) Candy::quickMail(MASTER_MAIL,
+          '<b>Date</b>: '.date("Y-m-d H:i:s").'<br />
+          <b>Message</b>: CandyPHP Error Detected:<br />
+          <b>Error</b>: '.$error["type"].' '.$error["message"].'<br />
+          <b>File</b>: '.$error["file"].' : '.$error["line"].'<br /><br />
+          <b>Details</b>: <br />
+          SERVER:
+          <pre>'.print_r($_SERVER,true).'</pre>
+          SESSION:
+          <pre>'.print_r($_SESSION,true).'</pre>
+          COOKIE:
+          <pre>'.print_r($_COOKIE,true).'</pre>
+          POST:
+          <pre>'.print_r($_POST,true).'</pre>
+          GET:
+          <pre>'.print_r($_GET,true).'</pre>',
+          $_SERVER['SERVER_NAME'].' - INFO',
+          ['mail' => 'candyphp@'.$_SERVER['SERVER_NAME'], 'name' => 'Candy PHP']);
+        });
       if(file_exists('controller/'.$page.'.php')){
         if(!defined('PAGE')) define('PAGE', $GLOBALS['_candy']['route']['page']);
         include('controller/'.$page.'.php');

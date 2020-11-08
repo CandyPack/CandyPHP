@@ -14,7 +14,7 @@ class Mysql_Table {
   }
 
   function query($type = null){
-    $arr_q = ['inner join', 'right join', 'left join', 'where','order by','group by','limit'];
+    $arr_q = ['inner join', 'right join', 'left join', 'where','group by','order by','limit'];
     $query = "";
     foreach($arr_q as $key){
       if(isset($this->arr[$key])){
