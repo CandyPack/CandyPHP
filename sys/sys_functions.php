@@ -748,54 +748,29 @@ class Candy {
     return base64_decode($decrypted);
   }
 
-  public static function plugin($name){
-    if(!is_dir("plugin")) mkdir('plugin');
-    $plug_dir = "plugin/$name";
-    if(!file_exists("$plug_dir/candy_loader.php")){
-      $plugin_url = "https://gist.githubusercontent.com/emredv/fd84e69233f6bd4ee41544335fc12b9f/raw/CandyPHP-Plugins";
-      $plugins = explode("\n",file_get_contents($plugin_url));
-      foreach($plugins as $key){
-        $plugin = explode('|',$key);
-        if(strtolower($plugin[0])==strtolower($name)){
-          $plug_dir = "plugin/".$plugin[0];
-          if(file_exists("$plug_dir/candy_loader.php")) return include("$plug_dir/candy_loader.php");
-          if(!is_dir($plug_dir)) mkdir($plug_dir);
-          if(file_exists("$plug_dir/git.zip")) unlink("$plug_dir/git.zip");
-          $get = file_get_contents($plugin[1]);
-          $save = file_put_contents("$plug_dir/git.zip",$get);
-          $zip = new ZipArchive;
-          if($zip->open("$plug_dir/git.zip") !== TRUE) return false;
-          $zip->extractTo("$plug_dir/");
-          $zip->close();
-          if(file_exists("$plug_dir/git.zip")) unlink("$plug_dir/git.zip");
-          $dirs = array_diff(scandir($plug_dir),['.','..','candy_loader.php']);
-          foreach($dirs as $dir){
-            $loader_dir = is_dir($plug_dir."/".$dir) ? "/".$dir : "";
-          }
-          if(!isset($GLOBALS["_candy"])) $GLOBALS["_candy"] = [];
-          if(!isset($GLOBALS["_candy"]["plugin"])) $GLOBALS["_candy"]["plugin"] = [];
-          $loader = "<?php \n";
-          $loader .= '$_plug = "'.$plugin[0].'";'."\n";
-          $loader .= 'if(isset($GLOBALS["_candy"]["plugin"][$_plug])) return $GLOBALS["_candy"]["plugin"][$_plug];'."\n";
-          $arr_loader = $plugin;
-          unset($arr_loader[0]);
-          unset($arr_loader[1]);
-          foreach($arr_loader as $key){
-            if(substr($key,0,1)=='#'){
-              $loader .= '$reflection = new ReflectionClass($_plug);'."\n";
-              $loader .= '$params = $reflection->getConstructor()->getParameters();'."\n";
-              $loader .= '$GLOBALS["_candy"]["plugin"][$_plug] = count($params)>0 ? true : new '.substr($key,1)."();\n";
-              $loader .= 'return count($params)>0 ? true : $GLOBALS["_candy"]["plugin"][$_plug];'."\n";
-            }else{
-              $loader .= "include (__DIR__.'$loader_dir/$key');\n";
-            }
-
-          }
-          file_put_contents("$plug_dir/candy_loader.php", $loader);
+  public static function dirContents($dir, &$results = []){
+    $result = [];
+    if(is_array($dir)){
+      foreach($dir as $key) self::dirContents($key, $results);
+    }else{
+      $files = scandir($dir);
+      foreach($files as $key => $value){
+        $path = realpath($dir . DIRECTORY_SEPARATOR . $value);
+        if(!is_dir($path)){
+          $results[] = $path;
+        }elseif($value != "." && $value != "..") {
+          self::dirContents($path, $results);
+          $results[] = $path;
         }
       }
     }
-    return include("$plug_dir/candy_loader.php");
+    return $results;
+  }
+
+  public static function plugin($name){
+    self::import('plugin');
+    $plugin = new \Candy\Plugin();
+    return $plugin->plugin($name);
   }
 
   public static function page($page=null){

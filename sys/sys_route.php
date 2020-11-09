@@ -101,7 +101,7 @@ class Route {
             case 'post':
               return isset($_POST[$v]) ? $_POST[$v] : null;
               break;
-              case 'get':
+            case 'get':
               return isset($_GET[$v]) ? $_GET[$v] : null;
               break;
             }
@@ -110,47 +110,47 @@ class Route {
       }
       if(isset($GLOBALS['_candy']['route']['page'])){
         $page = $GLOBALS['_candy']['route']['method'].'/'.$GLOBALS['_candy']['route']['page'];
-        if(strpos($GLOBALS['_candy']['route']['page'], '.') !== false){
-          $page = str_replace('.','/',$GLOBALS['_candy']['route']['page']);
-          $page = preg_replace("((.*)\/)", "$1/".$GLOBALS['_candy']['route']['method'].'/', $page);
-        }
-      }elseif(isset($GLOBALS['_candy']['route']['error']['404'])){
-        http_response_code(404);
-        $page = $GLOBALS['_candy']['route']['error']['404'];
+      if(strpos($GLOBALS['_candy']['route']['page'], '.') !== false){
+        $page = str_replace('.','/',$GLOBALS['_candy']['route']['page']);
+        $page = preg_replace("((.*)\/)", "$1/".$GLOBALS['_candy']['route']['method'].'/', $page);
       }
-      if(defined('MASTER_MAIL') && (!defined('CANDY_DEVMODE') || !CANDY_DEVMODE))
-        register_shutdown_function(function(){
-          if(error_get_last()!==null) Candy::quickMail(MASTER_MAIL,
-          '<b>Date</b>: '.date("Y-m-d H:i:s").'<br />
-          <b>Message</b>: CandyPHP Error Detected:<br />
-          <b>Error</b>: '.$error["type"].' '.$error["message"].'<br />
-          <b>File</b>: '.$error["file"].' : '.$error["line"].'<br /><br />
-          <b>Details</b>: <br />
-          SERVER:
-          <pre>'.print_r($_SERVER,true).'</pre>
-          SESSION:
-          <pre>'.print_r($_SESSION,true).'</pre>
-          COOKIE:
-          <pre>'.print_r($_COOKIE,true).'</pre>
-          POST:
-          <pre>'.print_r($_POST,true).'</pre>
-          GET:
-          <pre>'.print_r($_GET,true).'</pre>',
-          $_SERVER['SERVER_NAME'].' - INFO',
-          ['mail' => 'candyphp@'.$_SERVER['SERVER_NAME'], 'name' => 'Candy PHP']);
-        });
-      if(file_exists('controller/'.$page.'.php')){
-        if(!defined('PAGE')) define('PAGE', $GLOBALS['_candy']['route']['page']);
-        include('controller/'.$page.'.php');
-      }
-      header('X-Candy-Page: '.(isset($GLOBALS['_candy']['route']['page']) ? $GLOBALS['_candy']['route']['page'] : ''));
-      $view->printView();
-      if(isset($GLOBALS['_candy']['oneshot'])){
-        $_SESSION['_candy']['oneshot'] = $GLOBALS['_candy']['oneshot'];
-      }else{
-        unset($_SESSION['_candy']['oneshot']);
-      }
+    }elseif(isset($GLOBALS['_candy']['route']['error']['404'])){
+      http_response_code(404);
+      $page = $GLOBALS['_candy']['route']['error']['404'];
     }
+    if(defined('MASTER_MAIL') && (!defined('CANDY_DEVMODE') || !CANDY_DEVMODE))
+      register_shutdown_function(function(){
+        if(error_get_last()!==null) Candy::quickMail(MASTER_MAIL,
+        '<b>Date</b>: '.date("Y-m-d H:i:s").'<br />
+        <b>Message</b>: CandyPHP Error Detected:<br />
+        <b>Error</b>: '.$error["type"].' '.$error["message"].'<br />
+        <b>File</b>: '.$error["file"].' : '.$error["line"].'<br /><br />
+        <b>Details</b>: <br />
+        SERVER:
+        <pre>'.print_r($_SERVER,true).'</pre>
+        SESSION:
+        <pre>'.print_r($_SESSION,true).'</pre>
+        COOKIE:
+        <pre>'.print_r($_COOKIE,true).'</pre>
+        POST:
+        <pre>'.print_r($_POST,true).'</pre>
+        GET:
+        <pre>'.print_r($_GET,true).'</pre>',
+        $_SERVER['SERVER_NAME'].' - INFO',
+      ['mail' => 'candyphp@'.$_SERVER['SERVER_NAME'], 'name' => 'Candy PHP']);
+    });
+    header('X-Candy-Page: '.(isset($GLOBALS['_candy']['route']['page']) ? $GLOBALS['_candy']['route']['page'] : ''));
+    if(file_exists('controller/'.$page.'.php')){
+      if(!defined('PAGE')) define('PAGE', $GLOBALS['_candy']['route']['page']);
+      include('controller/'.$page.'.php');
+    }
+    $view->printView();
+    if(isset($GLOBALS['_candy']['oneshot'])){
+      $_SESSION['_candy']['oneshot'] = $GLOBALS['_candy']['oneshot'];
+    }else{
+      unset($_SESSION['_candy']['oneshot']);
+    }
+  }
   public static function cron($controller,$array='*'){
     $cron = new Cron();
     return $cron->controller($controller);
@@ -177,11 +177,12 @@ class Route {
     }
   }
   private static function checkRequest($route,$page){
+    if(isset($GLOBALS['_candy']['route']['page'])) return false;
     if($route==$page){
       self::$request = [];
       return true;
     }
-    if(!((strpos($route, '{')!==false) && (strpos($route, '}')!==false) && $route!='')) return false;
+    if(strpos($route, '{')===false || strpos($route, '}')===false || $route=='') return false;
       $continue = true;
       $var = [];
       $arr_route1 = explode('{',$route);
