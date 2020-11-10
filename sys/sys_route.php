@@ -114,9 +114,9 @@ class Route {
         $page = str_replace('.','/',$GLOBALS['_candy']['route']['page']);
         $page = preg_replace("((.*)\/)", "$1/".$GLOBALS['_candy']['route']['method'].'/', $page);
       }
-    }elseif(isset($GLOBALS['_candy']['route']['error']['404'])){
+    }else{
       http_response_code(404);
-      $page = $GLOBALS['_candy']['route']['error']['404'];
+      $page = isset($GLOBALS['_candy']['route']['error']['404']) ? $GLOBALS['_candy']['route']['error']['404'] : die();
     }
     if(defined('MASTER_MAIL') && (!defined('CANDY_DEVMODE') || !CANDY_DEVMODE))
       register_shutdown_function(function(){
