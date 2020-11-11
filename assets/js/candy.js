@@ -140,35 +140,27 @@ class Candy {
         if(url_go!=url_now){
           window.history.pushState(null, document.title, url_go);
         }
-        $.each(arr, function(index, value){
-          $.ajax({
-            url: url_go,
-            type: "GET",
-            beforeSend: function(xhr){xhr.setRequestHeader('X-CANDY', 'ajaxload');xhr.setRequestHeader('X-CANDY-LOAD', index);},
-            success: function(_data, status, request){
-              _candy_page = request.getResponseHeader('x-candy-page');
-              $(value).fadeOut(function(){
+        $.ajax({
+          url: url_go,
+          type: "GET",
+          beforeSend: function(xhr){xhr.setRequestHeader('X-CANDY', 'ajaxload');xhr.setRequestHeader('X-CANDY-LOAD', Object.keys(arr).join(','))},
+          success: function(_data, status, request){
+            _candy_page = request.getResponseHeader('x-candy-page');
+            $.each(arr, function(index, value){
+              $(value).fadeOut(400,function(){
                 $(value).html(_data.output[index]);
                 $(value).fadeIn();
-                if(_candy_action !== undefined){
-                  if(typeof _candy_action.load == 'function'){
-                    _candy_action.load();
-                  }
-                }
-                if(_candy_action !== undefined && _candy_action.page !== undefined){
-                  if(typeof _candy_action.page[_candy_page] == "function"){
-                    _candy_action.page[_candy_page]();
-                  }
-                }
-                if(callback!==undefined){
-                  callback(candy.page(),_data.variables);
-                }
               });
-            },
-            error : function(){
-              window.location.replace(url_go);
-            }
-          });
+            });
+            setTimeout(function(){
+              if(_candy_action !== undefined && typeof _candy_action.load == 'function') _candy_action.load();
+              if(_candy_action !== undefined && _candy_action.page !== undefined && typeof _candy_action.page[_candy_page] == "function") _candy_action.page[_candy_page]();
+              if(callback!==undefined) callback(candy.page(),_data.variables);
+            },500);
+          },
+          error : function(){
+            window.location.replace(url_go);
+          }
         });
       }
     });
@@ -179,26 +171,20 @@ class Candy {
           $.ajax({
             url: window.location.href,
             type: "GET",
-            beforeSend: function(xhr){xhr.setRequestHeader('X-CANDY', 'ajaxload');xhr.setRequestHeader('X-CANDY-LOAD', index);},
+            beforeSend: function(xhr){xhr.setRequestHeader('X-CANDY', 'ajaxload');xhr.setRequestHeader('X-CANDY-LOAD', Object.keys(arr).join(','));},
             success: function(_data, status, request){
               _candy_page = request.getResponseHeader('x-candy-page');
-              $(value).fadeOut(function(){
-                $(value).html(_data.output[index]);
-                $(value).fadeIn();
-                if(_candy_action !== undefined){
-                  if(typeof _candy_action.load == 'function'){
-                    _candy_action.load();
-                  }
-                }
-                if(_candy_action !== undefined && _candy_action.page !== undefined){
-                  if(typeof _candy_action.page[_candy_page] == "function"){
-                    _candy_action.page[_candy_page]();
-                  }
-                }
-                if(callback!==undefined){
-                  callback(candy.page(),_data.variables);
-                }
+              $.each(arr, function(index, value){
+                $(value).fadeOut(400,function(){
+                  $(value).html(_data.output[index]);
+                  $(value).fadeIn();
+                });
               });
+              setTimeout(function(){
+                if(_candy_action !== undefined && typeof _candy_action.load == 'function') _candy_action.load();
+                if(_candy_action !== undefined && _candy_action.page !== undefined && typeof _candy_action.page[_candy_page] == "function") _candy_action.page[_candy_page]();
+                if(callback!==undefined) callback(candy.page(),_data.variables);
+              },500);
             },
             error : function(){
               window.location.replace(window.location.href);
