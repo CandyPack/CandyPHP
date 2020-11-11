@@ -141,7 +141,7 @@ class Route {
     });
     header('X-Candy-Page: '.(isset($GLOBALS['_candy']['route']['page']) ? $GLOBALS['_candy']['route']['page'] : ''));
     if(file_exists('controller/'.$page.'.php')){
-      if(!defined('PAGE')) define('PAGE', $GLOBALS['_candy']['route']['page']);
+      if(!defined('PAGE')) define('PAGE', $page);
       include('controller/'.$page.'.php');
     }
     $view->printView();
