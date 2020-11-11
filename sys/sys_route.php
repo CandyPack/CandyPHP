@@ -252,7 +252,7 @@ class Route {
             header('Access-Control-Allow-Origin: '.($_SERVER['SERVER_PORT']==443 ? 'https://' : 'http://').$_SERVER['HTTP_HOST']);
             header("Content-Type: application/json; charset=UTF-8");
             Candy::return([
-              'page' => isset($GLOBALS['_candy']['route']['page']) ? $GLOBALS['_candy']['route']['page'] : $GLOBALS['_candy']['route']['error']['404'],
+              'page' => isset($GLOBALS['_candy']['route']['page']) ? $GLOBALS['_candy']['route']['page'] : $GLOBALS['_candy']['route']['error']['controller']['404'],
               'token' => Candy::token()
             ]);
           }else{self::printPage();}

@@ -48,23 +48,25 @@ class View {
     if($ajaxcheck){
       $output = [];
       $load_content = null;
-      $content = strtoupper($_SERVER['HTTP_X_CANDY_LOAD']);
-      if(isset($GLOBALS['_candy']['view']['part']['all'])) $load_content = $GLOBALS['_candy']['view']['part']['all'];
-      if(isset($GLOBALS['_candy']['view']['parts'][strtoupper(trim($content))])) $load_content = $GLOBALS['_candy']['view']['parts'][strtoupper(trim($content))];
-      if($load_content !== null){
-        $v_exp = explode('.',$load_content);
-        if(count($v_exp)>0){
-          $vdir = $v_exp;
-          unset($vdir[count($vdir)-1]);
-          $vdir = implode('/',$vdir).'/';
-        }else{
-          $vdir = "";
-        }
-        $vfile = $vdir.strtolower(trim($content)).'/'.end($v_exp).'.blade.php';
-        if(file_exists('view/'.$vfile)){
-          ob_start();
-          include(self::cacheView($vfile));
-          $output[$_SERVER['HTTP_X_CANDY_LOAD']] = ob_get_clean();
+      $contents = explode(',',$_SERVER['HTTP_X_CANDY_LOAD']);
+      foreach($contents as $content){
+        if(isset($GLOBALS['_candy']['view']['part']['all'])) $load_content = $GLOBALS['_candy']['view']['part']['all'];
+        if(isset($GLOBALS['_candy']['view']['parts'][strtoupper(trim($content))])) $load_content = $GLOBALS['_candy']['view']['parts'][strtoupper(trim($content))];
+        if($load_content !== null){
+          $v_exp = explode('.',$load_content);
+          if(count($v_exp)>0){
+            $vdir = $v_exp;
+            unset($vdir[count($vdir)-1]);
+            $vdir = implode('/',$vdir).'/';
+          }else{
+            $vdir = "";
+          }
+          $vfile = $vdir.strtolower(trim($content)).'/'.end($v_exp).'.blade.php';
+          if(file_exists('view/'.$vfile)){
+            ob_start();
+            include(self::cacheView($vfile));
+            $output[$content] = ob_get_clean();
+          }
         }
       }
       Candy::return([
