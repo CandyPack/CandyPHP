@@ -1,6 +1,5 @@
 <?php
 class Config {
-  public $backupdirectory = '../backup/';
 
   public static function displayError($b = true){
     if($b){
@@ -65,8 +64,8 @@ class Config {
     define('BACKUP_DIRECTORY',$directory);
   }
   public static function runBackup(){
-    global $conn;
     global $backupdirectory;
+    $conn = Mysql::connect();
     $b = defined('AUTO_BACKUP') && AUTO_BACKUP;
     if($b && date("Hi")=='0000' && ((substr($_SERVER['SERVER_ADDR'],0,8)=='192.168.') || ($_SERVER['SERVER_ADDR']==$_SERVER['REMOTE_ADDR'])) && isset($_GET['_candy']) && $_GET['_candy']=='cron'){
       $storage = $storage===null ? Candy::storage('sys')->get('backup') : new \stdClass;
