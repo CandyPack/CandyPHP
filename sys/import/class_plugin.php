@@ -112,7 +112,7 @@ class Plugin{
     $loader = "\n/* --- CANDY PHP - END --- */\n";
     $loader .= isset($obj->end) ? $obj->end."\n" : '';
     $return = isset($obj->return) ? $obj->return : true;
-    $loader .= "$GLOBALS["_candy"]["plugin"][$_plug] = $return;\n";
+    $loader .= $GLOBALS["_candy"]["plugin"][$_plug] = $return."\n";
     $loader .= 'return $GLOBALS["_candy"]["plugin"][$_plug];';
     file_put_contents("$plug_dir/candy_loader.php", $loader);
   }
