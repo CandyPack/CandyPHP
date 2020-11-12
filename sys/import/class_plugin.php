@@ -76,7 +76,8 @@ class Plugin{
 
   private function getJson($name){
     $json = \Candy::curl("https://raw.githubusercontent.com/$name/master/candy.json");
-    if($json=='404: Not Found') $json = \Candy::curl("https://raw.githubusercontent.com/$name/master/composer.json");
+    if(!empty($json) && $json!='404: Not Found') return self::candyExtract($json);
+    $json = \Candy::curl("https://raw.githubusercontent.com/$name/master/composer.json");
     if($json=='404: Not Found') return false;
     $plug_dir = $this->dir;
     $obj = json_decode($json);
@@ -92,6 +93,28 @@ class Plugin{
     $loader_php .= '$GLOBALS["_candy"]["plugin"][$_plug] = true;'."\n";
     $loader_php .= 'return true;';
     file_put_contents("$plug_dir/candy_loader.php", $loader_php);
+  }
+
+  private function candyExtract($json){
+    $obj = json_decode($json);
+    if(!isset($obj->name) || empty($obj->name)) return false;
+    $src = $this->src($obj->autoload);
+    $autoload = [];
+    foreach($src as $key) $autoload = array_merge($autoload,(is_dir($key) ? \Candy::dirContents($key) : [$key]));
+    $loader  = "<?php \n";
+    $loader = "\n/* --- CANDY PHP - LOADER --- */\n";
+    $loader .= '$_plug = "'.$obj->name.'";'."\n";
+    $loader .= 'if(isset($GLOBALS["_candy"]["plugin"][$_plug])) return $GLOBALS["_candy"]["plugin"][$_plug];'."\n";
+    $loader = "\n/* --- CANDY PHP - BEGIN --- */\n";
+    $loader .= isset($obj->begin) ? $obj->begin."\n" : '';
+    $loader = "\n/* --- CANDY PHP - AUTOLOAD --- */\n";
+    foreach($loader as $key) if(strtolower(substr($key,-4))=='.php') $loader .= "include (BASE_PATH.'".str_replace(BASE_PATH,'',$key)."');\n";
+    $loader = "\n/* --- CANDY PHP - END --- */\n";
+    $loader .= isset($obj->end) ? $obj->end."\n" : '';
+    $return = isset($obj->return) ? $obj->return : true;
+    $loader .= "$GLOBALS["_candy"]["plugin"][$_plug] = $return;\n";
+    $loader .= 'return $GLOBALS["_candy"]["plugin"][$_plug];';
+    file_put_contents("$plug_dir/candy_loader.php", $loader);
   }
 
   private function download($url){
