@@ -332,6 +332,7 @@ class Config {
       }
       public static function errors(){
         Config::displayError(true);
+        if(!defined('DEV_ERRORS')) define('DEV_ERRORS',true);
         return new static();
       }
     };
