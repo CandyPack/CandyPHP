@@ -51,6 +51,7 @@ class Candy {
     }
     $(document).on("submit",'#'+id,function(e){
       e.preventDefault();
+      var candy_form = $(this);
       $('#'+id+' ._candy_form_info').remove();
       $('#'+id+' ._candy').html('');
       $('#'+id+' ._candy').hide();
@@ -74,6 +75,7 @@ class Candy {
         var contentType = "application/x-www-form-urlencoded; charset=UTF-8";
         var processData = true;
       }
+      candy_form.find('button, input[type="button"], input[type="submit"]').prop('disabled',true);
       $.ajax({
         type: $("#"+id).attr('method'),
         url: $("#"+id).attr('action'),
@@ -120,6 +122,9 @@ class Candy {
         },
         error: function() {
           alert('Somethings went wrong...');
+        },
+        complete: function() {
+          candy_form.find('button, input[type="button"], input[type="submit"]').prop('disabled',false);
         }
       });
     });
