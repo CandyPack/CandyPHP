@@ -774,7 +774,10 @@ class Candy {
   }
 
   public static function page($page=null){
-    return $page==null ? $GLOBALS['_candy']['route']['page'] : $page==$GLOBALS['_candy']['route']['page'];
+    if($page==null) $GLOBALS['_candy']['route']['page']
+    if(isset($GLOBALS['_candy']['route']['page'])) return $page==$GLOBALS['_candy']['route']['page'];
+    if(defined('PAGE')) return $page==PAGE;
+    return false
   }
 }
 $candy = new Candy();
