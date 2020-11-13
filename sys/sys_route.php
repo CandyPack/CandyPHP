@@ -116,6 +116,7 @@ class Route {
       }
     }else{
       http_response_code(404);
+      $GLOBALS['_candy']['route']['page'] = isset($GLOBALS['_candy']['route']['error']['controller']['404']) ? $GLOBALS['_candy']['route']['error']['controller']['404'] : '';
       $page = isset($GLOBALS['_candy']['route']['error']['404']) ? $GLOBALS['_candy']['route']['error']['404'] : die();
     }
     if(defined('MASTER_MAIL') && (!defined('CANDY_DEVMODE') || !CANDY_DEVMODE))
