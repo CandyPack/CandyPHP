@@ -147,10 +147,10 @@ class Mysql_Table {
     return new static($this->arr);
   }
   function leftJoin($tb,$col1,$st=null,$col2=null){
-    return $this->join($tb,$col1,$st,$col2=null,$type='left join');
+    return $this->join($tb,$col1,$st,$col2,'left join');
   }
   function rightJoin($tb,$col1,$st=null,$col2=null){
-    return $this->join($tb,$col1,$st,$col2=null,$type='right join');
+    return $this->join($tb,$col1,$st,$col2,'right join');
   }
   function join($tb,$col1,$st=null,$col2=null,$type='inner join'){
     $this->arr[$type] = isset($this->arr[$type]) ? $this->arr[$type] : [];
@@ -221,6 +221,7 @@ class Mysql_Table {
   private function error($sql=null){
     $bt = debug_backtrace();
     $caller = array_shift($bt);
+    Config::errorReport('MYSQL',mysqli_error(Mysql::$conn),$caller['file'],$caller['line']);
     if(Candy::isDev() && defined('DEV_ERRORS')) printf("Candy Mysql Error: %s\n<br />".$caller['file'].' : '.$caller['line'], mysqli_error(Mysql::$conn));
     return false;
   }

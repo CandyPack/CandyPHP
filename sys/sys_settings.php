@@ -386,6 +386,20 @@ class Config {
     Candy::storage('sys')->set('bruteforce',$storage);
   }
 
+  public static function errorReport($type,$mssg=null,$file=null,$line=null){
+    if(Candy::isDev()) return true;
+    $log = "";
+    if(file_exists('candy.log')) $log = file_get_contents('candy.log', FILE_USE_INCLUDE_PATH);
+    if(empty(trim($log))) $log = "\n--- CANDY PHP ERRORS ---\n";
+    $log .= "\n--- ".date('Y/m/d H:i:s')." ---\n";
+    if(!empty($type)) $log .= "Type:    $type\n";
+    if(!empty($mssg)) $log .= "Message: $mssg\n";
+    if(!empty($file)) $log .= "File:    $file\n";
+    if(!empty($line)) $log .= "Line:    $line\n";
+    $log .= "-------\n";
+    file_put_contents('candy.log',$log);
+  }
+
 }
 
 $config = new Config();

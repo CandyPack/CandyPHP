@@ -119,27 +119,10 @@ class Route {
       $GLOBALS['_candy']['route']['page'] = isset($GLOBALS['_candy']['route']['error']['controller']['404']) ? $GLOBALS['_candy']['route']['error']['controller']['404'] : '';
       $page = isset($GLOBALS['_candy']['route']['error']['404']) ? $GLOBALS['_candy']['route']['error']['404'] : die();
     }
-    if(defined('MASTER_MAIL') && (!defined('CANDY_DEVMODE') || !CANDY_DEVMODE))
-      register_shutdown_function(function(){
-        $error = error_get_last();
-        if(!empty($error)) Candy::quickMail(MASTER_MAIL,
-        '<b>Date</b>: '.date("Y-m-d H:i:s").'<br />
-        <b>Message</b>: CandyPHP Error Detected:<br />
-        <b>Error</b>: '.$error["type"].' '.$error["message"].'<br />
-        <b>File</b>: '.$error["file"].' : '.$error["line"].'<br /><br />
-        <b>Details</b>: <br />
-        SERVER:
-        <pre>'.print_r($_SERVER,true).'</pre>
-        SESSION:
-        <pre>'.print_r($_SESSION,true).'</pre>
-        COOKIE:
-        <pre>'.print_r($_COOKIE,true).'</pre>
-        POST:
-        <pre>'.print_r($_POST,true).'</pre>
-        GET:
-        <pre>'.print_r($_GET,true).'</pre>',
-        $_SERVER['SERVER_NAME'].' - INFO',
-      ['mail' => 'candyphp@'.$_SERVER['SERVER_NAME'], 'name' => 'Candy PHP']);
+    register_shutdown_function(function(){
+      $error = error_get_last();
+      $type = 'PHP '.str_replace([2048,1024,512,256,8,2,1],['Strictly','User Notice','User Warning','User','Notice','Warning','Fatal'],$error["type"]);
+      if(!empty($error)) Config::errorReport($type,$error["message"],$error["file"],$error["line"]);
     });
     header('X-Candy-Page: '.(isset($GLOBALS['_candy']['route']['page']) ? $GLOBALS['_candy']['route']['page'] : ''));
     if(file_exists('controller/'.$page.'.php')){
