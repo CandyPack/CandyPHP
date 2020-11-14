@@ -121,7 +121,8 @@ class Route {
     }
     if(defined('MASTER_MAIL') && (!defined('CANDY_DEVMODE') || !CANDY_DEVMODE))
       register_shutdown_function(function(){
-        if(error_get_last()!==null) Candy::quickMail(MASTER_MAIL,
+        $error = error_get_last();
+        if(!empty($error)) Candy::quickMail(MASTER_MAIL,
         '<b>Date</b>: '.date("Y-m-d H:i:s").'<br />
         <b>Message</b>: CandyPHP Error Detected:<br />
         <b>Error</b>: '.$error["type"].' '.$error["message"].'<br />
