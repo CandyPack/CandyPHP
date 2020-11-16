@@ -335,6 +335,10 @@ class Config {
         if(!defined('DEV_ERRORS')) define('DEV_ERRORS',true);
         return new static();
       }
+      public static function mail($m){
+        Config::masterMail($m);
+        return new static();
+      }
     };
   }
 
@@ -389,15 +393,16 @@ class Config {
   public static function errorReport($type,$mssg=null,$file=null,$line=null){
     if(Candy::isDev()) return true;
     $log = "";
-    if(file_exists('candy.log')) $log = file_get_contents('candy.log', FILE_USE_INCLUDE_PATH);
-    if(empty(trim($log))) $log = "\n--- CANDY PHP ERRORS ---\n";
+    $open = file_exists('candy.log') ? file_get_contents('candy.log', FILE_USE_INCLUDE_PATH) : "";
+    if(empty(trim($open))) $log = "\n--- <b>CANDY PHP ERRORS</b> ---\n";
     $log .= "\n--- ".date('Y/m/d H:i:s')." ---\n";
-    if(!empty($type)) $log .= "Type:    $type\n";
-    if(!empty($mssg)) $log .= "Message: $mssg\n";
-    if(!empty($file)) $log .= "File:    $file\n";
-    if(!empty($line)) $log .= "Line:    $line\n";
+    if(!empty($type)) $log .= "<b>Type:</b>    $type Error\n";
+    if(!empty($mssg)) $log .= "<b>Message:</b> $mssg\n";
+    if(!empty($file)) $log .= "<b>File:</b>    $file\n";
+    if(!empty($line)) $log .= "<b>Line:</b>    $line\n";
     $log .= "-------\n";
-    file_put_contents('candy.log',$log);
+    file_put_contents('candy.log',strip_tags($open.$log));
+    if(defined('MASTER_MAIL')) Candy::quickMail(MASTER_MAIL,nl2br($log."<br><br>".print_r($GLOBALS,true)),$_SERVER['HTTP_HOST']." - Candy PHP ERROR","candyphp@".$_SERVER['HTTP_HOST']);
   }
 
 }
