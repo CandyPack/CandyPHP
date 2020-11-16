@@ -46,6 +46,11 @@ class Candy {
 
   public static function configCheck(){
     header('X-POWERED-BY: Candy PHP');
+    register_shutdown_function(function(){
+      $error = error_get_last();
+      $type = 'PHP '.str_replace([2048,1024,512,256,8,2,1],['Strictly','User Notice','User Warning','User','Notice','Warning','Fatal'],$error["type"]);
+      if(!empty($error)) Config::errorReport($type,$error["message"],$error["file"],$error["line"]);
+    });
     if(defined('MYSQL_CONNECT') && MYSQL_CONNECT==true){
       self::import('mysql');
       Mysql::connect();
@@ -633,29 +638,26 @@ class Candy {
     $source = implode('', array_slice($source, 0, count($source)));
     $source = preg_split("/".PHP_EOL."/", $source);
     $body = '';
-    for($i=$start_line; $i<$end_line; $i++)
-    $body.="{$source[$i]}\n";
+    for($i=$start_line; $i<$end_line; $i++){
+      if($i + 1 == $end_line && substr_count($source[$i],'}')==1 && substr(trim($source[$i]),0,1)=='}'){
+        $body .= '});';
+        continue;
+      }
+      $body .= "{$source[$i]}\n";
+    }
     $body = trim($body);
     if(substr($body,0,1)=='$'){
       $body = preg_replace('/'.preg_quote('$', '/').'/', '/*', $body, 1);
       $body = preg_replace('/'.preg_quote('=', '/').'/', '*/', $body, 1);
-      if(substr($body,-1)==';'){
-        $body = 'Candy::async('.substr($body,0,-1).');';
-      }
+      if(substr($body,-1)==';') $body = 'Candy::async('.substr($body,0,-1).');';
     }else{
-      if(substr($body,0,8)=='function'){
-        $body = 'Candy::async('.$body;
-      }
-      if(substr($body,-1)=='}'){
-        $body = $body.');';
-      }
+      if(substr($body,0,8)=='function') $body = 'Candy::async('.$body;
+      if(substr($body,-1)=='}') $body = $body.');';
     }
-    if(substr($body,0,5)=='<?php'){
-      $body = preg_replace('/'.preg_quote('<?php', '/').'/', '', $body, 1);
-    }
-    $body = '<?php '.$body;
+    if(substr($body,0,5)=='<?php') $body = preg_replace('/'.preg_quote('<?php', '/').'/', '', $body, 1);
+    echo $body = '<?php '.$body;
     $func_hash = md5($body);
-    $file = 'storage/cache/async_'.$func_hash.'.php';
+    $file = BASE_PATH.'/storage/cache/async_'.$func_hash.'.php';
     if(!file_exists($file)){
       file_put_contents($file, $body);
       $storage = Candy::storage('sys')->get('cache');
@@ -665,7 +667,6 @@ class Candy {
       Candy::storage('sys')->set('cache',$storage);
     }
     $datas = ['hash' => $func_hash, 'data' => $data, 'array' => is_array($data) ? 1 : 0];
-
     $date = date('YmdH');
     $storage = Candy::storage('sys')->get('async');
     $storage->data = isset($storage->data->$date) ? $storage->data : new \stdClass;
@@ -673,7 +674,6 @@ class Candy {
     $data_id = mt_rand().time().rand(100,999);
     $storage->data->$date->$data_id = ['hash' => $func_hash, 'data' => $data, 'array' => is_array($data) ? 1 : 0];
     Candy::storage('sys')->set('async',$storage);
-
     self::curl(str_replace('www.','',$_SERVER['SERVER_NAME']).'/?_candy=async&hash='.$func_hash.'&async_data='.$data_id,
                $datas,
                null,
@@ -774,7 +774,7 @@ class Candy {
   }
 
   public static function page($page=null){
-    if($page==null && isset($GLOBALS['_candy']['route']['page'])) $GLOBALS['_candy']['route']['page'];
+    if($page==null && isset($GLOBALS['_candy']['route']['page'])) return $GLOBALS['_candy']['route']['page'];
     if(isset($GLOBALS['_candy']['route']['page'])) return $page == $GLOBALS['_candy']['route']['page'];
     if(defined('PAGE')) return $page==PAGE;
     return false;

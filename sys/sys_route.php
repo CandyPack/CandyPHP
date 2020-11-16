@@ -119,11 +119,6 @@ class Route {
       $GLOBALS['_candy']['route']['page'] = isset($GLOBALS['_candy']['route']['error']['controller']['404']) ? $GLOBALS['_candy']['route']['error']['controller']['404'] : '';
       $page = isset($GLOBALS['_candy']['route']['error']['404']) ? $GLOBALS['_candy']['route']['error']['404'] : die();
     }
-    register_shutdown_function(function(){
-      $error = error_get_last();
-      $type = 'PHP '.str_replace([2048,1024,512,256,8,2,1],['Strictly','User Notice','User Warning','User','Notice','Warning','Fatal'],$error["type"]);
-      if(!empty($error)) Config::errorReport($type,$error["message"],$error["file"],$error["line"]);
-    });
     header('X-Candy-Page: '.(isset($GLOBALS['_candy']['route']['page']) ? $GLOBALS['_candy']['route']['page'] : ''));
     if(file_exists('controller/'.$page.'.php')){
       if(!defined('PAGE')) define('PAGE', $page);

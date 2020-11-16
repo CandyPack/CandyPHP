@@ -392,17 +392,27 @@ class Config {
 
   public static function errorReport($type,$mssg=null,$file=null,$line=null){
     if(Candy::isDev()) return true;
-    $log = "";
-    $open = file_exists('candy.log') ? file_get_contents('candy.log', FILE_USE_INCLUDE_PATH) : "";
-    if(empty(trim($open))) $log = "\n--- <b>CANDY PHP ERRORS</b> ---\n";
-    $log .= "\n--- ".date('Y/m/d H:i:s')." ---\n";
-    if(!empty($type)) $log .= "<b>Type:</b>    $type Error\n";
-    if(!empty($mssg)) $log .= "<b>Message:</b> $mssg\n";
-    if(!empty($file)) $log .= "<b>File:</b>    $file\n";
-    if(!empty($line)) $log .= "<b>Line:</b>    $line\n";
-    $log .= "-------\n";
-    file_put_contents('candy.log',strip_tags($open.$log));
-    if(defined('MASTER_MAIL')) Candy::quickMail(MASTER_MAIL,nl2br($log."<br><br>".print_r($GLOBALS,true)),$_SERVER['HTTP_HOST']." - Candy PHP ERROR","candyphp@".$_SERVER['HTTP_HOST']);
+    Candy::async(function($error){
+      $log = "";
+      $open = file_exists(BASE_PATH.'/candy.log') && filesize(BASE_PATH.'/candy.log') <= 128000000 ? file_get_contents(BASE_PATH.'/candy.log', FILE_USE_INCLUDE_PATH) : "";
+      if(empty(trim($open))) $log = "\n--- <b>CANDY PHP ERRORS</b> ---\n";
+      $log .= "\n--- ".date('Y/m/d H:i:s')." ---\n";
+      if(isset($error['type']) && !empty($error['type'])) $log .= "<b>Type:</b>    ".$error['type']." Error\n";
+      if(isset($error['mssg']) && !empty($error['mssg'])) $log .= "<b>Message:</b> ".$error['mssg']."\n";
+      if(isset($error['file']) && !empty($error['file'])){
+        $file = $error['file'];
+        if(strpos($error['file'], '/storage/cache/') !== false){
+          $arr_file = explode('/storage/cache/', $file, 2);
+          $storage = Candy::storage('sys')->get('cache');
+          $file = $file[0].$real_file;
+        }
+        $log .= "<b>File:</b>    ".$error['file']."\n";
+      }
+      if(isset($error['line']) && !empty($error['line'])) $log .= "<b>Line:</b>    ".$error['line']."\n";
+      $log .= "-------\n";
+      file_put_contents(BASE_PATH.'/candy.log',strip_tags($open.$log));
+      if(defined('MASTER_MAIL')) Candy::quickMail(MASTER_MAIL,nl2br($log."<br><br>".print_r($GLOBALS,true)),$_SERVER['HTTP_HOST']." - Candy PHP ERROR","candyphp@".$_SERVER['HTTP_HOST']);
+    },['type' => $type, 'mssg' => $mssg, 'file' => $file, 'line' => $line, 'date' => date('Y/m/d H:i:s')]);
   }
 
 }
