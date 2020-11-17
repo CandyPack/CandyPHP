@@ -391,6 +391,7 @@ class Config {
   }
 
   public static function errorReport($type,$mssg=null,$file=null,$line=null){
+    return false;
     if(Candy::isDev()) return true;
     $now = date('YmdH');
     $storage = Candy::storage('sys')->get('error');
