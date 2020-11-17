@@ -179,7 +179,7 @@ class Mysql_Table {
         $in_arr = true;
         $last = 1;
       }elseif(count($arr)==2 && $loop==2){
-        if(in_array(strtoupper($key),$this->val_statements)){
+        if(!is_array($key) && in_array(strtoupper($key),$this->val_statements)){
           $q .= " ".strtoupper($key);
         }else{
           $q .= " =" . $this->escape($key);
