@@ -321,11 +321,11 @@ class Candy {
     }
   }
 
-  public static function getCss($path){
+  public static function getCss($path, $min = true){
     $minify = false;
     $file_raw = 'assets/css/'.$path;
     $file_min = str_replace('.css','.min.css',$file_raw);
-    if(file_exists($file_raw)){
+    if($min && file_exists($file_raw)){
       $date_min = '1';
       if(file_exists($file_min)){
         $date_raw = filemtime($file_raw);
@@ -338,7 +338,9 @@ class Candy {
       }
       if($minify){
         $css_raw = file_get_contents($file_raw, FILE_USE_INCLUDE_PATH);
-        $css_min = self::cssMinifier($css_raw);
+        self::import('minifier');
+        $minifier = new \Candy\Minifier();
+        $css_min = $minifier->css($css_raw);
         file_put_contents($file_min, $css_min);
       }
       echo '/'.$file_min.'?_v='.$date_min;
@@ -358,21 +360,6 @@ class Candy {
         CURLOPT_POST => true,
         CURLOPT_HTTPHEADER => ["Content-Type: application/x-www-form-urlencoded"],
         CURLOPT_POSTFIELDS => http_build_query([ "input" => $js ])
-    ]);
-    $minified = curl_exec($ch);
-    curl_close($ch);
-    return $minified;
-  }
-
-  public static function cssMinifier($css){
-    $url = 'https://cssminifier.com/raw';
-    $ch = curl_init();
-    curl_setopt_array($ch, [
-        CURLOPT_URL => $url,
-        CURLOPT_RETURNTRANSFER => true,
-        CURLOPT_POST => true,
-        CURLOPT_HTTPHEADER => ["Content-Type: application/x-www-form-urlencoded"],
-        CURLOPT_POSTFIELDS => http_build_query([ "input" => $css ])
     ]);
     $minified = curl_exec($ch);
     curl_close($ch);
