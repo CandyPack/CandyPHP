@@ -2,6 +2,7 @@
 assets/css/candy.css
 assets/js/candy.js
 sys/import/class_mail.php
+sys/import/class_minifier.php
 sys/import/class_mysql_table.php
 sys/import/class_mysql.php
 sys/import/class_plugin.php
