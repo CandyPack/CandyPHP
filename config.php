@@ -1,16 +1,16 @@
 <?php
 
-Config::languageDetect(); // Dil dosyalarını yükler (/lang)
-Config::cronJobs();       // Zamanlanmış görevleri aktifleştirir
-Config::composer();       // True veya autoload.php dizini girilebilir.
-Config::masterMail(/*E-Mail Adresi*/); // Oluşan önemli sorunları mail ile raporlar.
-Config::key(/*Anahtar*/); // Şifreleme methodu için anahtar girilmelidir. Sadece aynı anahtar ile deşifre yapılabilir.
+Config::languageDetect(); // Activates language files (/lang)
+Config::cronJobs();       // Activates scheduled tasks
+Config::composer();       // True or autoload.php directory can be entered.
+Config::key(/*Key*/);     // A key must be entered for the encryption method. It can only be decrypted with the same key.
   
-//Config::mysql(/*tanımlanan isim(opsiyonel)*/)->database(/*Veritabanı*/)->user(/*Kullanıcı*/)->password(/*Parola*/)->default(); // Veritabanı tanımlar
+//Config::mysql(/*identified name(optional)*/)->database(/*Database*/)->user(/*User*/)->password(/*Password*/)->default(); // Define a database
 
-//Config::devmode(true) // True ise geliştirici modunu aktifleştirir
-//        ->errors() // Oluşan hataları görüntüler
-//        ->version('2020-01-30'); // Sitenin girilen tarihteki versiyonunu çalıştırır.
+//Config::devmode(true) // If true, activates developer mode.
+//        ->errors()    // Displays errors that have occurred
+//        ->mail(/*E-Mail Address*/) // It reports important problems by mail.
+//        ->version('2020-01-30');   // Runs the version of the site on the date entered.
 
-Config::autoBackup();  // Günlük yedek alır
-Config::autoUpdate();  // Candy PHP yeni sürümü çıktığında günceller
+Config::autoBackup();  // Takes daily backups
+Config::autoUpdate();  // Candy PHP updates when new version is released
