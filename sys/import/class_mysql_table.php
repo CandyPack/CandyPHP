@@ -220,7 +220,7 @@ class Mysql_Table {
   }
   private function error($sql=null){
     $bt = debug_backtrace();
-    $caller = array_shift($bt);
+    $caller = $bt[1];
     Config::errorReport('MYSQL',mysqli_error(Mysql::$conn),$caller['file'],$caller['line']);
     if(Candy::isDev() && defined('DEV_ERRORS')) printf("Candy Mysql Error: %s\n<br />".$caller['file'].' : '.$caller['line'], mysqli_error(Mysql::$conn));
     return false;

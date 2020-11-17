@@ -148,7 +148,9 @@ class View {
         '/@while *\((.*)\)/',
         '/@elseif *\((.*)\)/',
         '/@candy::(.*);/',
-        '/@candy::\(?(.*)\)/'
+        '/@candy::\(?(.*)\)/',
+        '/@continue *\((.*)\)/',
+        '/@break *\((.*)\)/'
       ];
       $replace = [
         '<?php if($1){ ?>',
@@ -157,7 +159,9 @@ class View {
         '<?php while($1){ ?>',
         '<?php }elseif($1){ ?>',
         '<?php Candy::$1; ?>',
-        '<?php Candy::$1); ?>'
+        '<?php Candy::$1); ?>',
+        '<?php if($1) continue; ?>',
+        '<?php if($1) break; ?>'
       ];
       $php_raw = preg_replace($regex, $replace, $php_raw);
       $str = [
@@ -175,6 +179,8 @@ class View {
         '@endwhile',
         '@else',
         '@end',
+        '@continue',
+        '@break'
       ];
       $rpl = [
         '<?php /*',
@@ -190,7 +196,9 @@ class View {
         '<?php } ?>',
         '<?php } ?>',
         '<?php }else{ ?>',
-        '<?php } ?>'
+        '<?php } ?>',
+        '<?php continue; ?>',
+        '<?php break; ?>'
       ];
       $php_raw = str_replace($str,$rpl,$php_raw);
       $php_cache = defined('DEV_VERSION') ? 'storage/cache/dev_'.md5($v).time().'.php' : 'storage/cache/'.md5($v).time().'.php';

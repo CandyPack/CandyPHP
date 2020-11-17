@@ -88,8 +88,8 @@ class Validation
   }
 
   function check($c){
-    if(is_bool($c)){
-      $this->_error = !$c;
+    if(is_bool($c) || is_a($c,'Mysql_Table')){
+      $this->_error = $c === false;
     }else{
       foreach(explode('|',$c) as $key){
         $vars = explode(':',$key);
