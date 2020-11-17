@@ -8,5 +8,5 @@ require_once('sys_functions.php');
 require_once('sys_view.php');
 require_once('sys_cron.php');
 require_once('sys_route.php');
-$candy->configCheck();
-$route->print();
+Candy::configCheck();
+Route::print();

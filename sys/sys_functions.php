@@ -48,8 +48,10 @@ class Candy {
     header('X-POWERED-BY: Candy PHP');
     register_shutdown_function(function(){
       $error = error_get_last();
-      $type = 'PHP '.str_replace([2048,1024,512,256,8,2,1],['Strictly','User Notice','User Warning','User','Notice','Warning','Fatal'],$error["type"]);
-      if(!empty($error)) Config::errorReport($type,$error["message"],$error["file"],$error["line"]);
+      if(!empty($error)){
+        $type = 'PHP '.str_replace([2048,1024,512,256,8,2,1],['Strictly','User Notice','User Warning','User','Notice','Warning','Fatal'],$error["type"]);
+        Config::errorReport($type,$error["message"],$error["file"],$error["line"]);
+      }
     });
     if(defined('MYSQL_CONNECT') && MYSQL_CONNECT==true){
       self::import('mysql');
@@ -661,7 +663,7 @@ class Candy {
     $data_id = mt_rand().time().rand(100,999);
     $storage->data->$date->$data_id = ['hash' => $func_hash, 'data' => $data, 'array' => is_array($data) ? 1 : 0];
     Candy::storage('sys')->set('async',$storage);
-    self::curl(str_replace('www.','',$_SERVER['SERVER_NAME']).'/?_candy=async&hash='.$func_hash.'&async_data='.$data_id,
+    $curl = self::curl(str_replace('www.','',$_SERVER['SERVER_NAME']).'/?_candy=async&hash='.$func_hash.'&async_data='.$data_id,
                $datas,
                null,
                'post',
