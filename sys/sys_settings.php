@@ -391,7 +391,7 @@ class Config {
   }
 
   public static function errorReport($type,$mssg=null,$file=null,$line=null){
-    // if(Candy::isDev()) return true;
+    if(Candy::isDev()) return true;
     $now = date('YmdH');
     $log = "";
     $open = file_exists(BASE_PATH.'/candy.log') && filesize(BASE_PATH.'/candy.log') <= 128000000 ? file_get_contents(BASE_PATH.'/candy.log', FILE_USE_INCLUDE_PATH) : "";

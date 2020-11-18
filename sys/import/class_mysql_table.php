@@ -4,7 +4,6 @@ class Mysql_Table {
   protected $result = [];
   protected $statements = ['=','>','>=','<','<=','!=','LIKE','NOT LIKE','IN','NOT IN','BETWEEN','NOT BETWEEN'];
   protected $val_statements = ['IS NULL','IS NOT NULL'];
-  public $id = null;
 
  function __construct($arr=[], $vals=[]){
    $this->arr = $arr;
