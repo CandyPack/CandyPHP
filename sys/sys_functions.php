@@ -49,7 +49,17 @@ class Candy {
     register_shutdown_function(function(){
       $error = error_get_last();
       if(!empty($error)){
-        $type = 'PHP '.str_replace([2048,1024,512,256,8,2,1],['Strictly','User Notice','User Warning','User','Notice','Warning','Fatal'],$error["type"]);
+        $types = [
+          1    => 'Fatal',
+          2    => 'Warning',
+          4    => 'Syntax',
+          8    => 'Notice',
+          256  => 'User',
+          512  => 'User Warning',
+          1024 => 'User Notice',
+          2048 => 'Strictly'
+        ];
+        $type = 'PHP '.$types[$error["type"]];
         Config::errorReport($type,$error["message"],$error["file"],$error["line"]);
       }
     });

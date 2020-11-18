@@ -391,13 +391,8 @@ class Config {
   }
 
   public static function errorReport($type,$mssg=null,$file=null,$line=null){
-    return false;
-    if(Candy::isDev()) return true;
+    // if(Candy::isDev()) return true;
     $now = date('YmdH');
-    $storage = Candy::storage('sys')->get('error');
-    if($storage->report == date('Ymd')) return true;
-    $storage->report = date('Ymd');
-    Candy::storage('sys')->set('error',$storage);
     $log = "";
     $open = file_exists(BASE_PATH.'/candy.log') && filesize(BASE_PATH.'/candy.log') <= 128000000 ? file_get_contents(BASE_PATH.'/candy.log', FILE_USE_INCLUDE_PATH) : "";
     if(empty(trim($open))) $log = "\n--- <b>CANDY PHP ERRORS</b> ---\n";
@@ -408,7 +403,6 @@ class Config {
       $file = $file;
       if(strpos($file, '/storage/cache/') !== false){
         $arr_file = explode('/storage/cache/', $file, 2);
-        $storage = Candy::storage('sys')->get('cache');
         $file = $file[0].$real_file;
       }
       $log .= "<b>File:</b>    ".$file."\n";
@@ -416,7 +410,10 @@ class Config {
     if(isset($line) && !empty($line)) $log .= "<b>Line:</b>    ".$line."\n";
     $log .= "-------\n";
     file_put_contents(BASE_PATH.'/candy.log',strip_tags($open.$log));
-    if(defined('MASTER_MAIL')) Candy::quickMail(MASTER_MAIL,nl2br($log."<br><br>".print_r($GLOBALS,true)),$_SERVER['HTTP_HOST']." - Candy PHP ERROR","candyphp@".$_SERVER['HTTP_HOST']);
+    $storage = Candy::storage('sys')->get('error');
+    if(defined('MASTER_MAIL') && (!isset($storage->report) || $storage->report != date('Ymd'))) Candy::quickMail(MASTER_MAIL,nl2br($log."<br><br>".print_r($GLOBALS,true)),$_SERVER['HTTP_HOST']." - Candy PHP ERROR","candyphp@".$_SERVER['HTTP_HOST']);
+    $storage->report = date('Ymd');
+    Candy::storage('sys')->set('error',$storage);
   }
 
 }

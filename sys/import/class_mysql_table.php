@@ -4,13 +4,11 @@ class Mysql_Table {
   protected $result = [];
   protected $statements = ['=','>','>=','<','<=','!=','LIKE','NOT LIKE','IN','NOT IN','BETWEEN','NOT BETWEEN'];
   protected $val_statements = ['IS NULL','IS NOT NULL'];
+  public $id = null;
 
- function __construct($arr=null) {
-    if(is_array($arr)){
-      $this->arr = $arr;
-    }else{
-      $this->arr = [];
-    }
+ function __construct($arr=[], $vals=[]){
+   $this->arr = $arr;
+   foreach($vals as $key => $val) $this->$key = $val;
   }
 
   function query($type = null){
@@ -68,7 +66,8 @@ class Mysql_Table {
   function delete($b=false){
     $query = $this->query('delete');
     $sql = mysqli_query(Mysql::$conn, $query);
-    return $sql;
+    $this->affected = mysqli_affected_rows(Mysql::$conn);
+    return new static($this->arr, ['affected' => $this->affected]);
   }
   function rows($b=false){
     $query = $this->query('get');
@@ -90,10 +89,11 @@ class Mysql_Table {
     $sql = mysqli_query(Mysql::$conn, $query);
     if($sql === false) return $this->error();
     $this->affected = mysqli_affected_rows(Mysql::$conn);
-    return new static($this->arr);
+    return new static($this->arr, ['affected' => $this->affected]);
     return $sql;
   }
   function add($arr){
+    $this->id = 1;
     $query_key = '';
     $query_val = '';
     foreach ($arr as $key => $val){
@@ -107,7 +107,7 @@ class Mysql_Table {
     if($sql === false) return $this->error();
     $this->success = $sql;
     $this->id = mysqli_insert_id(Mysql::$conn);
-    return new static($this->arr);
+    return new static($this->arr, ['id' => $this->id]);
   }
   function first($b=false){
     $this->arr['limit'] = 1;
