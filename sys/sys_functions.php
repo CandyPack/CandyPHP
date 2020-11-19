@@ -654,7 +654,7 @@ class Candy {
       if(substr($body,-1)=='}') $body = $body.');';
     }
     if(substr($body,0,5)=='<?php') $body = preg_replace('/'.preg_quote('<?php', '/').'/', '', $body, 1);
-    echo $body = '<?php '.$body;
+    $body = '<?php '.$body;
     $func_hash = md5($body);
     $file = BASE_PATH.'/storage/cache/async_'.$func_hash.'.php';
     if(!file_exists($file)){
