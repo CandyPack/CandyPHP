@@ -507,45 +507,39 @@ class Candy {
 
   public static function hash($v,$h=null){
     $options = ['cost' => 11];
-    if($h==null){
-      return password_hash($v, PASSWORD_BCRYPT, $options);
-    }else{
-      return password_verify($v, $h);
-    }
+    if($h==null) return password_hash($v, PASSWORD_BCRYPT, $options);
+    else return password_verify($v, $h);
   }
 
   public static function getImage($path,$size=null,$b = true){
-    if($size!==null){
       $resize = false;
       $file_raw = 'assets/img/'.$path;
       $arr_extension = explode('.',$file_raw);
       $sizes = explode('x',$size);
       $extension = '.'.end($arr_extension);
       $type = $b ? '0' : '1';
-      $file_min = str_replace($extension,'-'.$type.'-'.$size.$extension,$file_raw);
+      $min_ext = function_exists('imagewebp') ? ".webp" : $extension;
+      $file_min = ($size!==null) ? str_replace($extension,"-$type-$size".$min_ext,$file_raw) : str_replace($extension,'.min'.$min_ext,$file_raw);
       if(file_exists($file_raw)){
         $date_min = '1';
         if(file_exists($file_min)){
           $date_raw = filemtime($file_raw);
           $date_min = filemtime($file_min);
-          if($date_raw>$date_min){
-            $resize = true;
-          }
-        }else{
-          $resize = true;
-        }
+          if($date_raw>$date_min) $resize = true;
+        }else $resize = true;
         if($resize){
           self::import('resizeimage');
           $image_size = getimagesize($file_raw);
           $resize = new ResizeImage($file_raw);
-          if(isset($sizes[1])){
-            $type = $sizes[0]>$sizes[1] ? 'maxWidth' : 'maxHeight';
-          }else{
-            $sizes[1] = $sizes[0];
-            $type = $image_size[0]<$image_size[1] ? 'maxWidth' : 'maxHeight';
+          if($size!==null){
+            if(isset($sizes[1])) $type = $sizes[0]>$sizes[1] ? 'maxWidth' : 'maxHeight';
+            else {
+              $sizes[1] = $sizes[0];
+              $type = $image_size[0]<$image_size[1] ? 'maxWidth' : 'maxHeight';
+            }
+            $type = $b ? 'exact' : $type;
+            $resize->resizeTo($sizes[0], $sizes[1], $type);
           }
-          $type = $b ? 'exact' : $type;
-          $resize->resizeTo($sizes[0], $sizes[1], $type);
           $resize->saveImage($file_min);
         }
         echo '/'.$file_min.'?_v='.$date_min;
@@ -554,10 +548,6 @@ class Candy {
         echo '/assets/img/'.$path;
         return '/assets/img/'.$path;
       }
-    }else{
-      echo '/assets/img/'.$path;
-      return '/assets/img/'.$path;
-    }
   }
 
   public static function abort($exc=500,$msg='',$die=true){

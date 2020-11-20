@@ -69,7 +69,7 @@ class Config {
     foreach($GLOBALS['candy_mysql'] as $key => $val) if($val['backup']) $conns[$key] = Mysql::connect($key);
     $b = defined('AUTO_BACKUP') && AUTO_BACKUP;
     if($b && date("Hi")=='0000' && ((substr($_SERVER['SERVER_ADDR'],0,8)=='192.168.') || ($_SERVER['SERVER_ADDR']==$_SERVER['REMOTE_ADDR'])) && isset($_GET['_candy']) && $_GET['_candy']=='cron'){
-      $storage = $storage===null ? Candy::storage('sys')->get('backup') : new \stdClass;
+      $storage = Candy::storage('sys')->get('backup');
       $storage->last = isset($storage->last) && is_object($storage->last) ? $storage->last : new \stdClass;
       if($storage->last==date('d/m/Y')) return false;
       set_time_limit(0);
@@ -126,8 +126,8 @@ class Config {
     }
   }
   public static function autoUpdate($b = true){
-    set_time_limit(1000);
     if($b && date("Hi")=='0010' && ((substr($_SERVER['SERVER_ADDR'],0,8)=='192.168.') || ($_SERVER['SERVER_ADDR']==$_SERVER['REMOTE_ADDR'])) && isset($_GET['_candy']) && $_GET['_candy']=='cron'){
+      set_time_limit(1000);
       $base = base64_decode('aHR0cHM6Ly9yYXcuZ2l0aHVidXNlcmNvbnRlbnQuY29tL2VtcmVkdi9DYW5keS1QSFAvbWFzdGVyLw==');
       $get = file_get_contents($base.'update.txt');
       $arr_get = explode("\n",$get);
@@ -155,39 +155,31 @@ class Config {
           $params_new = explode(':',str_replace('#','',$new));
           switch ($params_new[0]) {
             case 'version':
-            if($params_new[1]>$version_current){
-              $update = true;
-            }
+            if($params_new[1]>$version_current) $update = true;
             break;
           }
         }else{
-          if(trim($new)!=''){
-            $arr_update[] = trim($new);
-          }
+          if(trim($new)!='') $arr_update[] = trim($new);
         }
       }
       if($update){
-      foreach ($arr_update as $key){
-        if(strpos($key, '/') !== false){
-          $arr_dir = explode('/',$key);
-          $makedir = '';
-          for ($i=0; $i < count($arr_dir) - 1; $i++) {
-            $makedir .= $arr_dir[$i].'/';
+        foreach ($arr_update as $key){
+          if(strpos($key, '/') !== false){
+            $arr_dir = explode('/',$key);
+            $makedir = '';
+            for ($i=0; $i < count($arr_dir) - 1; $i++) $makedir .= $arr_dir[$i].'/';
+            $makedir = substr($makedir,0,-1);
+            if(!file_exists($makedir)) mkdir($makedir, 0777, true);
           }
-          $makedir = substr($makedir,0,-1);
-          if (!file_exists($makedir)) {
-            mkdir($makedir, 0777, true);
+          $content = '';
+          $content = file_get_contents($base.$key);
+          if(trim($content)!=''){
+            $file = fopen($key, "w") or die("Unable to open file!");
+            fwrite($file, $content);
+            fclose($file);
           }
-        }
-        $content = '';
-        $content = file_get_contents($base.$key);
-        if(trim($content)!=''){
-          $file = fopen($key, "w") or die("Unable to open file!");
-          fwrite($file, $content);
-          fclose($file);
         }
       }
-    }
     }
   }
 
@@ -309,9 +301,7 @@ class Config {
   }
 
   public static function devmode($b){
-    if(is_bool($b) && $b){
-      $devmode = !defined('CANDY_DEVMODE') ? define('CANDY_DEVMODE', $b) : false;
-    }
+    if(is_bool($b) && $b) $devmode = !defined('CANDY_DEVMODE') ? define('CANDY_DEVMODE', $b) : false;
     return new class {
       public static function version($v){
         $GLOBALS['DEV_VERSION'] = $v;
@@ -368,11 +358,9 @@ class Config {
     $storage = Candy::storage('sys')->get('bruteforce');
     $ip = $_SERVER['REMOTE_ADDR'];
     $now = date('YmdH');
-
     $storage = !isset($storage->$now) ? new \stdClass : $storage;
     $storage->$now = isset($storage->$now) ? $storage->$now : new \stdClass;
     $storage->$now->$ip = !isset($storage->$now->$ip) ? $c : $storage->$now->$ip + $c;
-
     if($storage->$now->$ip >= $try) Candy::abort(403);
     Candy::storage('sys')->set('bruteforce',$storage);
   }
