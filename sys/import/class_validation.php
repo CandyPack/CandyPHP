@@ -119,6 +119,12 @@ class Validation
             case 'url':
               $this->_error = isset($this->_method[$this->_name]) && $this->_method[$this->_name]!='' && (!preg_match("/\b(?:(?:https?|ftp):\/\/|www\.)[-a-z0-9+&@#\/%?=~_|!:,.;]*[-a-z0-9+&@#\/%=~_|]/i",$this->_method[$this->_name]));
               break;
+            case 'username':
+              $this->_error = isset($this->_method[$this->_name]) && !(ctype_alnum($this->_method[$this->_name]));
+              break;
+            case 'xss':
+              $this->_error = isset($this->_method[$this->_name]) && (strip_tags($this->_method[$this->_name]) != $this->_method[$this->_name]);
+              break;
             case 'min':
               $this->_error = isset($this->_method[$this->_name]) && $this->_method[$this->_name]!='' && isset($vars[1]) && $this->_method[$this->_name]<$vars[1];
               break;
@@ -137,9 +143,6 @@ class Validation
             case 'equal':
               $this->_error = isset($this->_method[$this->_name]) && isset($vars[1]) && $this->_method[$this->_name]!==$vars[1];
               break;
-            case 'username':
-              $this->_error = isset($this->_method[$this->_name]) && !(ctype_alnum($this->_method[$this->_name]));
-              break;
             case 'notin':
               $this->_error = isset($this->_method[$this->_name]) && isset($vars[1]) && (strpos($this->_method[$this->_name], $vars[1])!==false);
               break;
@@ -148,6 +151,9 @@ class Validation
               break;
             case 'not':
               $this->_error = isset($this->_method[$this->_name]) && isset($vars[1]) && $this->_method[$this->_name]==$vars[1];
+              break;
+            case 'regex':
+              $this->_error = isset($this->_method[$this->_name]) && isset($vars[1]) && empty(preg_match("/".$vars[1]."/", $this->_method[$this->_name]));
               break;
           }
         }

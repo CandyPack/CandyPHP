@@ -65,71 +65,58 @@ class Config {
   }
   public static function runBackup(){
     global $backupdirectory;
-    $conn = Mysql::connect();
+    $conns = [];
+    foreach($GLOBALS['candy_mysql'] as $key => $val) if($val['backup']) $conns[$key] = Mysql::connect($key);
     $b = defined('AUTO_BACKUP') && AUTO_BACKUP;
     if($b && date("Hi")=='0000' && ((substr($_SERVER['SERVER_ADDR'],0,8)=='192.168.') || ($_SERVER['SERVER_ADDR']==$_SERVER['REMOTE_ADDR'])) && isset($_GET['_candy']) && $_GET['_candy']=='cron'){
       $storage = $storage===null ? Candy::storage('sys')->get('backup') : new \stdClass;
       $storage->last = isset($storage->last) && is_object($storage->last) ? $storage->last : new \stdClass;
-      if($storage->last==date('d/m/Y')){
-        return false;
-      }
+      if($storage->last==date('d/m/Y')) return false;
       set_time_limit(0);
       ini_set('memory_limit', '9999M');
       $storage->last = date('d/m/Y');
       Candy::storage('sys')->set('backup',$storage);
       $directory = BACKUP_DIRECTORY;
       $backupdirectory = $directory;
-      if (!file_exists($backupdirectory.'mysql/')) {
-        mkdir($backupdirectory.'mysql/', 0777, true);
-      }
-      if (!file_exists($backupdirectory.'www/')) {
-        mkdir($backupdirectory.'www/', 0777, true);
-      }
-      $tables = array();
-      $result = mysqli_query($conn,"SHOW TABLES");
-      while ($row = mysqli_fetch_row($result)) {
-        $tables[] = $row[0];
-      }
-      $return = '';
-      foreach ($tables as $table) {
-        $result = mysqli_query($conn, "SELECT * FROM ".$table);
-        $num_fields = mysqli_num_fields($result);
-        $return .= 'DROP TABLE '.$table.';';
-        $row2 = mysqli_fetch_row(mysqli_query($conn, 'SHOW CREATE TABLE '.$table));
-        $return .= "\n\n".$row2[1].";\n\n";
-        for ($i=0; $i < $num_fields; $i++){
-          while ($row = mysqli_fetch_row($result)){
-            $return .= 'INSERT INTO '.$table.' VALUES(';
-            for ($j=0; $j < $num_fields; $j++){
-              $row[$j] = addslashes($row[$j]);
-              if(isset($row[$j])){
-                $return .= '"'.$row[$j].'"';
-              }else{
-                $return .= '""';
+      if(!file_exists($backupdirectory.'mysql/')) mkdir($backupdirectory.'mysql/', 0777, true);
+      if(!file_exists($backupdirectory.'www/')) mkdir($backupdirectory.'www/', 0777, true);
+      foreach($conns as $key => $conn){
+        $tables = [];
+        $result = mysqli_query($conn,"SHOW TABLES");
+        while($row = mysqli_fetch_row($result)) $tables[] = $row[0];
+        $return = '';
+        foreach($tables as $table){
+          $result = mysqli_query($conn, "SELECT * FROM ".$table);
+          $num_fields = mysqli_num_fields($result);
+          $return .= 'DROP TABLE '.$table.';';
+          $row2 = mysqli_fetch_row(mysqli_query($conn, 'SHOW CREATE TABLE '.$table));
+          $return .= "\n\n".$row2[1].";\n\n";
+          for($i=0; $i < $num_fields; $i++){
+            while($row = mysqli_fetch_row($result)){
+              $return .= 'INSERT INTO '.$table.' VALUES(';
+              for($j=0; $j < $num_fields; $j++){
+                $row[$j] = addslashes($row[$j]);
+                $return .= isset($row[$j]) ? '"'.$row[$j].'"' : ',';
+                if($j<$num_fields-1) $return .= ',';
               }
-              if($j<$num_fields-1){
-                $return .= ',';
-              }
+              $return .= ");\n";
             }
-            $return .= ");\n";
           }
+          $return .= "\n\n\n";
         }
-        $return .= "\n\n\n";
+        $file_date = date("Y-m-d");
+        $handle = fopen($backupdirectory."mysql/$file_date-$key.sql", 'w+');
+        fwrite($handle, $return);
+        fclose($handle);
       }
-      $handle = fopen($backupdirectory.'mysql/'.date("Y-m-d").'-backup.sql', 'w+');
-      fwrite($handle, $return);
-      fclose($handle);
+      exec("gzip $backupdirectory/mysql/$file_date-* > /dev/null 2>&1 &");
       $rootPath = realpath('./');
       $zip = new ZipArchive();
-      $zip->open($backupdirectory.'www/'.date("Y-m-d").'-backup.zip', ZipArchive::CREATE | ZipArchive::OVERWRITE);
-      $files = new RecursiveIteratorIterator(
-        new RecursiveDirectoryIterator($rootPath),
-        RecursiveIteratorIterator::LEAVES_ONLY
-      );
-      foreach ($files as $name => $file)
-      {
-        if (!$file->isDir())
-        {
+      $zip->open($backupdirectory."www/$file_date-backup.zip", ZipArchive::CREATE | ZipArchive::OVERWRITE);
+      $files = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($rootPath),
+                                             RecursiveIteratorIterator::LEAVES_ONLY);
+      foreach($files as $name => $file){
+        if(!$file->isDir()){
           $filePath = $file->getRealPath();
           $relativePath = substr($filePath, strlen($rootPath) + 1);
           $zip->addFile($filePath, $relativePath);
