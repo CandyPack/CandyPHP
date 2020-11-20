@@ -1,23 +1,24 @@
 # Candy PHP
 Candy PHP Framework
 
-## Neler Yapabilirsiniz
-  - Çok sayfalı websiteleri
-  - URL'ye göre içerik yükleme
-  - Zamanlanmış Görevler ayarlayabilme
-  - Çoklu mysql bağlantısı ve pratik sql işlemleri
-  - Otomatik günlük web ve sql yedeği alabilme
-  - Çoklu dil desteğine sahip web sayfaları
-  - Güvenli POST / GET işlemleri
-  - Otomatik AJAX formlar ve sayfalar
-  - Blade tasarım ile mail gönderebilme
-  - Kolay kullanıcı giriş ve sorgulama işlemleri
-  - Composer paketleri kullanabilme
-  - Async fonksiyonlar yazabilme
-  - Sitenin geçmişteki bir halini çalıştırabilme
-  - Ve dahası...
+## What You Can Do
+  - Multi-Page Websites
+  - Get Content by URL
+  - Ability to Set Scheduled Tasks
+  - Multiple Mysql Connections and basicly SQL Operations
+  - Automatic Daily Web and SQL Backups (& autoclear)
+  - Multi-Language Web Pages
+  - Secure POST / GET Transactions
+  - Automatic AJAX Forms and Pages
+  - Sending Mail With Blade Design
+  - Easy User Login and Query Operations
+  - Ability to Use Composer Packages
+  - Writing Async Functions
+  - Ability to Run a Past Version of the Site
+  - And more...  
+    
 
-## Bölümler
+## Parts
 > config.php ile site ön ayarlarınızı yapabilir,
 
 > route/www.php ile url yollarını ayarlayabilir,
@@ -52,20 +53,21 @@ Candy PHP Framework
 
 > assets/img/ dizinine resim dosyalarınızı ekleyebilirsiniz.
 
-## Kurulum
-Sadece gerekli dosyaları website ana dizinine atarak kullanmaya başlayabilirsiniz.
-###### Gereksinimler ;
+## Installation
+You can start using just by throwing the necessary files to the website main directory.  
+  
+###### Requirements ;
  - PHP 7+
 
-## Fonksiyonlar
-| Fonksiyon | Doküman |
+## Functions
+| Function | Document |
 | ------ | ------ |
-| Config | [Site Ön Ayarları][config.md] |
-| Candy | [Genel Fonksiyonlar][candy.md] |
+| Config | [Configs][config.md] |
+| Candy | [Functions][candy.md] |
 
 
 
-## Lisans
+## Licence
 [MIT](https://choosealicense.com/licenses/mit/)
 
    [config.md]: <https://github.com/emredv/Candy-PHP/blob/master/README/CONFIG.md>
