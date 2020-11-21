@@ -40,15 +40,18 @@ class ResizeImage
 
 	public function saveImage($savePath, $imageQuality="80", $download = false){
 		if(!isset($this->newImage)) $this->newImage = $this->image;
+		imagealphablending($this->newImage , false);
+		imagesavealpha($this->newImage , true);
 		if(function_exists('imagewebp')){
-			 imagewebp($this->newImage, $savePath, $imageQuality);
+			imagewebp($this->newImage, $savePath, $imageQuality);
 		}else{
 			switch($this->ext){
 				case 'image/jpg':
 				case 'image/jpeg':
 					if(imagetypes() & IMG_JPG) imagejpeg($this->newImage, $savePath, $imageQuality);
 					break;
-				case 'image/gif': if (imagetypes() & IMG_GIF) imagegif($this->newImage, $savePath);
+				case 'image/gif':
+					if (imagetypes() & IMG_GIF) imagegif($this->newImage, $savePath);
 					break;
 				case 'image/png':
 					$invertScaleQuality = 9 - round(($imageQuality/100) * 9);
