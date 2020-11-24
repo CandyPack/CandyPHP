@@ -80,6 +80,7 @@ class Candy {
         include('vendor/autoload.php');
       }
     }
+    if(intval(date('d'))==2 && intval(date('H'))<=2) foreach(glob(BASE_PATH."/storage/cache/*") as $key) if(filemtime($key)+10000 < time()) unlink($key);
   }
 
   public static function token($check = 0){
@@ -647,7 +648,7 @@ class Candy {
     $body = '<?php '.$body;
     $func_hash = md5($body);
     $file = BASE_PATH.'/storage/cache/async_'.$func_hash.'.php';
-    if(!file_exists($file)){
+    if(!file_exists($file) && (filemtime($file) + 3000) < time()){
       file_put_contents($file, $body);
       $storage = Candy::storage('sys')->get('cache');
       $storage->async = isset($storage->async) && is_object($storage->async) ? $storage->async : new \stdClass;
