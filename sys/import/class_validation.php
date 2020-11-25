@@ -125,6 +125,9 @@ class Validation
             case 'xss':
               $this->_error = isset($this->_method[$this->_name]) && (strip_tags($this->_method[$this->_name]) != $this->_method[$this->_name]);
               break;
+            case 'date':
+              $this->_error = isset($this->_method[$this->_name]) && strtotime($this->_method[$this->_name]) === false || !(strtotime($this->_method[$this->_name])>strtotime(0));
+              break;
             case 'min':
               $this->_error = isset($this->_method[$this->_name]) && $this->_method[$this->_name]!='' && isset($vars[1]) && $this->_method[$this->_name]<$vars[1];
               break;
