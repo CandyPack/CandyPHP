@@ -109,7 +109,7 @@ class Config {
         fwrite($handle, $return);
         fclose($handle);
       }
-      exec("gzip $backupdirectory/mysql/$file_date-* > /dev/null 2>&1 &");
+      exec("(gzip $backupdirectory/mysql/$file_date-*.sql; rm $backupdirectory/mysql/$file_date-*.sql;) > /dev/null 2>&1 &");
       $rootPath = realpath('./');
       $zip = new ZipArchive();
       $zip->open($backupdirectory."www/$file_date-backup.zip", ZipArchive::CREATE | ZipArchive::OVERWRITE);
