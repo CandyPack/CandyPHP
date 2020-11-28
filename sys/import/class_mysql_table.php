@@ -122,7 +122,7 @@ class Mysql_Table {
         $select[] = func_get_args()[0]['v'];
       }else{
         foreach(func_get_args()[0] as $key => $value){
-          $select[] = $this->escape($key,'col').' AS '.$this->escape($value);
+          $select[] = (!is_numeric($key) ? ($this->escape($key,'col').' AS ') : '').$this->escape($value);
         }
       }
     }else{
