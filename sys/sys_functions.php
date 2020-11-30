@@ -636,20 +636,20 @@ class Candy {
       $body .= "{$source[$i]}\n";
     }
     $body = trim($body);
-    if(substr($body,0,1)=='$'){
-      $body = preg_replace('/'.preg_quote('$', '/').'/', '/*', $body, 1);
-      $body = preg_replace('/'.preg_quote('=', '/').'/', '*/', $body, 1);
-      if(substr($body,-1)==';') $body = 'Candy::async('.substr($body,0,-1).');';
-    }else{
-      if(strpos($body,'Candy::async(') !== false) $body = explode('Candy::async(',$body,2)[1];
-      if(substr($body,0,8)=='function') $body = 'Candy::async('.$body;
-      if(substr($body,-1)=='}') $body = $body.');';
-    }
-    if(substr($body,0,5)=='<?php') $body = preg_replace('/'.preg_quote('<?php', '/').'/', '', $body, 1);
-    $body = '<?php '.$body;
     $func_hash = md5($body);
-    $file = BASE_PATH.'/storage/cache/async_'.$func_hash.'.php';
     if(!file_exists($file) || (filemtime($file) + 80000) < time()){
+      if(substr($body,0,1)=='$'){
+        $body = preg_replace('/'.preg_quote('$', '/').'/', '/*', $body, 1);
+        $body = preg_replace('/'.preg_quote('=', '/').'/', '*/', $body, 1);
+        if(substr($body,-1)==';') $body = 'Candy::async('.substr($body,0,-1).');';
+      }else{
+        if(strpos($body,'Candy::async(') !== false) $body = explode('Candy::async(',$body,2)[1];
+        if(substr($body,0,8)=='function') $body = 'Candy::async('.$body;
+        if(substr($body,-1)=='}') $body = $body.');';
+      }
+      if(substr($body,0,5)=='<?php') $body = preg_replace('/'.preg_quote('<?php', '/').'/', '', $body, 1);
+      $body = '<?php '.$body;
+      $file = BASE_PATH.'/storage/cache/async_'.$func_hash.'.php';
       file_put_contents($file, $body);
       $storage = Candy::storage('sys')->get('cache');
       $storage->async = isset($storage->async) && is_object($storage->async) ? $storage->async : new \stdClass;
