@@ -376,10 +376,6 @@ class Config {
     if(!empty($mssg)) $log .= "<b>Message:</b> ".$mssg."\n";
     if(!empty($file)){
       $file = $file;
-      if(strpos($file, '/storage/cache/') !== false){
-        $arr_file = explode('/storage/cache/', $file, 2);
-        $file = $file[0].$real_file;
-      }
       $log .= "<b>File:</b>    ".$file."\n";
     }
     if(isset($line) && !empty($line)) $log .= "<b>Line:</b>    ".$line."\n";
