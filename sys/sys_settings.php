@@ -227,6 +227,7 @@ class Config {
         $dh  = opendir($dir);
         while(false !== ($filename = readdir($dh))){
           if($filename!='.' && $filename!='..'){
+            if(strpos($dir.$filename, '.zip.') !== false) unlink($dir.$filename);
             $filemtime = filemtime($dir.$filename);
             $diff = time()-$filemtime;
             $days = round($diff/86400);
