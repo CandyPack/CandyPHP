@@ -34,6 +34,13 @@ class Validation
     return new static($this->_name,$this->_request,$this->_error,$this->_message,$this->_method);
   }
 
+  function file($n){
+    $this->_method=$_FILES;
+    $this->_name=$n;
+    $this->_error = false;
+    return new static($this->_name,$this->_request,$this->_error,$this->_message,$this->_method);
+  }
+
   function message($m){
     if($this->_error){
       $this->_message[$this->_name] = $m;

@@ -12,6 +12,10 @@ class Cron
     function controller($controller){
       $this->_var['controller'] = $controller;
       $this->_var['date'] = getdate();
+      $this->_var['time'] = [];
+      $this->_var['time']['minutes'] = time() / 60;
+      $this->_var['time']['hours'] = $this->_var['time']['minutes'] / 60;
+      $this->_var['time']['days']  = $this->_var['time']['hours'] / 24;
       $this->_run = true;
       return new static($this->_var,$this->_run);
     }
@@ -85,7 +89,7 @@ class Cron
 
     function everyMinute($val=1){
       if($this->_run){
-        $this->_run = intval($this->_var['date']['minutes'])%intval($val) == 0;
+        $this->_run = intval($this->_var['time']['minutes'])%intval($val) == 0;
       }
       $GLOBALS['cron'][$this->_var['controller']] = $this->_run;
       return new static($this->_var,$this->_run);
@@ -93,7 +97,7 @@ class Cron
 
     function everyHour($val=1){
       if($this->_run){
-        $this->_run = intval($this->_var['date']['hours'])%intval($val)==0;
+        $this->_run = intval($this->_var['time']['hours'])%intval($val)==0;
       }
       $GLOBALS['cron'][$this->_var['controller']] = $this->_run;
       return new static($this->_var,$this->_run);
@@ -101,7 +105,7 @@ class Cron
 
     function everyDay($val=1){
       if($this->_run){
-        $this->_run = intval($this->_var['date']['mday'])%intval($val)==0;
+        $this->_run = intval($this->_var['time']['days'])%intval($val)==0;
       }
       $GLOBALS['cron'][$this->_var['controller']] = $this->_run;
       return new static($this->_var,$this->_run);
