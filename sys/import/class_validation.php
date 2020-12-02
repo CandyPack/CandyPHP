@@ -6,6 +6,7 @@ class Validation
   private $_error = false;
   private $_message = [];
   private $_method = [];
+  private $_type = 'post';
 
   function __construct($name='',$request=null,$error=false,$message=[],$method=[]){
     $this->_name = $name;
@@ -17,28 +18,31 @@ class Validation
 
   function validator($m){
     $this->_request = $m;
-    return new static($this->_name,$this->_request,$this->_error,$this->_message,$this->_method);
+    return new static($this->_name,$this->_request,$this->_error,$this->_message,$this->_method,$this->_type);
   }
 
   function post($n){
     $this->_method=$_POST;
     $this->_name=$n;
     $this->_error = false;
-    return new static($this->_name,$this->_request,$this->_error,$this->_message,$this->_method);
+    $this->_type = 'POST';
+    return new static($this->_name,$this->_request,$this->_error,$this->_message,$this->_method,$this->_type);
   }
 
   function get($n){
     $this->_method=$_GET;
     $this->_name=$n;
     $this->_error = false;
-    return new static($this->_name,$this->_request,$this->_error,$this->_message,$this->_method);
+    $this->_type = 'GET';
+    return new static($this->_name,$this->_request,$this->_error,$this->_message,$this->_method,$this->_type);
   }
 
   function file($n){
     $this->_method=$_FILES;
     $this->_name=$n;
     $this->_error = false;
-    return new static($this->_name,$this->_request,$this->_error,$this->_message,$this->_method);
+    $this->_type = 'FILES';
+    return new static($this->_name,$this->_request,$this->_error,$this->_message,$this->_method,$this->_type);
   }
 
   function message($m){
@@ -46,7 +50,7 @@ class Validation
       $this->_message[$this->_name] = $m;
       $this->_error = false;
     }
-    return new static($this->_name,$this->_request,$this->_error,$this->_message,$this->_method);
+    return new static($this->_name,$this->_request,$this->_error,$this->_message,$this->_method,$this->_type);
   }
 
   function brute($try=5){
@@ -66,7 +70,7 @@ class Validation
     }
 
     Candy::storage('sys')->set('validation',$storage);
-    return new static($this->_name,$this->_request,$this->_error,$this->_message,$this->_method);
+    return new static($this->_name,$this->_request,$this->_error,$this->_message,$this->_method,$this->_type);
   }
 
   function validate($m=null,$data = []){
@@ -78,7 +82,6 @@ class Validation
           $result['success']['result'] = count($this->_message)==0;
           $result['success']['message'] = count($this->_message)==0 ? $m : '';
           $result['data'] = count($this->_message)==0 ? $data : [];
-
           $result['errors'] = isset($this->_message['_candy_form']) ? ['_candy_form' => $this->_message['_candy_form']] : $this->_message;
           if(!$result['success']['result']){
             Candy::return($result);
@@ -104,6 +107,9 @@ class Validation
           switch($vars[0]){
             case 'required':
               $this->_error = !isset($this->_method[$this->_name]) || $this->_method[$this->_name]=='' || $this->_method[$this->_name]==null;
+              break;
+            case 'accepted':
+              $this->_error = !isset($this->_method[$this->_name]) || ($this->_method[$this->_name]!=1 && $this->_method[$this->_name]!='on' && $this->_method[$this->_name]!='yes' && $this->_method[$this->_name]!=true);
               break;
             case 'numeric':
               $this->_error = isset($this->_method[$this->_name]) && $this->_method[$this->_name]!='' && !is_numeric($this->_method[$this->_name]);
@@ -132,8 +138,14 @@ class Validation
             case 'xss':
               $this->_error = isset($this->_method[$this->_name]) && (strip_tags($this->_method[$this->_name]) != $this->_method[$this->_name]);
               break;
+            case 'usercheck':
+              $this->_error = isset($this->_method[$this->_name]) && !Mysql::userCheck();
+              break;
+            case 'array':
+              $this->_error = isset($this->_method[$this->_name]) && !is_array($this->_method[$this->_name]);
+              break;
             case 'date':
-              $this->_error = isset($this->_method[$this->_name]) && strtotime($this->_method[$this->_name]) === false || !(strtotime($this->_method[$this->_name])>strtotime(0));
+              $this->_error = isset($this->_method[$this->_name]) && (strtotime($this->_method[$this->_name]) === false || !(strtotime($this->_method[$this->_name])>strtotime(0)));
               break;
             case 'min':
               $this->_error = isset($this->_method[$this->_name]) && $this->_method[$this->_name]!='' && isset($vars[1]) && $this->_method[$this->_name]<$vars[1];
@@ -150,6 +162,9 @@ class Validation
             case 'same':
               $this->_error = isset($this->_method[$this->_name]) && isset($this->_method[$vars[1]]) && $this->_method[$this->_name]!==$this->_method[$vars[1]];
               break;
+            case 'different':
+              $this->_error = isset($this->_method[$this->_name]) && isset($this->_method[$vars[1]]) && $this->_method[$this->_name]==$this->_method[$vars[1]];
+              break;
             case 'equal':
               $this->_error = isset($this->_method[$this->_name]) && isset($vars[1]) && $this->_method[$this->_name]!==$vars[1];
               break;
@@ -165,11 +180,14 @@ class Validation
             case 'regex':
               $this->_error = isset($this->_method[$this->_name]) && isset($vars[1]) && empty(preg_match("/".$vars[1]."/", $this->_method[$this->_name]));
               break;
+            case 'user':
+              $this->_error = isset($this->_method[$this->_name]) && (!Mysql::userCheck() || $this->_method[$this->_name] != Mysql::userCheck(true)->fetch[$vars[1]]);
+              break;
           }
         }
       }
     }
-    return new static($this->_name,$this->_request,$this->_error,$this->_message,$this->_method);
+    return new static($this->_name,$this->_request,$this->_error,$this->_message,$this->_method,$this->_type);
   }
 
   function result($v){
