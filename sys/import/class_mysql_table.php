@@ -238,7 +238,6 @@ class Mysql_Table {
     if(!isset($this->arr['table'])) return false;
     $md5_table = md5($this->arr['table']);
     $file = "storage/cache/mysql/".md5(Mysql::$name)."/$md5_table*";
-    if(!file_exists($file)) return false;
     foreach(glob($file) as $key) unlink($key);
     return true;
   }
