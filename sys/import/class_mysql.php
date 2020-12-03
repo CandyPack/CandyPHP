@@ -1,6 +1,7 @@
 <?php
 class Mysql {
   public static $conn;
+  public static $name;
   private static $arr_conn = [];
   private static $tb_user = null;
   private static $tb_token = null;
@@ -39,6 +40,7 @@ class Mysql {
       $server = $server===0 ? (defined('MYSQL_SERVER') ? MYSQL_SERVER : '127.0.0.1') : $server;
       $name = 'candy_default';
     }
+    self::$name = $name;
     if(isset(self::$arr_conn[$name])){
       self::$conn = self::$arr_conn[$name];
     }else{

@@ -51,21 +51,36 @@ class Mysql_Table {
     //return 'JSON_SEARCH('.$col.', "one", "'.$val.'") IS NOT NULL';
     return new static($this->arr);
   }
+  function cache($t=3600){
+    $this->arr['cache'] = $t;
+    return new static($this->arr);
+  }
   function get($b=false){
     $query = $this->query('get');
     $data = [];
+    if(isset($this->arr['cache'])){
+      $md5_query = md5($query);
+      $md5_table = md5($this->arr['table']);
+      $file = "cache/mysql/".md5(Mysql::$name)."/$md5_table"."_$md5_query";
+      $cache = Candy::storage($file)->get('cache');
+      if(isset($cache->date) && ($cache->date >= (time() - $this->arr['cache']))) return $cache->data;
+    }
     $sql = mysqli_query(Mysql::$conn, $query);
     if($sql === false) return $this->error();
-    while($row = ($b ? mysqli_fetch_assoc($sql) : mysqli_fetch_object($sql))){
-      $data[] = $row;
-    }
+    while($row = ($b ? mysqli_fetch_assoc($sql) : mysqli_fetch_object($sql))) $data[] = $row;
     mysqli_free_result($sql);
+    if(isset($cache)){
+      $cache->data = $data;
+      $cache->date = time();
+      Candy::storage($file)->set('cache', $cache);
+    }
     return $data;
   }
   function delete($b=false){
     $query = $this->query('delete');
     $sql = mysqli_query(Mysql::$conn, $query);
     $this->affected = mysqli_affected_rows(Mysql::$conn);
+    if($this->affected > 0) self::clearcache();
     return new static($this->arr, ['affected' => $this->affected]);
   }
   function rows($b=false){
@@ -88,8 +103,8 @@ class Mysql_Table {
     $sql = mysqli_query(Mysql::$conn, $query);
     if($sql === false) return $this->error();
     $this->affected = mysqli_affected_rows(Mysql::$conn);
+    if($this->affected > 0) self::clearcache();
     return new static($this->arr, ['affected' => $this->affected]);
-    return $sql;
   }
   function add($arr){
     $this->id = 1;
@@ -106,6 +121,7 @@ class Mysql_Table {
     if($sql === false) return $this->error();
     $this->success = $sql;
     $this->id = mysqli_insert_id(Mysql::$conn);
+    self::clearcache();
     return new static($this->arr, ['id' => $this->id]);
   }
   function first($b=false){
@@ -217,6 +233,14 @@ class Mysql_Table {
     }elseif($type == 'statement' || $type == 'st'){
       return in_array(strtoupper($v),$this->statements) ? strtoupper($v) : "=";
     }
+  }
+  private function clearcache(){
+    if(!isset($this->arr['table'])) return false;
+    $md5_table = md5($this->arr['table']);
+    $file = "storage/cache/mysql/".md5(Mysql::$name)."/$md5_table*";
+    if(!file_exists($file)) return false;
+    foreach(glob($file) as $key) unlink($key);
+    return true;
   }
   private function error($sql=null){
     $bt = debug_backtrace();
