@@ -122,7 +122,8 @@ class Mysql_Table {
         $select[] = func_get_args()[0]['v'];
       }else{
         foreach(func_get_args()[0] as $key => $value){
-          $select[] = (!is_numeric($key) ? ($this->escape($key,'col').' AS ') : '').$this->escape($value);
+          if(!is_int($key)) $select[] = $this->escape($key,'col').' AS '.$this->escape($value);
+          else $select[] = $this->escape($value,'col');
         }
       }
     }else{
@@ -201,7 +202,7 @@ class Mysql_Table {
   private function escape($v,$type = 'value'){
     if(is_array($v) && isset($v['ct']) && isset($v['v']) && $v['ct']==$GLOBALS['candy_token_mysql']) return ' '.$v['v'].' ';
     if($type == 'value'){
-      if(is_numeric($v)) return $v;
+      // if(is_numeric($v)) return $v;
       if(is_array($v)) return ' ("'.implode('","',array_map(function($val){return(Mysql::escape($val));},$v)).'") ';
       return ' "'.Mysql::escape($v).'" ';
     }elseif($type == 'table' || $type == 'col'){
