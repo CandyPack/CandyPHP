@@ -297,6 +297,12 @@ class Config {
         Config::mysqlConnection();
         return new static();
       }
+      public static function abort($v=500){
+        self::$_arr['abort'] = $v;
+        $GLOBALS['candy_mysql'] = !is_array($GLOBALS['candy_mysql']) ? [] : $GLOBALS['candy_mysql'];
+        $GLOBALS['candy_mysql'][self::$_arr['name']] = self::$_arr;
+        return new static();
+      }
     };
     return $class->name($name);
   }

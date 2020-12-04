@@ -76,8 +76,7 @@ class Mysql {
         self::$storage->error->info->date = date('d/m/Y');
         Candy::storage('sys')->set('mysql',self::$storage);
       }
-      // echo "Mysql connection error" . PHP_EOL;
-      // exit;
+      if(isset($GLOBALS['candy_mysql'][$name]['abort'])) Candy::abort($GLOBALS['candy_mysql'][$name]['abort'], (Candy::isDev() ? 'Mysql Connection Error' : ''));
     }
   }
     return self::$conn;
