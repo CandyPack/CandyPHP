@@ -59,7 +59,7 @@ class Candy {
           1024 => 'User Notice',
           2048 => 'Strictly'
         ];
-        $type = 'PHP '.$types[$error["type"]];
+        $type = 'PHP '.(isset($types[$error["type"]]) ? $types[$error["type"]] : 'Unknown');
         Config::errorReport($type,$error["message"],$error["file"],$error["line"]);
       }
     });

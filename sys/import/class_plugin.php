@@ -84,7 +84,7 @@ class Plugin{
     $src = $this->src($obj->autoload);
     $loader = [];
     foreach($src as $key){
-      $loader = array_merge($loader,(is_dir($key) ? \Candy::dirContents($key) : [$key]));
+      $loader = array_merge($loader,(is_dir($key) ? self::dir($key) : [$key]));
     }
     $loader_php = "<?php \n";
     $loader_php .= '$_plug = "'.$this->name.'";'."\n";
@@ -100,7 +100,7 @@ class Plugin{
     if(!isset($obj->name) || empty($obj->name)) return false;
     $src = $this->src($obj->autoload);
     $autoload = [];
-    foreach($src as $key) $autoload = array_merge($autoload,(is_dir($key) ? \Candy::dirContents($key) : [$key]));
+    foreach($src as $key) $autoload = array_merge($autoload,(is_dir($key) ? self::dir($key) : [$key]));
     $loader  = "<?php \n";
     $loader = "\n/* --- CANDY PHP - LOADER --- */\n";
     $loader .= '$_plug = "'.$obj->name.'";'."\n";
@@ -149,5 +149,14 @@ class Plugin{
       $result = array_merge($result, ["$this->dir/$this->name-master/$autoload"]);
     }
     return $result;
+  }
+
+  public function dir($path){
+    $scandir = scandir($path);
+    $arr = [];
+    foreach($scandir as $key){
+      if(substr($key,-4)=='.php') $arr[] = "/".$path.$key;
+    }
+    return $arr;
   }
 }
