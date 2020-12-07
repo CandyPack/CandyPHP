@@ -11,7 +11,7 @@ class Mysql_Table {
   }
 
   function query($type = null){
-    $arr_q = ['inner join', 'right join', 'left join', 'where','group by','order by','limit'];
+    $arr_q = ['inner join', 'right join', 'left join', 'where','group by','having','order by','limit'];
     $query = "";
     foreach($arr_q as $key){
       if(isset($this->arr[$key])){
@@ -38,6 +38,14 @@ class Mysql_Table {
       $this->arr['where'] = is_numeric(func_get_args()[0]) ? "id='".func_get_args()[0]."'" : "";
     }elseif(count(func_get_args()) > 0){
       $this->arr['where'] = isset($this->arr['where']) && trim($this->arr['where'])!='' ? $this->arr['where'].' AND '.$this->whereExtract(func_get_args()) : $this->whereExtract(func_get_args());
+    }
+    return new static($this->arr);
+  }
+  function having(){
+    if(count(func_get_args()) == 1 && !is_array(func_get_args()[0])){
+      $this->arr['having'] = is_numeric(func_get_args()[0]) ? "id='".func_get_args()[0]."'" : "";
+    }elseif(count(func_get_args()) > 0){
+      $this->arr['having'] = isset($this->arr['where']) && trim($this->arr['where'])!='' ? $this->arr['where'].' AND '.$this->whereExtract(func_get_args()) : $this->whereExtract(func_get_args());
     }
     return new static($this->arr);
   }
