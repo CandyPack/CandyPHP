@@ -620,6 +620,7 @@ class Candy {
       $data = ($storage->array==1) ? ((array)($storage->data)) : $storage->data;
       $method($data);
       $GLOBALS['_candy_async'] = null;
+      if(file_exists("storage/cache/async/$data_id.json")) unlink("storage/cache/async/$data_id.json");
       return die();
     }
     $func = new ReflectionFunction($method);
