@@ -618,9 +618,9 @@ class Candy {
       $GLOBALS['_candy']['cached'][$f]['file'] = $storage->file;
       $GLOBALS['_candy']['cached'][$f]['line'] = $storage->line;
       $data = ($storage->array==1) ? ((array)($storage->data)) : $storage->data;
+      if(file_exists(BASE_PATH."/storage/cache/async/$data_id.json")) unlink(BASE_PATH."/storage/cache/async/$data_id.json");
       $method($data);
       $GLOBALS['_candy_async'] = null;
-      if(file_exists(BASE_PATH."/storage/cache/async/$data_id.json")) unlink(BASE_PATH."/storage/cache/async/$data_id.json");
       return die();
     }
     $func = new ReflectionFunction($method);
