@@ -136,9 +136,7 @@ class View {
     }
     if($cache){
       if(isset($storage->view->$v->file) && !defined('DEV_VERSION')){
-        if(file_exists($storage->view->$v->file)){
-          unlink($storage->view->$v->file);
-        }
+        if(file_exists(BASE_PATH.'/view/'.$storage->view->$v->file)) unlink(BASE_PATH.'/view/'.$storage->view->$v->file);
       }
       $php_raw = file_get_contents($filepath, FILE_USE_INCLUDE_PATH);
       $regex = [
@@ -202,7 +200,7 @@ class View {
       ];
       $php_raw = str_replace($str,$rpl,$php_raw);
       $php_cache = defined('DEV_VERSION') ? BASE_PATH.'/storage/cache/dev_'.md5($v).time().'.php' : BASE_PATH.'/storage/cache/'.md5($v).time().'.php';
-      $unlk = file_exists($php_cache) ? unlink($php_cache) : false;
+      if(file_exists($php_cache)) unlink($php_cache);
       file_put_contents($php_cache, $php_raw);
       if(!defined('DEV_VERSION')){
         $storage->view->$v->file = $php_cache;
