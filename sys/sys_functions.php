@@ -610,10 +610,13 @@ class Candy {
 
   public static function async($method, $data=null){
     if(isset($GLOBALS['_candy_async']) && $GLOBALS['_candy_async']!=null){
+      if(!isset($GLOBALS['_candy']['cached'])) $GLOBALS['_candy']['cached'] = [];
       $data_id = $_GET['async_data'];
-      $storage = Candy::storage('sys')->get('async')->data;
-      foreach($storage as $key){ $datas = $key; }
-      $storage = $datas->$data_id;
+      $storage = Candy::storage("cache/async/$data_id")->get('data');
+      $func = new ReflectionFunction($method);
+      $f = $func->getFileName();
+      $GLOBALS['_candy']['cached'][$f]['file'] = $storage->file;
+      $GLOBALS['_candy']['cached'][$f]['line'] = $storage->line;
       $data = ($storage->array==1) ? ((array)($storage->data)) : $storage->data;
       $method($data);
       $GLOBALS['_candy_async'] = null;
@@ -660,13 +663,10 @@ class Candy {
     }
     $datas = ['hash' => $func_hash, 'data' => $data, 'array' => is_array($data) ? 1 : 0];
     $date = date('YmdH');
-    $storage = Candy::storage('sys')->get('async');
-    $storage->data = isset($storage->data->$date) ? $storage->data : new \stdClass;
-    $storage->data->$date = isset($storage->data->$date) ? $storage->data->$date : new \stdClass;
     $data_id = mt_rand().time().rand(100,999);
-    $storage->data->$date->$data_id = ['hash' => $func_hash, 'data' => $data, 'array' => is_array($data) ? 1 : 0];
-    Candy::storage('sys')->set('async',$storage);
-    $curl = self::curl(str_replace('www.','',$_SERVER['SERVER_NAME']).'/?_candy=async&hash='.$func_hash.'&async_data='.$data_id,
+    $storage = ['hash' => $func_hash, 'data' => $data, 'array' => is_array($data) ? 1 : 0, 'file' => $f, 'line' => $start_line];
+    Candy::storage("cache/async/$data_id")->set('data',$storage);
+    $curl = self::curl(str_replace('www.','',$_SERVER['SERVER_NAME'])."/?_candy=async&hash=$func_hash&async_data=$data_id",
                $datas,
                null,
                'post',

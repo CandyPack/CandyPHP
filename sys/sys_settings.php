@@ -311,12 +311,12 @@ class Config {
     if(is_bool($b) && $b) $devmode = !defined('CANDY_DEVMODE') ? define('CANDY_DEVMODE', $b) : false;
     return new class {
       public static function version($v){
-        $GLOBALS['DEV_VERSION'] = $v;
+        if(defined('CANDY_DEVMODE') && CANDY_DEVMODE) $GLOBALS['DEV_VERSION'] = $v;
         return new static();
       }
       public static function errors(){
-        Config::displayError(true);
-        if(!defined('DEV_ERRORS')) define('DEV_ERRORS',true);
+        if(defined('CANDY_DEVMODE') && CANDY_DEVMODE) Config::displayError(true);
+        if(!defined('DEV_ERRORS')) define('DEV_ERRORS',(defined('CANDY_DEVMODE') && CANDY_DEVMODE));
         return new static();
       }
       public static function mail($m){
@@ -381,11 +381,8 @@ class Config {
     $log .= "\n--- ".date('Y/m/d H:i:s')." ---\n";
     if(!empty($type)) $log .= "<b>Type:</b>    ".$type." Error\n";
     if(!empty($mssg)) $log .= "<b>Message:</b> ".$mssg."\n";
-    if(!empty($file)){
-      $file = $file;
-      $log .= "<b>File:</b>    ".$file."\n";
-    }
-    if(isset($line) && !empty($line)) $log .= "<b>Line:</b>    ".$line."\n";
+    if(!empty($file)) $log .= "<b>File:</b>    ".(isset($GLOBALS['_candy']['cached'][$file]['file']) ? $GLOBALS['_candy']['cached'][$file]['file'] : $file)."\n";
+    if(isset($line) && !empty($line)) $log .= "<b>Line:</b>    ".(isset($GLOBALS['_candy']['cached'][$file]['line']) ? ($GLOBALS['_candy']['cached'][$file]['line'] + $line) : $line)."\n";
     $log .= "-------\n";
     file_put_contents(BASE_PATH.'/candy.log',strip_tags($open.$log));
     $storage = Candy::storage('sys')->get('error');
