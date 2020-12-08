@@ -161,6 +161,7 @@ class Candy {
               if(_candy_action !== undefined && typeof _candy_action.load == 'function') _candy_action.load();
               if(_candy_action !== undefined && _candy_action.page !== undefined && typeof _candy_action.page[_candy_page] == "function") _candy_action.page[_candy_page]();
               if(callback!==undefined) callback(candy.page(),_data.variables);
+              $("html, body").animate({ scrollTop: 0 });
             },500);
           },
           error : function(){
