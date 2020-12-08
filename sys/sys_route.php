@@ -280,7 +280,11 @@ class Route {
           }
           ignore_user_abort(true);
           $GLOBALS['_candy_async'] = $_GET['hash'];
-          include('storage/cache/async_'.$_GET['hash'].'.php');
+          $storage = Candy::storage("cache/async/".$_GET['async_data'])->get('data');
+          $f = BASE_PATH.'/storage/cache/async_'.$_GET['hash'].'.php';
+          $GLOBALS['_candy']['cached'][$f]['file'] = $storage->file;
+          $GLOBALS['_candy']['cached'][$f]['line'] = $storage->line;
+          include($f);
           break;
         default:
           self::printPage();
