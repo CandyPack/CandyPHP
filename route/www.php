@@ -1,4 +1,3 @@
 <?php
 
-$route->page('','index');
-$route->page404('404');
+Route::page('','index');
