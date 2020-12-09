@@ -27,9 +27,10 @@ class Config {
       define('MYSQL_CONNECT',$b);
     }
   }
-  public static function languageDetect($b  = true){
+  public static function languageDetect($b  = 'en'){
     if(isset($_SERVER['HTTP_ACCEPT_LANGUAGE'])){
       $lang = substr($_SERVER['HTTP_ACCEPT_LANGUAGE'], 0, 2);
+      $GLOBALS['_candy']['language']['default'] = $b;
       Lang::set($lang);
     }
   }

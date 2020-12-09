@@ -44,8 +44,8 @@ class Lang {
     }
     if(file_exists("lang/$code.php")){
       Lang::setArray(returnLang($code));
-    }elseif(file_exists("lang/lang.php")){
-      Lang::setArray(returnLang('lang'));
+    }elseif(file_exists("lang/".$GLOBALS['_candy']['language']['default'].".php")){
+      Lang::setArray(returnLang($GLOBALS['_candy']['language']['default']));
     }
   }
 
