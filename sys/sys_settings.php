@@ -68,14 +68,15 @@ class Config {
     $conns = [];
     foreach($GLOBALS['candy_mysql'] as $key => $val) if($val['backup']) $conns[$key] = Mysql::connect($key);
     $b = defined('AUTO_BACKUP') && AUTO_BACKUP;
-    if($b && date("Hi")=='0000' && ((substr($_SERVER['SERVER_ADDR'],0,8)=='192.168.') || ($_SERVER['SERVER_ADDR']==$_SERVER['REMOTE_ADDR'])) && isset($_GET['_candy']) && $_GET['_candy']=='cron'){
+    if($b && intval(date("Hi"))==1 && ((substr($_SERVER['SERVER_ADDR'],0,8)=='192.168.') || ($_SERVER['SERVER_ADDR']==$_SERVER['REMOTE_ADDR'])) && isset($_GET['_candy']) && $_GET['_candy']=='cron'){
       $storage = Candy::storage('sys')->get('backup');
-      $storage->last = isset($storage->last) && is_object($storage->last) ? $storage->last : new \stdClass;
-      if($storage->last==date('d/m/Y')) return false;
-      set_time_limit(0);
-      ini_set('memory_limit', '9999M');
-      $storage->last = date('d/m/Y');
+      $date = intval(date('Ymd'));
+      $storage->last = isset($storage->last) ? $storage->last : '';
+      if(intval($storage->last) >= $date) return false;
+      $storage->last = $date;
       Candy::storage('sys')->set('backup',$storage);
+      set_time_limit(0);
+      ini_set('memory_limit', '4G');
       $directory = BACKUP_DIRECTORY;
       $backupdirectory = $directory;
       if(!file_exists($backupdirectory.'mysql/')) mkdir($backupdirectory.'mysql/', 0777, true);
@@ -126,8 +127,9 @@ class Config {
     }
   }
   public static function autoUpdate($b = true){
-    if($b && date("Hi")=='0010' && ((substr($_SERVER['SERVER_ADDR'],0,8)=='192.168.') || ($_SERVER['SERVER_ADDR']==$_SERVER['REMOTE_ADDR'])) && isset($_GET['_candy']) && $_GET['_candy']=='cron'){
-      set_time_limit(1000);
+    if($b && intval(date("Hi"))==10 && ((substr($_SERVER['SERVER_ADDR'],0,8)=='192.168.') || ($_SERVER['SERVER_ADDR']==$_SERVER['REMOTE_ADDR'])) && isset($_GET['_candy']) && $_GET['_candy']=='cron'){
+      set_time_limit(0);
+      ini_set('memory_limit', '4G');
       $base = base64_decode('aHR0cHM6Ly9yYXcuZ2l0aHVidXNlcmNvbnRlbnQuY29tL2VtcmVkdi9DYW5keS1QSFAvbWFzdGVyLw==');
       $get = file_get_contents($base.'update.txt');
       $arr_get = explode("\n",$get);
@@ -147,9 +149,7 @@ class Config {
             }
           }
         }
-      }else{
-        $version_current = 0;
-      }
+      }else $version_current = 0;
       foreach($arr_get as $new){
         if(substr($new,0,1)=='#'){
           $params_new = explode(':',str_replace('#','',$new));
@@ -158,9 +158,7 @@ class Config {
             if($params_new[1]>$version_current) $update = true;
             break;
           }
-        }else{
-          if(trim($new)!='') $arr_update[] = trim($new);
-        }
+        }elseif(trim($new)!='') $arr_update[] = trim($new);
       }
       if($update){
         foreach ($arr_update as $key){
@@ -184,9 +182,7 @@ class Config {
   }
 
   public static function masterMail($s=''){
-    if(!defined('MASTER_MAIL') && $s!=''){
-      define('MASTER_MAIL',$s);
-    }
+    if(!defined('MASTER_MAIL') && $s!='') define('MASTER_MAIL',$s);
   }
 
   public static function composer($b=true){
@@ -226,24 +222,19 @@ class Config {
       if(file_exists($dir)){
         $dh  = opendir($dir);
         while(false !== ($filename = readdir($dh))){
-          if($filename!='.' && $filename!='..'){
-            if(strpos($dir.$filename, '.zip.') !== false) unlink($dir.$filename);
-            $filemtime = filemtime($dir.$filename);
-            $diff = time()-$filemtime;
-            $days = round($diff/86400);
-            $dayofweek = date('w', $filemtime);
-            $dayofmonth = date('d', $filemtime);
-            $dayofyear = date('md', $filemtime);
-            if($days>7){
-              if($dayofweek!=1 || $days>30){
-                if($dayofmonth!=1 || $days>365){
-                  if($dayofyear!='0101'){
-                    unlink($dir.$filename);
-                  }
-                }
-              }
-            }
-          }
+          if($filename=='.' || $filename=='..') continue;
+          if(strpos($dir.$filename, '.zip.') !== false) unlink($dir.$filename);
+          $filemtime = filemtime($dir.$filename);
+          $diff = time()-$filemtime;
+          $days = round($diff/86400);
+          $dayofweek = date('w', $filemtime);
+          $dayofmonth = date('d', $filemtime);
+          $dayofyear = date('md', $filemtime);
+          if($days<=7) continue;
+          if($dayofweek==1 && $days<=30) continue;
+          if($dayofmonth==1 && $days<=365) continue;
+          if($dayofyear=='0101') continue;
+          unlink($dir.$filename);
         }
       }
     }

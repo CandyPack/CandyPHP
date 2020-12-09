@@ -67,7 +67,7 @@ class Candy {
       self::import('mysql');
       Mysql::connect();
     }
-    if(defined('AUTO_BACKUP') && AUTO_BACKUP==true){
+    if(defined('AUTO_BACKUP') && AUTO_BACKUP==true && intval(date('H')) == 0){
       Config::runBackup();
       Config::backupClear();
     }
