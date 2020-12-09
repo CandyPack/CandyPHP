@@ -121,7 +121,7 @@ class Candy {
           }
         },
         error: function() {
-          alert('Somethings went wrong...');
+          console.error('Candy JS:',"Somethings went wrong...","\nForm: #"+id+"\nRequest: "+$("#"+id).attr('action'));
         },
         complete: function() {
           candy_form.find('button, input[type="button"], input[type="submit"]').prop('disabled',false);
