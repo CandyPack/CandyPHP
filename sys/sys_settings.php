@@ -27,6 +27,9 @@ class Config {
       define('MYSQL_CONNECT',$b);
     }
   }
+  public static function language($b  = 'en'){
+    return self::languageDetect($b);
+  }
   public static function languageDetect($b  = 'en'){
     if(isset($_SERVER['HTTP_ACCEPT_LANGUAGE'])){
       $lang = substr($_SERVER['HTTP_ACCEPT_LANGUAGE'], 0, 2);
