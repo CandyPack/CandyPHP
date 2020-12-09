@@ -34,6 +34,9 @@ class Config {
       Lang::set($lang);
     }
   }
+  public static function cron($b = true){
+    return self::cronJobs($b);
+  }
   public static function cronJobs($b = true){
     define('CRON_JOBS',$b);
     $command = '* * * * * curl -L -A candyPHP-cron '.str_replace('www.','',$_SERVER['SERVER_NAME']).'/?_candy=cron';
@@ -63,6 +66,9 @@ class Config {
   public static function autoBackup($b = true,$directory = '../backup/'){
     define('AUTO_BACKUP',$b);
     define('BACKUP_DIRECTORY',$directory);
+  }
+  public static function backup($b = true,$directory = '../backup/'){
+    return self::autoBackup($b,$directory);
   }
   public static function runBackup(){
     global $backupdirectory;
@@ -180,6 +186,9 @@ class Config {
         }
       }
     }
+  }
+  public static function update($b = true){
+    return self::autoUpdate($b);
   }
 
   public static function masterMail($s=''){
@@ -299,6 +308,10 @@ class Config {
     return $class->name($name);
   }
 
+  public static function dev($b){
+    return self::devmode($b);
+  }
+
   public static function devmode($b){
     if(is_bool($b) && $b) $devmode = !defined('CANDY_DEVMODE') ? define('CANDY_DEVMODE', $b) : false;
     return new class {
@@ -344,7 +357,7 @@ class Config {
     }
   }
 
-  public static function bruteForce($try=250){
+  public static function brute($try=250){
     if(!isset($GLOBALS['_candy'])) $GLOBALS['_candy'] = [];
     if(!isset($GLOBALS['_candy']['settings'])) $GLOBALS['_candy']['settings'] = [];
     if(!isset($GLOBALS['_candy']['settings']['bruteforce'])) $GLOBALS['_candy']['settings']['bruteforce'] = ['try' => $try];
