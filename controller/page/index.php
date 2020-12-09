@@ -1,6 +1,6 @@
 <?php
 
-$view->skeleton('page')
+View::skeleton('page')
      ->head('index')
      ->header('index')
      ->sidebar('index')
