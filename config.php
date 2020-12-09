@@ -1,6 +1,6 @@
 <?php
 
-Config::languageDetect(); // Activates language files (/lang)
+Config::languageDetect(/* Default Language (en) */); // Activates language files (/lang)
 Config::cronJobs();       // Activates scheduled tasks
 Config::composer();       // True or autoload.php directory can be entered.
 Config::key(/*Key*/);     // A key must be entered for the encryption method. It can only be decrypted with the same key.
