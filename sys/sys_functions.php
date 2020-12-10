@@ -610,6 +610,7 @@ class Candy {
 
   public static function async($method, $data=null){
     if(isset($GLOBALS['_candy_async']) && $GLOBALS['_candy_async']!=null){
+      unset($GLOBALS['_candy_async']);
       if(!isset($GLOBALS['_candy']['cached'])) $GLOBALS['_candy']['cached'] = [];
       $data_id = $_GET['async_data'];
       $storage = Candy::storage("cache/async/$data_id")->get('data');
