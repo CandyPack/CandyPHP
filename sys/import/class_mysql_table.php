@@ -159,11 +159,28 @@ class Mysql_Table {
     return new static($this->arr);
   }
   function orderBy($v1,$v2='asc'){
-    $this->arr['order by'] = $this->escape($v1,'col').(strtolower($v2) == 'desc' ? 'DESC' : 'ASC');
+    if(is_array($v1) && (!isset($v1['ct']) || $v1['ct'] != $GLOBALS['candy_token_mysql'])){
+      $order = [];
+      foreach($v1 as $key => $val)
+      if(!is_int($key)) $order[] = $this->escape($key,'col').(strtolower($val) == 'desc' ? ' DESC' : ' ASC');
+      else $order[] = $this->escape($val,'col').' ASC';
+      $this->arr['order by'] = implode(',',$order);
+    }else $this->arr['order by'] = $this->escape($v1,'col').(strtolower($v2) == 'desc' ? ' DESC' : ' ASC');
     return new static($this->arr);
   }
-  function groupBy($v){
-    $this->arr['group by'] = $this->escape($v,'col');
+  function groupBy(){
+    $this->arr['group by'] = isset($this->arr['group by']) ? $this->arr['group by'] : '';
+    $select = array_filter(explode(',',$this->arr['group by']));
+    if(count(func_get_args())==1 && is_array(func_get_args()[0])){
+      if(isset(func_get_args()[0]['ct']) && isset(func_get_args()[0]['v']) && func_get_args()[0]['ct'] == $GLOBALS['candy_token_mysql']){
+        $select[] = func_get_args()[0]['v'];
+      }else{
+        foreach(func_get_args()[0] as $key => $value){
+          $select[] = $this->escape($value,'col');
+        }
+      }
+    }else foreach(func_get_args() as $key) $select[] = $this->escape($key,'col');
+    $this->arr['group by'] = implode(', ',$select);
     return new static($this->arr);
   }
   function limit($v1,$v2=null){
