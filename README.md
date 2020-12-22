@@ -1,5 +1,8 @@
-# Candy PHP
-Candy PHP Framework
+# CANDY PHP
+
+### SUPPORTED
+<img alt="PHP 8" src="https://img.shields.io/static/v1.svg?label=PHP7&message=WORKING&color=red&style=for-the-badge&logo=php&labelColor=white">  
+<img alt="PHP 8" src="https://img.shields.io/static/v1.svg?label=PHP8&message=COMING+SOON&color=lightgray&style=for-the-badge&logo=php&labelColor=white">
 
 ## What You Can Do
   - Multi-Page Websites
