@@ -133,6 +133,7 @@ class Config {
           $zip->addFile($filePath, $relativePath);
         }
       }
+      sleep(1);
       $zip->close();
     }
   }
