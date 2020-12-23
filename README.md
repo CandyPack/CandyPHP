@@ -1,4 +1,5 @@
 # CANDY PHP
+Candy PHP Framework
 
 ### SUPPORTED
 <img alt="PHP 8" src="https://img.shields.io/static/v1.svg?label=PHP7&message=WORKING&color=red&style=for-the-badge&logo=php&labelColor=white">  
