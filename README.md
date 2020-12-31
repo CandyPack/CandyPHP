@@ -1,5 +1,6 @@
-# CANDY PHP
-Candy PHP Framework
+<p align="center">
+  <img src="https://socialify.git.ci/emredv/Candy-PHP/image?description=1&font=Raleway&owner=1&pattern=Charlie%20Brown&theme=Light" />
+</p>
 
 ### SUPPORTED
 <img alt="PHP 8" src="https://img.shields.io/static/v1.svg?label=PHP7&message=WORKING&color=red&style=for-the-badge&logo=php&labelColor=white">  
