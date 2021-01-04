@@ -80,7 +80,7 @@ class Candy {
         include('vendor/autoload.php');
       }
     }
-    if(intval(date('d'))==2 && intval(date('H'))<=2) foreach(glob(BASE_PATH."/storage/cache/*") as $key) if(filemtime($key)+10000 < time()) unlink($key);
+    if(intval(date('d'))==2 && intval(date('H'))<=2) foreach(glob(BASE_PATH."/storage/cache/*") as $key) if(!is_dir($key) && filemtime($key)+10000 < time()) unlink($key);
   }
 
   public static function token($check = 0){
