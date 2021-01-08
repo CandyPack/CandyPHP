@@ -15,7 +15,10 @@ class Route {
     $page = substr($page,0,1) == '/' ? substr($page,1) : $page;
     if(self::checkRequest($page,$get_page)){
       if(is_callable($controller)){
-        $controller();
+        $return = $controller();
+        if(!empty($return) && $return !== 1) Candy::return($return);
+        $GLOBALS['_candy']['route']['page'] = false;
+        $GLOBALS['_candy']['route']['method'] = 'page';
       }else{
         $GLOBALS['_candy']['route']['page'] = $controller;
         $GLOBALS['_candy']['route']['method'] = 'page';
