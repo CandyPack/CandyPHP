@@ -93,9 +93,21 @@ class Mysql_Table {
   }
   function rows($b=false){
     $query = $this->query('get');
-    $data = [];
+    if(isset($this->arr['cache'])){
+      $md5_query = md5($query);
+      $md5_table = md5($this->arr['table']);
+      $file = "cache/mysql/".md5(Mysql::$name)."/$md5_table"."_$md5_query"."_r";
+      $cache = Candy::storage($file)->get('cache');
+      if(isset($cache->date) && ($cache->date >= (time() - $this->arr['cache']))) return $cache->data;
+    }
     $sql = mysqli_query(Mysql::$conn, $query);
-    return $sql===false ? false : mysqli_num_rows($sql);
+    $rows = mysqli_num_rows($sql);
+    if(isset($cache)){
+      $cache->data = $rows;
+      $cache->date = time();
+      Candy::storage($file)->set('cache', $cache);
+    }
+    return $sql===false ? false : $rows;
   }
   function set($arr,$val=null){
     $vars = "";
