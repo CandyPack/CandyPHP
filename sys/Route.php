@@ -295,6 +295,7 @@ class Route {
     }else{
       self::printPage();
     }
+    Mysql::closeAll();
   }
 }
 
