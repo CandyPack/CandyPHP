@@ -295,7 +295,7 @@ class Route {
     }else{
       self::printPage();
     }
-    Mysql::closeAll();
+    if(defined('MYSQL_CONNECT') && MYSQL_CONNECT==true) Mysql::closeAll();
   }
 }
 
