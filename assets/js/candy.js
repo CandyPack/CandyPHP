@@ -20,7 +20,7 @@ class Candy {
     if(_candy_token === undefined){
       var req = new XMLHttpRequest();
       req.open('GET', '?_candy=token', false);
-      req.setRequestHeader("X_REQUESTED_WITH", "xmlhttprequest");
+      req.setRequestHeader("X-Requested-With", "xmlhttprequest");
       req.send(null);
       var req_data = JSON.parse(req.response);
       _candy_page = req_data.page;
