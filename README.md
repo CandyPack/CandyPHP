@@ -10,7 +10,7 @@
   - 📄 Multi-Page Websites
   - 🔗 Get Content by URL
   - 📅 Ability to Set Scheduled Tasks
-  - 🗃️ Multiple Mysql Connections and basicly SQL Operations
+  - 🗃️ Multiple Database Connections and Simple, Cachable SQL Operations
   - 🗄️ Automatic Daily Web and SQL Backups (& autoclear)
   - 🌐 Multi-Language Web Pages
   - 🛡️ Secure POST / GET Transactions
