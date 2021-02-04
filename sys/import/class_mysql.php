@@ -130,8 +130,8 @@ class Mysql {
           $token1 = uniqid(mt_rand(), true).rand(10000,99999).(time()*100);
           $token2 = md5($_SERVER['REMOTE_ADDR']);
           $token3 = md5($_SERVER['HTTP_USER_AGENT']);
-          setcookie("token1", $token1, time() + 61536000, "/", (!empty(ini_get('session.cookie_domain')) ? ini_get('session.cookie_domain') : null));
-          setcookie("token2", $token2, time() + 61536000, "/", (!empty(ini_get('session.cookie_domain')) ? ini_get('session.cookie_domain') : null));
+          setcookie("token1", $token1, time() + 61536000, "/", (!empty(ini_get('session.cookie_domain')) ? ini_get('session.cookie_domain') : null),false,true);
+          setcookie("token2", $token2, time() + 61536000, "/", (!empty(ini_get('session.cookie_domain')) ? ini_get('session.cookie_domain') : null),false,true);
           self::$tb_token = isset($arr['table_token']) ? $arr['table_token'] : 'candy_token';
           $check_table = mysqli_query(self::$conn, 'SHOW TABLES LIKE "'.self::$tb_token.'"');
           if(mysqli_num_rows($check_table)==0){
