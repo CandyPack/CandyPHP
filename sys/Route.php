@@ -5,9 +5,16 @@ class Route {
 
   public static function all($controller,$type = 'page'){
     $get_page = isset($_GET['_page']) ? $_GET['_page'] : '';
-    $GLOBALS['_candy']['route']['page'] = $controller;
-    $GLOBALS['_candy']['route']['method'] = 'page';
-    self::$request['page'] = $get_page;
+    if(is_callable($controller)){
+      $return = $controller();
+      if(!empty($return) && $return !== 1) Candy::return($return);
+      $GLOBALS['_candy']['route']['page'] = false;
+      $GLOBALS['_candy']['route']['method'] = 'page';
+    }else{
+      $GLOBALS['_candy']['route']['page'] = $controller;
+      $GLOBALS['_candy']['route']['method'] = 'page';
+      self::$request['page'] = $get_page;
+    }
   }
 
   public static function page($page,$controller,$type = 'page'){
