@@ -130,6 +130,8 @@ class Mysql_Table {
   function add($arr){
     $this->id = 1;
     $this->valuesExtract($arr);
+    $this->arr['into'] = implode(', ',$ext['into']);
+    $this->arr['values'] = implode(', ',$ext['values']);
     $query = $this->query('add');
     $sql = mysqli_query(Mysql::$conn, $query);
     if($sql === false) return $this->error();
@@ -143,7 +145,7 @@ class Mysql_Table {
     $ext = $this->valuesExtract($arr);
     $this->arr['into'] = implode(', ',$ext['into']);
     $this->arr['values'] = implode(', ',$ext['values']);
-    echo $query = $this->query('replace');
+    $query = $this->query('replace');
     $sql = mysqli_query(Mysql::$conn, $query);
     if($sql === false) return $this->error();
     $this->success = $sql;
