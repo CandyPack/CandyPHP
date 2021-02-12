@@ -23,10 +23,11 @@ class Mysql_Table {
         }
       }
     }
-    if($type == 'add') return "INSERT INTO ".$this->escape($this->arr['table'],'table').' ('.$this->arr['into'].') VALUES ('.$this->arr['values'].')';
+    if($type == 'add') return "INSERT INTO ".$this->escape($this->arr['table'],'table').' ('.$this->arr['into'].') VALUES '.$this->arr['values'].'';
     if($type == 'get') return "SELECT ".(isset($this->arr['select']) ? $this->arr['select'] : '*')." FROM `".$this->arr['table']."` ".$query;
     if($type == 'set') return "UPDATE `".$this->arr['table']."` SET ".$this->arr['set']." ".$query;
     if($type == 'delete') return "DELETE FROM `".$this->arr['table']."` ".$query;
+    if($type == 'replace') return "REPLACE INTO ".$this->escape($this->arr['table'],'table').' ('.$this->arr['into'].') VALUES '.$this->arr['values'].'';
     return $query;
   }
   function table($t){
@@ -128,15 +129,21 @@ class Mysql_Table {
   }
   function add($arr){
     $this->id = 1;
-    $query_key = '';
-    $query_val = '';
-    foreach ($arr as $key => $val){
-      $query_key .= $this->escape($key,'col').',';
-      $query_val .= $this->escape($val).',';
-    }
-    $this->arr['into'] = substr($query_key,0,-1);
-    $this->arr['values'] = substr($query_val,0,-1);
+    $this->valuesExtract($arr);
     $query = $this->query('add');
+    $sql = mysqli_query(Mysql::$conn, $query);
+    if($sql === false) return $this->error();
+    $this->success = $sql;
+    $this->id = mysqli_insert_id(Mysql::$conn);
+    self::clearcache();
+    return new static($this->arr, ['id' => $this->id]);
+  }
+  function replace($arr){
+    $this->id = 1;
+    $ext = $this->valuesExtract($arr);
+    $this->arr['into'] = implode(', ',$ext['into']);
+    $this->arr['values'] = implode(', ',$ext['values']);
+    echo $query = $this->query('replace');
     $sql = mysqli_query(Mysql::$conn, $query);
     if($sql === false) return $this->error();
     $this->success = $sql;
@@ -251,6 +258,24 @@ class Mysql_Table {
         $loop++;
     }
     return '('.$q.')';
+  }
+  private function valuesExtract($arr){
+    $query_key = [];
+    $query_val = [];
+    foreach($arr as $key => $val){
+      if(is_array($val)){
+        $ex = $this->valuesExtract($val);
+        $query_key = $ex['into'];
+        $query_val[] = "(".implode(', ',$ex['values']).")";
+      }else{
+        $query_key[] = $this->escape($key,'col');
+        $query_val[] = $this->escape($val);
+      }
+    }
+    return [
+      'into' => $query_key,
+      'values' => $query_val
+    ];
   }
   private function escape($v,$type = 'value'){
     if(is_array($v) && isset($v['ct']) && isset($v['v']) && $v['ct']==$GLOBALS['candy_token_mysql']) return ' '.$v['v'].' ';
