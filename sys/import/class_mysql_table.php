@@ -23,11 +23,11 @@ class Mysql_Table {
         }
       }
     }
-    if($type == 'add') return "INSERT INTO ".$this->escape($this->arr['table'],'table').' ('.$this->arr['into'].') VALUES '.$this->arr['values'].'';
+    if($type == 'add') return "INSERT INTO ".$this->escape($this->arr['table'],'table').' '.$this->arr['into'].' VALUES '.$this->arr['values'].'';
     if($type == 'get') return "SELECT ".(isset($this->arr['select']) ? $this->arr['select'] : '*')." FROM `".$this->arr['table']."` ".$query;
     if($type == 'set') return "UPDATE `".$this->arr['table']."` SET ".$this->arr['set']." ".$query;
     if($type == 'delete') return "DELETE FROM `".$this->arr['table']."` ".$query;
-    if($type == 'replace') return "REPLACE INTO ".$this->escape($this->arr['table'],'table').' ('.$this->arr['into'].') VALUES '.$this->arr['values'].'';
+    if($type == 'replace') return "REPLACE INTO ".$this->escape($this->arr['table'],'table').' '.$this->arr['into'].' VALUES '.$this->arr['values'].'';
     return $query;
   }
   function table($t){
@@ -129,9 +129,9 @@ class Mysql_Table {
   }
   function add($arr){
     $this->id = 1;
-    $this->valuesExtract($arr);
-    $this->arr['into'] = implode(', ',$ext['into']);
-    $this->arr['values'] = implode(', ',$ext['values']);
+    $ext = $this->valuesExtract($arr);
+    $this->arr['into'] = $ext['into'];
+    $this->arr['values'] = $ext['values'];
     $query = $this->query('add');
     $sql = mysqli_query(Mysql::$conn, $query);
     if($sql === false) return $this->error();
@@ -143,8 +143,8 @@ class Mysql_Table {
   function replace($arr){
     $this->id = 1;
     $ext = $this->valuesExtract($arr);
-    $this->arr['into'] = implode(', ',$ext['into']);
-    $this->arr['values'] = implode(', ',$ext['values']);
+    $this->arr['into'] = $ext['into'];
+    $this->arr['values'] = $ext['values'];
     $query = $this->query('replace');
     $sql = mysqli_query(Mysql::$conn, $query);
     if($sql === false) return $this->error();
@@ -265,6 +265,7 @@ class Mysql_Table {
     $query_key = [];
     $query_val = [];
     foreach($arr as $key => $val){
+      $multiple = is_array($val);
       if(is_array($val)){
         $ex = $this->valuesExtract($val);
         $query_key = $ex['into'];
@@ -275,8 +276,8 @@ class Mysql_Table {
       }
     }
     return [
-      'into' => $query_key,
-      'values' => $query_val
+      'into' => "(".implode(',',$query_key).")",
+      'values' => !$multiple ? "(".implode(',',$query_val).")" : implode(',',$query_val)
     ];
   }
   private function escape($v,$type = 'value'){
