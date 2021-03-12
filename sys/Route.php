@@ -100,11 +100,11 @@ class Route {
           }
         }elseif($method==null){
           if(isset(CANDY_REQUESTS[$v])){
-            return CANDY_REQUESTS[$v];
+            return trim(CANDY_REQUESTS[$v]);
           }elseif(isset($_POST[$v])){
-            return $_POST[$v];
+            return trim($_POST[$v]);
           }elseif(isset($_GET[$v])){
-            return $_GET[$v];
+            return trim($_GET[$v]);
           }
         }else{
           switch($method){
