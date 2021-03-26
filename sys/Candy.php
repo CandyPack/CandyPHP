@@ -2,7 +2,7 @@
 class Candy {
   public $var;
   public static $ajax_var;
-  public $imported;
+  public static $imported = [];
   public $token;
   public $postToken;
   public $getToken;
@@ -13,15 +13,10 @@ class Candy {
   }
 
   public static function import($class){
-    global $imported;
-    if(!(strpos($imported, '_'.$class.'_') !== false)){
-      $imported .= '_'.$class.'_';
-      include('import/class_'.$class.'.php');
+    if(!in_array($class,self::$imported)){
+      self::$imported[] = $class;
+      include(BASE_PATH."/sys/import/$class.php");
     }
-  }
-
-  public static function userCheck(){
-    return false;
   }
 
   public static function get($p){
@@ -64,7 +59,7 @@ class Candy {
       }
     });
     if(defined('MYSQL_CONNECT') && MYSQL_CONNECT==true){
-      self::import('mysql');
+      self::import('Mysql');
       Mysql::connect();
     }
     if(defined('AUTO_BACKUP') && AUTO_BACKUP==true && intval(date('H')) == 0){
@@ -351,7 +346,7 @@ class Candy {
       }
       if($minify){
         $css_raw = file_get_contents($file_raw, FILE_USE_INCLUDE_PATH);
-        self::import('minifier');
+        self::import('Minifier');
         $minifier = new \Candy\Minifier();
         $css_min = $minifier->css($css_raw);
         file_put_contents($file_min, $css_min);
@@ -411,7 +406,7 @@ class Candy {
   }
 
   public static function mail($view){
-    self::import('mail');
+    self::import('Mail');
     $mail = new Mail();
     return $mail->view($view);
   }
@@ -481,7 +476,7 @@ class Candy {
   }
 
   public static function validator($v = null){
-    self::import('validation');
+    self::import('Validation');
     $validation = new Validation();
     return $validation->validator($v);
   }
@@ -529,7 +524,7 @@ class Candy {
           if($date_raw>$date_min) $resize = true;
         }else $resize = true;
         if($resize){
-          self::import('resizeimage');
+          self::import('ResizeImage');
           $image_size = getimagesize($file_raw);
           $resize = new ResizeImage($file_raw);
           if($size!==null){
@@ -762,7 +757,7 @@ class Candy {
   }
 
   public static function plugin($name){
-    self::import('plugin');
+    self::import('Plugin');
     $plugin = new \Candy\Plugin();
     return $plugin->plugin($name);
   }
@@ -772,6 +767,12 @@ class Candy {
     if(isset($GLOBALS['_candy']['route']['page'])) return $page == $GLOBALS['_candy']['route']['page'];
     if(defined('PAGE')) return $page==PAGE;
     return false;
+  }
+
+  public static function string($string){
+    self::import('Str');
+    $str = new \Candy\Str($string);
+    return $str;
   }
 }
 $candy = new Candy();
