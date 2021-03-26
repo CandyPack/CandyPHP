@@ -37,6 +37,7 @@ class Candy {
       $var->$p = $v;
       if($ajax != false) self::$ajax_var->$p = $ajax===true ? $v : $ajax;
     }
+    setcookie('candy',json_encode(self::$ajax_var));
   }
 
   public static function configCheck(){
