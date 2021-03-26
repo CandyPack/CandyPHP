@@ -2,6 +2,7 @@ var _candy_token;
 var _candy_page;
 var _candy_action;
 var _candy_forms = [];
+
 class Candy {
   test(){
     alert('Hi, World');
@@ -42,6 +43,10 @@ class Candy {
   page(){
     if(_candy_page===undefined) candy.getToken();
     return _candy_page;
+  }
+  data(){
+    if(!document.cookie.includes('candy=')) return null;
+    return JSON.parse(unescape(document.cookie.split('candy=')[1].split(';')[0]));
   }
   form(id,callback,m){
     if(_candy_forms.includes(id)){
@@ -158,8 +163,8 @@ class Candy {
               });
             });
             setTimeout(function(){
-              if(_candy_action !== undefined && typeof _candy_action.load == 'function') _candy_action.load();
-              if(_candy_action !== undefined && _candy_action.page !== undefined && typeof _candy_action.page[_candy_page] == "function") _candy_action.page[_candy_page]();
+              if(_candy_action !== undefined && typeof _candy_action.load == 'function') _candy_action.load(candy.page(),_data.variables);
+              if(_candy_action !== undefined && _candy_action.page !== undefined && typeof _candy_action.page[_candy_page] == "function") _candy_action.page[_candy_page](candy.data());
               if(callback!==undefined) callback(candy.page(),_data.variables);
               $("html, body").animate({ scrollTop: 0 });
             },500);
@@ -213,7 +218,7 @@ class Candy {
         case 'page':
           $.each(val, function(key2, val2){
             if(key2 == candy.page()){
-              $(function(){ val2(); });
+              $(function(){ val2(candy.data()); });
             }
           });
           break;
@@ -259,5 +264,6 @@ class Candy {
     });
   }
 }
+
 var candy = new Candy;
 candy.getToken();
