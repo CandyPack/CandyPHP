@@ -1,4 +1,4 @@
-#version:20210326
+#version:20210330
 #delete:sys/sys_cron.php
 #delete:sys/sys_functions.php
 #delete:sys/sys_language.php
@@ -16,6 +16,7 @@
 #delete:sys/import/class_validation.php
 assets/css/candy.css
 assets/js/candy.js
+sys/import/Auth.php
 sys/import/Mail.php
 sys/import/Minifier.php
 sys/import/Mysql_Table.php
