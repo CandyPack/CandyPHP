@@ -776,9 +776,9 @@ class Candy {
     return $str;
   }
   public static function auth($val=null){
-    self::import('Str');
-    $str = new \Candy\Str($string);
-    return $str;
+    self::import('Auth');
+    $auth = new \Candy\Auth($val);
+    return $auth;
   }
 }
 $candy = new Candy();
