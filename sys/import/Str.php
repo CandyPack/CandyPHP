@@ -12,7 +12,7 @@ class Str{
     $any = $this->any;
     $this->any = false;
     if(!is_array($val)) $val = [$val];
-    $result = false;
+    $result = !$any;
     if(in_array('json',$val)){
       json_decode($this->str);
       if($any) $result = $result || json_last_error() === JSON_ERROR_NONE;
@@ -38,7 +38,7 @@ class Str{
     $any = $this->any;
     $this->any = false;
     if(!is_array($val)) $val = [$val];
-    $result = false;
+    $result = !$any;
     foreach($val as $key){
       if($any) $result = $result || (strpos($this->str, $key) !== false);
       else     $result = $result && (strpos($this->str, $key) !== false);
@@ -59,5 +59,17 @@ class Str{
       $new[] = $key;
     }
     return \str_replace($old,$new,$this->str);
+  }
+
+  public function slug(){
+    $str = $this->str;
+    $str = preg_replace('~[^\pL\d]+~u', '-', $str);
+    $str = iconv('utf-8', 'us-ascii//TRANSLIT', $str);
+    $str = preg_replace('~[^-\w]+~', '', $str);
+    $str = trim($str, '-');
+    $str = preg_replace('~-+~', '-', $str);
+    $str = strtolower($str);
+    if(empty($str)) return '';
+    return $str;
   }
 }
