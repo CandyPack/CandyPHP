@@ -401,7 +401,7 @@ class Candy {
 
   public static function mail($view){
     self::import('Mail');
-    $mail = new \Candy\Mail();
+    $mail = new /*\Candy*/\Mail();
     return $mail->view($view);
   }
 
