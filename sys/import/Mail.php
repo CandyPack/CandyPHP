@@ -1,6 +1,7 @@
 <?php
-class Mail
-{
+namespace Candy;
+
+class Mail {
     private $_arr = [];
 
     function __construct($_arr=[]){

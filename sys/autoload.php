@@ -1,6 +1,7 @@
 <?php
 session_start();
 
+require_once('Mysql.php');
 require_once('Lang.php');
 require_once('Config.php');
 require_once('Storage.php');

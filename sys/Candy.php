@@ -8,10 +8,6 @@ class Candy {
   public $getToken;
   public $tokenCheck = '';
 
-  public static function hello(){
-    echo 'Hi, World !';
-  }
-
   public static function import($class){
     if(!in_array($class,self::$imported)){
       self::$imported[] = $class;
@@ -59,10 +55,7 @@ class Candy {
         Config::errorReport($type,$error["message"],$error["file"],$error["line"]);
       }
     });
-    if(defined('MYSQL_CONNECT') && MYSQL_CONNECT==true){
-      self::import('Mysql');
-      Mysql::connect();
-    }
+    if(defined('MYSQL_CONNECT') && MYSQL_CONNECT==true) Mysql::connect();
     if(defined('AUTO_BACKUP') && AUTO_BACKUP==true && intval(date('H')) == 0){
       Config::runBackup();
       Config::backupClear();
@@ -408,7 +401,7 @@ class Candy {
 
   public static function mail($view){
     self::import('Mail');
-    $mail = new Mail();
+    $mail = new \Candy\Mail();
     return $mail->view($view);
   }
 
