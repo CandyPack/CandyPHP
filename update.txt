@@ -15,7 +15,6 @@
 #delete:sys/import/class_resizeimage.php
 #delete:sys/import/class_validation.php
 #delete:sys/import/Mysql.php
-#delete:sys/import/Mysql_Table.php
 assets/css/candy.css
 assets/js/candy.js
 sys/import/Auth.php
@@ -25,7 +24,7 @@ sys/import/Plugin.php
 sys/import/ResizeImage.php
 sys/import/Str.php
 sys/import/Validation.php
-sys/import/Mysql/Table.php
+sys/import/Mysql_Table.php
 sys/autoload.php
 sys/Candy.php
 sys/Config.php
