@@ -24,7 +24,7 @@ sys/import/Plugin.php
 sys/import/ResizeImage.php
 sys/import/Str.php
 sys/import/Validation.php
-sys/import/Mysql_Table.php
+sys/import/Mysql/Table.php
 sys/autoload.php
 sys/Candy.php
 sys/Config.php
