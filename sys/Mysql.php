@@ -322,7 +322,7 @@ class Mysql {
   }
 
   public static function table($tb = null){
-    Candy::import('Mysql/Table');
+    Candy::import('Mysql_Table');
     $table = new Mysql_Table();
     return $table->table($tb);
   }
