@@ -167,6 +167,7 @@ class Config {
           switch ($params_new[0]) {
             case 'version':
               if($params_new[1]>$version_current) $update = true;
+              else return false;
               break;
             case 'delete':
               if(file_exists($params_new[1])) unlink($params_new[1]);
