@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://socialify.git.ci/emredv/Candy-PHP/image?description=1&font=Raleway&owner=1&pattern=Charlie%20Brown&theme=Light" />
+  <img src="https://socialify.git.ci/CandyPHP/CandyPHP/image?description=1&font=Raleway&owner=1&pattern=Charlie%20Brown&theme=Light" />
 </p>
 
 ### SUPPORTED
