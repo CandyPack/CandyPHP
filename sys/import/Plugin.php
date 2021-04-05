@@ -101,7 +101,7 @@ class Plugin{
     $src = $this->src($obj->autoload);
     $autoload = [];
     foreach($src as $key) $autoload = array_merge($autoload,(is_dir($key) ? self::dir($key) : [$key]));
-    $return = isset($obj->return) ? $obj->return : 'true';
+    $return = isset($obj->return) ? "new $obj->return()" : 'true';
     $loader  = "<?php \n";
     $loader .= "\n/* --- CANDY PHP - LOADER --- */\n";
     $loader .= '$_plug = "'.$obj->name.'";'."\n";
@@ -112,7 +112,7 @@ class Plugin{
     foreach($autoload as $key) if(strtolower(substr($key,-4))=='.php') $loader .= "include (BASE_PATH.'/".str_replace(BASE_PATH,'',$key)."');\n";
     $loader .= "\n/* --- CANDY PHP - END --- */\n";
     $loader .= isset($obj->end) ? $obj->end."\n" : '';
-    $loader .= '$GLOBALS["_candy"]["plugin"][$_plug] = new '.$return."();\n";
+    $loader .= '$GLOBALS["_candy"]["plugin"][$_plug] = '.$return.";\n";
     $loader .= 'return $GLOBALS["_candy"]["plugin"][$_plug];';
     file_put_contents("$this->dir/candy_loader.php", $loader);
   }
