@@ -13,4 +13,5 @@ Config::backup();  // Takes daily backups
 Config::update(); // Candy PHP updates when new version is released
 Config::brute(); // Brute Force protection
 Config::cron(); // Activates scheduled tasks
+Config::auth(); // Auto user detection
 Config::key(/*Key*/); // A key must be entered for the encryption method. It can only be decrypted with the same key.
