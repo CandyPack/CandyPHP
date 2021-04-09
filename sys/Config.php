@@ -410,7 +410,7 @@ class Config {
     $GLOBALS['_candy']['auth']['db'] = null;
     $GLOBALS['_candy']['auth']['table'] = 'tb_user';
     $GLOBALS['_candy']['auth']['key'] = 'id';
-    $GLOBALS['_candy']['auth']['token'] = 'candy_token';
+    $GLOBALS['_candy']['auth']['token'] = null;
     return new class {
       public static function db($storage='mysql', $db=null){
         $GLOBALS['_candy']['auth']['storage'] = $storage;

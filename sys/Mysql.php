@@ -93,6 +93,8 @@ class Mysql {
       $result->rows = mysqli_num_rows($sql);
       $result->fetch = $data;
       return $result;
+    }else{
+      return $b;
     }
   }
 
