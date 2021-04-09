@@ -229,6 +229,11 @@ class Mysql_Table {
     $this->arr[$type][] = $tb . ' ON ' . $col1 . $state . $col2;
     return new static($this->arr);
   }
+  function login($tb_token = 'candy_token', $key = 'id'){
+    $sql = $this->first();
+    if($sql === false) return false;
+    return new static($this->arr);
+  }
   private function whereExtract($arr){
     $q = "";
     $loop = 1;
@@ -265,9 +270,8 @@ class Mysql_Table {
     $query_key = [];
     $query_val = [];
     foreach($arr as $key => $val){
-      $multiple = false;
-      if(is_array($val) && (!isset($val['ct']) || $val['ct']!=$GLOBALS['candy_token_mysql'])){
-        $multiple = true;
+      $multiple = is_array($val);
+      if(is_array($val)){
         $ex = $this->valuesExtract($val);
         $query_key = $ex['into'];
         $query_val[] = "(".implode(', ',$ex['values']).")";
