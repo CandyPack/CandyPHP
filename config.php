@@ -11,7 +11,7 @@
       //->db('mysql','name') // Database type and name (Optional)
       //->table('tb_user') // User table name
       //->key('id') // Primary key column in the user table (Optional)
-      //->token(); // Enables cookies (Optional)
+      //->token(); // Cookie table name (Optional)
 
 Config::language(/* Default Language (en) */); // Activates language files (/lang)
 Config::composer(); // True or autoload.php directory can be entered.
