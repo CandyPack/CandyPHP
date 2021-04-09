@@ -100,11 +100,11 @@ class Route {
           }
         }elseif($method==null){
           if(isset(CANDY_REQUESTS[$v])){
-            return CANDY_REQUESTS[$v];
+            return is_string(CANDY_REQUESTS[$v]) ? trim(CANDY_REQUESTS[$v]) : CANDY_REQUESTS[$v];
           }elseif(isset($_POST[$v])){
-            return $_POST[$v];
+            return is_string($_POST[$v]) ? trim($_POST[$v]) : $_POST[$v];
           }elseif(isset($_GET[$v])){
-            return $_GET[$v];
+            return is_string($_GET[$v]) ? trim($_GET[$v]) : $_GET[$v];
           }
         }else{
           switch($method){
