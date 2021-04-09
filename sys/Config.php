@@ -404,6 +404,33 @@ class Config {
     Candy::storage('sys')->set('error',$storage);
   }
 
+  public static function auth($b = true){
+    $GLOBALS['_candy']['auth']['status'] = $b;
+    $GLOBALS['_candy']['auth']['storage'] = 'mysql';
+    $GLOBALS['_candy']['auth']['db'] = null;
+    $GLOBALS['_candy']['auth']['table'] = 'tb_user';
+    $GLOBALS['_candy']['auth']['key'] = 'id';
+    $GLOBALS['_candy']['auth']['token'] = 'candy_token';
+    return new class {
+      public static function db($storage='mysql', $db=null){
+        $GLOBALS['_candy']['auth']['storage'] = $storage;
+        $GLOBALS['_candy']['auth']['db'] = $db;
+        return new static();
+      }
+      public static function table($user = 'tb_user'){
+        $GLOBALS['_candy']['auth']['table'] = $user;
+        return new static();
+      }
+      public static function key($key = 'id'){
+        $GLOBALS['_candy']['auth']['key'] = $key;
+        return new static();
+      }
+      public static function token($table = 'candy_token'){
+        $GLOBALS['_candy']['auth']['token'] = $table;
+        return new static();
+      }
+    };
+  }
 }
 
 $config = new Config();
