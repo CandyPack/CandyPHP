@@ -1,4 +1,4 @@
-#version:20210408
+#version:20210409
 #delete:sys/sys_cron.php
 #delete:sys/sys_functions.php
 #delete:sys/sys_language.php
@@ -14,11 +14,11 @@
 #delete:sys/import/class_plugin.php
 #delete:sys/import/class_resizeimage.php
 #delete:sys/import/class_validation.php
+#delete:sys/import/Auth.php
 #delete:sys/import/Mysql.php
 #delete:sys/import/Mysql_Table.php
 assets/css/candy.css
 assets/js/candy.js
-sys/import/Auth.php
 sys/import/Mail.php
 sys/import/Minifier.php
 sys/import/Plugin.php
@@ -27,6 +27,7 @@ sys/import/Str.php
 sys/import/Validation.php
 sys/import/Mysql/Table.php
 sys/autoload.php
+sys/Auth.php
 sys/Candy.php
 sys/Config.php
 sys/Cron.php
