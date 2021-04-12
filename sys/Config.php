@@ -133,8 +133,12 @@ class Config {
           $zip->addFile($filePath, $relativePath);
         }
       }
-      sleep(1);
-      $zip->close();
+      try {
+        $zip->close();
+      } catch (\Exception $e) {
+
+      }
+
     }
   }
   public static function autoUpdate($b = true){
