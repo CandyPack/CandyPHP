@@ -271,7 +271,9 @@ class Route {
                           $cron = str_replace('.','/',$key);
                           $cron = preg_replace("((.*)\/)", "$1/".'cron'.'/', $cron);
                         }
-                        Candy::async(function($cron){ include('controller/'.$cron.'.php'); },$cron);
+                        Candy::async(function($cron){
+                          include('controller/'.$cron.'.php');
+                        },$cron);
                       }
                     }
                   }
