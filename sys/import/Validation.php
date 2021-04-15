@@ -46,7 +46,7 @@ class Validation
   }
 
   function message($m){
-    if($this->_error){
+    if($this->_error && !isset($this->_message[$this->_name])){
       $this->_message[$this->_name] = $m;
       $this->_error = false;
     }
