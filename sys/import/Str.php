@@ -52,13 +52,7 @@ class Str{
   }
 
   public function replace($arr){
-    $old = [];
-    $new = [];
-    foreach ($arr as $key => $val){
-      $old[] = $key;
-      $new[] = $key;
-    }
-    return \str_replace($old,$new,$this->str);
+    return \str_replace(array_keys($arr),$arr,$this->str);
   }
 
   public function isBegin($var){
