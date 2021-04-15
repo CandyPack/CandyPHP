@@ -269,9 +269,10 @@ class Mysql_Table {
   private function valuesExtract($arr){
     $query_key = [];
     $query_val = [];
+    $multiple = false;
     foreach($arr as $key => $val){
-      $multiple = is_array($val);
-      if(is_array($val)){
+      if(is_array($val) && (!isset($val['ct']) || $val['ct']!=$GLOBALS['candy_token_mysql'])){
+        $multiple = true;
         $ex = $this->valuesExtract($val);
         $query_key = $ex['into'];
         $query_val[] = "(".implode(', ',$ex['values']).")";
