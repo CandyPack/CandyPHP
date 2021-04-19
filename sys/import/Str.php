@@ -71,4 +71,22 @@ class Str{
     if(empty($str)) return '';
     return $str;
   }
+
+  public function format($format){
+    $str = $this->str;
+    $result = '';
+    $letter = 0;
+    for ($i=0; $i < strlen($format); $i++) {
+      if(substr($format,$i,1)=='?'){
+        $result .= substr($str,$letter,1);
+        $letter = $letter + 1;
+      }elseif(substr($format,$i,1)=='*'){
+        $result .= substr($str,$letter);
+        $letter = $letter + strlen(substr($str,$letter));
+      }else{
+        $result .= substr($format,$i,1);
+      }
+    }
+    return $result;
+  }
 }
