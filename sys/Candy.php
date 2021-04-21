@@ -645,6 +645,24 @@ class Candy {
       }
       if(substr($body,0,5)=='<?php') $body = preg_replace('/'.preg_quote('<?php', '/').'/', '', $body, 1);
       $body = '<?php '.$body;
+      $split = str_split($body);
+      $begin = null;
+      $result = '';
+      $escape = false;
+      foreach($split as $key) {
+        $result .= $key;
+        if($escape === false){
+          if($key == '{') $begin = $begin !== null ? $begin + 1 : 1;
+          if($key == '}') $begin -= 1;
+        }
+        if($key == '"') $escape = $key;
+        elseif($key == "'") $escape = $key;
+        elseif($key == $escape) $escape = false;
+        if($begin === 0) break;
+      }
+      $result = trim($result);
+      if(Candy::string($result)->isBegin('<?php Candy::async') && !Candy::string($result)->isEnd(');')) $result .= ');';
+      $body = $result;
       file_put_contents($file, $body);
       $storage = Candy::storage('sys')->get('cache');
       $storage->async = isset($storage->async) && is_object($storage->async) ? $storage->async : new \stdClass;
