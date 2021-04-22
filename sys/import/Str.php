@@ -60,6 +60,11 @@ class Str{
     return substr($str,0,strlen($var)) == $var;
   }
 
+  public function isEnd($var){
+    $str = $this->str;
+    return substr($str,0 - strlen($var)) == $var;
+  }
+
   public function slug(){
     $str = $this->str;
     $str = preg_replace('~[^\pL\d]+~u', '-', $str);
