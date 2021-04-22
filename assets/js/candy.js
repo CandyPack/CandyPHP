@@ -162,7 +162,7 @@ class Candy {
                 $(value).fadeIn();
               });
             });
-            setTimeout(function(){
+            var _t = setTimeout(function(){
               if(_candy_action !== undefined && typeof _candy_action.load == 'function') _candy_action.load(candy.page(),_data.variables);
               if(_candy_action !== undefined && _candy_action.page !== undefined && typeof _candy_action.page[_candy_page] == "function") _candy_action.page[_candy_page](candy.data());
               if(callback!==undefined) callback(candy.page(),_data.variables);
@@ -191,7 +191,7 @@ class Candy {
                   $(value).fadeIn();
                 });
               });
-              setTimeout(function(){
+              var _t = setTimeout(function(){
                 if(_candy_action !== undefined && typeof _candy_action.load == 'function') _candy_action.load();
                 if(_candy_action !== undefined && _candy_action.page !== undefined && typeof _candy_action.page[_candy_page] == "function") _candy_action.page[_candy_page]();
                 if(callback!==undefined) callback(candy.page(),_data.variables);
@@ -228,7 +228,7 @@ class Candy {
         case 'interval':
           $.each(val, function(key2, val2){
             $(function(){
-              setInterval(function(){
+              var _i = setInterval(function(){
                 val2();
               }, key2);
             });
