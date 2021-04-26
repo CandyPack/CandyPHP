@@ -102,6 +102,7 @@ class Mysql_Table {
       if(isset($cache->date) && ($cache->date >= (time() - $this->arr['cache']))) return $cache->data;
     }
     $sql = mysqli_query(Mysql::$conn, $query);
+    if($sql === false) return $this->error();
     $rows = mysqli_num_rows($sql);
     if(isset($cache)){
       $cache->data = $rows;
