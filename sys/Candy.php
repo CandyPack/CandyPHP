@@ -204,7 +204,7 @@ class Candy {
     $target_dir = $target;
     $target_file = $filename=='0' ? $target_dir . basename($_FILES[$postname]["name"]) : $target_dir.$filename;
     $uploadOk = 1;
-    $imageFileType = strtolower(pathinfo($target_file,PATHINFO_EXTENSION));
+    $imageFileType = strtolower(pathinfo(basename($_FILES[$postname]["name"]),PATHINFO_EXTENSION));
     if(isset($_FILES[$postname])){
       $check = (!file_exists($_FILES[$postname]['tmp_name']) || !is_uploaded_file($_FILES[$postname]['tmp_name'])) ? false : getimagesize($_FILES[$postname]["tmp_name"]);
     }else{
