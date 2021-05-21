@@ -63,7 +63,7 @@ class Candy {
       $('#'+id+' ._candy_error').removeClass('_candy_error');
       if($('#'+id+' input[type=file]').length > 0){
         var datastring = new FormData();
-        $('#'+id+' input').each(function(index){
+        $('#'+id+' input, #'+id+' select, #'+id+' textarea').each(function(index){
           if($(this).attr('type')=='file'){
             datastring.append($(this).attr('name'), $(this).prop('files')[0]);
           }else{
