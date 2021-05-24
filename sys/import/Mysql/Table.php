@@ -276,14 +276,14 @@ class Mysql_Table {
         $multiple = true;
         $ex = $this->valuesExtract($val);
         $query_key = $ex['into'];
-        $query_val[] = "(".implode(', ',$ex['values']).")";
+        $query_val[] = $ex['values'];
       }else{
         $query_key[] = $this->escape($key,'col');
         $query_val[] = $this->escape($val);
       }
     }
     return [
-      'into' => "(".implode(',',$query_key).")",
+      'into'   => !$multiple ? "(".implode(',',$query_key).")" : $query_key,
       'values' => !$multiple ? "(".implode(',',$query_val).")" : implode(',',$query_val)
     ];
   }
