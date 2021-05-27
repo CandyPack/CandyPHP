@@ -65,6 +65,8 @@ class Route {
       if(strpos($page, '.') !== false){
         $controller = str_replace('.','/',$page);
         $controller = preg_replace("((.*)\/)", "$1/error/", $controller);
+      }else{
+        $controller = $page;
       }
       $GLOBALS['_candy']['route']['error'][$code] = $controller;
       $GLOBALS['_candy']['route']['error']['controller'][$code] = $page;
