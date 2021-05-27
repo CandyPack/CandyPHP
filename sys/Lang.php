@@ -4,7 +4,7 @@ class Lang {
 
   public static function get($var, $arr = null){
     $return =isset($GLOBALS['_lang'][$var]) ? $GLOBALS['_lang'][$var] : "";
-    if($array!==null){
+    if($arr!==null){
       if(is_array($arr)){
         $loop = 0;
         foreach($arr as $key){
@@ -29,14 +29,15 @@ class Lang {
   }
 
   public static function set($code){
-    function returnLang($l){
-      return include "lang/$l.php";
-    }
     if(file_exists("lang/$code.php")){
-      Lang::setArray(returnLang($code));
-    }elseif(file_exists("lang/".$GLOBALS['_candy']['language']['default'].".php")){
-      Lang::setArray(returnLang($GLOBALS['_candy']['language']['default']));
+      Lang::setArray(self::returnLang($code));
+    }elseif(isset($GLOBALS['_candy']['language']['default']) && file_exists("lang/".$GLOBALS['_candy']['language']['default'].".php")){
+      Lang::setArray(self::returnLang($GLOBALS['_candy']['language']['default']));
     }
+  }
+
+  private static function returnLang($l){
+    return include "lang/$l.php";
   }
 
 }
