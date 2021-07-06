@@ -33,6 +33,9 @@ class Candy {
       $var->$p = $v;
       if($ajax != false) self::$ajax_var->$p = $ajax===true ? $v : $ajax;
     }
+    self::$ajax_var->candy = new \stdClass();
+    self::$ajax_var->candy->token = self::token();
+    self::$ajax_var->candy->page = self::page();
     setcookie('candy',json_encode(self::$ajax_var),0,"/");
   }
 
@@ -72,11 +75,11 @@ class Candy {
     if(intval(date('d'))==2 && intval(date('H'))<=2) foreach(glob(BASE_PATH."/storage/cache/*") as $key) if(!is_dir($key) && filemtime($key)+10000 < time()) unlink($key);
   }
 
-  public static function token($check = 0){
+  public static function token($check = null, $force = false){
     global $token;
     global $tokenCheck;
-    if($check===0 || $check==='input' || $check==='json' || $check==='echo'){
-      if($token==''){
+    if($check === null || $check==='input' || $check==='json' || $check==='echo'){
+      if($token=='' || $force){
         $token = md5(uniqid(mt_rand(), true));
         if(isset($_SESSION['_token']) && is_array($_SESSION['_token'])){
           $sess = $_SESSION['_token'];
