@@ -19,13 +19,15 @@ class Candy {
   }
   getToken(){
     if(_candy_token === undefined){
-      var req = new XMLHttpRequest();
-      req.open('GET', '?_candy=token', false);
-      req.setRequestHeader("X-Requested-With", "xmlhttprequest");
-      req.send(null);
-      var req_data = JSON.parse(req.response);
-      _candy_page = req_data.page;
-      _candy_token = req_data.token;
+      // var req = new XMLHttpRequest();
+      // req.open('GET', '?_candy=token', false);
+      // req.setRequestHeader("X-Requested-With", "xmlhttprequest");
+      // req.send(null);
+      // var req_data = JSON.parse(req.response);
+      // _candy_page = req_data.page;
+      // _candy_token = req_data.token;
+      _candy_page = candy.data().candy.page;
+      _candy_token = candy.data().candy.token;
       return true;
     }
     $.get('?_candy=token',function(data){
@@ -266,4 +268,3 @@ class Candy {
 }
 
 var candy = new Candy;
-candy.getToken();
