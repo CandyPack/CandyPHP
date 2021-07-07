@@ -26,7 +26,6 @@ class Candy {
       var req_data = JSON.parse(req.response);
       _candy_page = req_data.page;
       _candy_token = req_data.token;
-      return true;
     } else {
       $.get('?_candy=token',function(data){
         var result = JSON.parse(JSON.stringify(data));
@@ -51,7 +50,9 @@ class Candy {
     return return_token;
   }
   page(){
-    if(_candy_page===undefined) candy.token(true);
+    var data = candy.data();
+    if(data !== null) _candy_page = data.candy.page;
+    else candy.getToken(true);
     return _candy_page;
   }
   data(){
