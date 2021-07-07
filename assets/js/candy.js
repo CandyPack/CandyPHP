@@ -17,33 +17,41 @@ class Candy {
       callback(data,status);
     });
   }
-  getToken(){
-    if(_candy_token === undefined){
-      // var req = new XMLHttpRequest();
-      // req.open('GET', '?_candy=token', false);
-      // req.setRequestHeader("X-Requested-With", "xmlhttprequest");
-      // req.send(null);
-      // var req_data = JSON.parse(req.response);
-      // _candy_page = req_data.page;
-      // _candy_token = req_data.token;
-      _candy_page = candy.data().candy.page;
-      _candy_token = candy.data().candy.token;
+  getToken(force = false){
+    if(force){
+      var req = new XMLHttpRequest();
+      req.open('GET', '?_candy=token', false);
+      req.setRequestHeader("X-Requested-With", "xmlhttprequest");
+      req.send(null);
+      var req_data = JSON.parse(req.response);
+      _candy_page = req_data.page;
+      _candy_token = req_data.token;
       return true;
+    } else {
+      $.get('?_candy=token',function(data){
+        var result = JSON.parse(JSON.stringify(data));
+        _candy_token = result.token;
+        _candy_page = result.page;
+      });
     }
-    $.get('?_candy=token',function(data){
-      var result = JSON.parse(JSON.stringify(data));
-      _candy_token = result.token;
-      _candy_page = result.page;
-    });
   }
   token(){
-    candy.getToken();
+    var data = candy.data();
+    if(_candy_token === undefined || _candy_token === null){
+      if(_candy_token === undefined && data !== null) {
+        _candy_page = data.candy.page;
+        _candy_token = data.candy.token;
+      } else {
+        candy.getToken(true);
+      }
+    }
     var return_token = _candy_token;
-    _candy_token = undefined;
+    _candy_token = null;
+    candy.getToken();
     return return_token;
   }
   page(){
-    if(_candy_page===undefined) candy.getToken();
+    if(_candy_page===undefined) candy.token(true);
     return _candy_page;
   }
   data(){
