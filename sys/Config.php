@@ -403,7 +403,7 @@ class Config {
     $log .= "-------\n";
     file_put_contents(BASE_PATH.'/candy.log',strip_tags($open.$log));
     $storage = Candy::storage('sys')->get('error');
-    if(defined('MASTER_MAIL') && (!isset($storage->report) || $storage->report != date('Ymd'))) Candy::quickMail(MASTER_MAIL,nl2br($log."<br><br>".print_r($GLOBALS,true)),$_SERVER['HTTP_HOST']." - Candy PHP ERROR","candyphp@".$_SERVER['HTTP_HOST']);
+    if(defined('MASTER_MAIL') && (!isset($storage->report) || $storage->report != date('Ymd'))) Candy::quickMail(MASTER_MAIL,nl2br($log."<br><br><pre>".print_r($GLOBALS,true)."</pre>"),$_SERVER['HTTP_HOST']." - Candy PHP ERROR","candyphp@".$_SERVER['HTTP_HOST']);
     $storage->report = date('Ymd');
     Candy::storage('sys')->set('error',$storage);
   }
