@@ -24,9 +24,9 @@ class Mysql_Table {
       }
     }
     if($type == 'add') return "INSERT INTO ".$this->escape($this->arr['table'],'table').' '.$this->arr['into'].' VALUES '.$this->arr['values'].'';
-    if($type == 'get') return "SELECT ".(isset($this->arr['select']) ? $this->arr['select'] : '*')." FROM `".$this->arr['table']."` ".$query;
+    if($type == 'get') return "SELECT ".(isset($this->arr['select']) ? $this->arr['select'] : '*')." FROM ".$this->escape($this->arr['table'],'table')." ".$query;
     if($type == 'set') return "UPDATE `".$this->arr['table']."` SET ".$this->arr['set']." ".$query;
-    if($type == 'delete') return "DELETE FROM `".$this->arr['table']."` ".$query;
+    if($type == 'delete') return "DELETE FROM ".$this->escape($this->arr['table'],'table')." ".$query;
     if($type == 'replace') return "REPLACE INTO ".$this->escape($this->arr['table'],'table').' '.$this->arr['into'].' VALUES '.$this->arr['values'].'';
     return $query;
   }
