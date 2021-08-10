@@ -33,9 +33,11 @@ class Candy {
       $var->$p = $v;
       if($ajax != false) self::$ajax_var->$p = $ajax===true ? $v : $ajax;
     }
-    self::$ajax_var->candy = new \stdClass();
-    self::$ajax_var->candy->token = self::token(null,true);
-    self::$ajax_var->candy->page = self::page();
+    if(!isset(self::$ajax_var->candy->token)) {
+      self::$ajax_var->candy = new \stdClass();
+      self::$ajax_var->candy->token = self::token(null,true);
+      self::$ajax_var->candy->page = self::page();
+    }
     setcookie('candy',json_encode(self::$ajax_var),0,"/");
   }
 
