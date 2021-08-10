@@ -86,6 +86,11 @@ class Route {
         return Candy::set($p,$v,$a);
       }
     }
+    Candy::$ajax_var = new stdClass();
+    Candy::$ajax_var->candy = new \stdClass();
+    Candy::$ajax_var->candy->token = Candy::token(null,true);
+    Candy::$ajax_var->candy->page = Candy::page();
+    setcookie('candy',json_encode(Candy::$ajax_var),0,"/");
     if(!function_exists('request')){
       function request($v=null,$method=null){
         if($v==null){
