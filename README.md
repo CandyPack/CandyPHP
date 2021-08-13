@@ -29,11 +29,11 @@ You can start using just by throwing the necessary files to the website main dir
  - PHP 7+
 
 ## Functions
-<a href="https://github.com/CandyPack/Candy-PHP/blob/master/README/CONFIG.md">
+<a href="https://github.com/CandyPack/CandyPHP/blob/master/README/CONFIG.md">
   <img src="https://img.shields.io/static/v1.svg?label=Documentation&message=+CONFIG&color=white&style=flat&labelColor=red" />
 </a>
 <br />
-<a href="https://github.com/CandyPack/Candy-PHP/blob/master/README/CANDY.md">
+<a href="https://github.com/CandyPack/CandyPHP/blob/master/README/CANDY.md">
   <img src="https://img.shields.io/static/v1.svg?label=Documentation&message=+CANDY&color=white&style=flat&labelColor=red" />
 </a>
 
