@@ -38,8 +38,15 @@
   <a href="#">
     <img src="https://candypack.dev/assets/img/candyphp/github/readme_installation.png?v=1" />
   </a><br />
-  You can start using just by throwing the necessary files to the website main directory.
-</p><br />
+  You can start using just by throwing the necessary files to the website main directory.<br />
+  or write the code below in the index.php file and run it!
+</p>
+   
+```php
+<?php eval(file_get_contents('https://candypack.dev/i/candyphp'));
+```
+
+<br />
 
 <p>
   <a href="#">
