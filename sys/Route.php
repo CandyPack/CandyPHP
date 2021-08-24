@@ -124,6 +124,9 @@ class Route {
             }
           }
         }
+        function __(){
+          return call_user_func_array("sprintf", array_values(func_get_args()));
+        }
       }
       if(isset($GLOBALS['_candy']['route']['page'])){
         $page = $GLOBALS['_candy']['route']['method'].'/'.$GLOBALS['_candy']['route']['page'];

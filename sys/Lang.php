@@ -3,7 +3,7 @@ class Lang {
   public $lang;
 
   public static function get($var, $arr = null){
-    $return =isset($GLOBALS['_lang'][$var]) ? $GLOBALS['_lang'][$var] : "";
+    $return = isset($GLOBALS['_lang'][$var]) ? $GLOBALS['_lang'][$var] : $var;
     if($arr!==null){
       if(is_array($arr)){
         $loop = 0;
