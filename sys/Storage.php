@@ -14,6 +14,7 @@ class Storage
         if(!is_dir(self::$_path)) mkdir(self::$_path, 0777, true);
       }
       self::$_path .= end($s).'.json';
+      if(!is_dir(BASE_PATH.'/storage/')) mkdir(BASE_PATH.'/storage');
       if(!file_exists(self::$_path)) file_put_contents(self::$_path, '');
       self::$_json = file_get_contents(self::$_path,FILE_USE_INCLUDE_PATH);
       self::$_arr = json_decode(self::$_json);
