@@ -156,8 +156,8 @@ class Candy {
       var page = url_go;
       if((target==null || target=='_self') && (url_go!='' && url_go.substring(0,11)!='javascript:' && url_go.substring(0,1)!='#') && (!url_go.includes('://') || url_now.split("/")[2]==url_go.split("/")[2])){
         e.preventDefault();
-        if(_candy_action !== undefined && _candy_action.candy !== undefined && _candy_action.candy.loader.start !== undefined){
-          if(_candy_action.candy.loader.start !== undefined && typeof _candy_action.candy.loader.start == 'function'){
+        if(_candy_action.candy && _candy_action.candy.loader && _candy_action.candy.loader.start){
+          if(_candy_action.candy.loader.start && typeof _candy_action.candy.loader.start == 'function'){
             _candy_action.candy.loader.start();
           }
         }
