@@ -157,21 +157,21 @@ class Route {
     return $cron->controller($controller);
   }
   public static function authPage($page,$controller,$else=''){
-    if(Mysql::userCheck(false)){
+    if(isset($GLOBALS['_candy']['auth']['status']) && $GLOBALS['_candy']['auth']['status'] ? Auth::check() : Mysql::userCheck(false)){
       Route::page($page,$controller);
     }elseif($else!=''){
       Route::page($page,$else);
     }
   }
   public static function authGet($page,$controller,$else='',$check='',$t=true){
-    if(Mysql::userCheck(false)){
+    if(isset($GLOBALS['_candy']['auth']['status']) && $GLOBALS['_candy']['auth']['status'] ? Auth::check() : Mysql::userCheck(false)){
       Route::get($page,$controller,$check,$t);
     }elseif($else!=''){
       Route::get($page,$else,$check,$t);
     }
   }
   public static function authPost($page,$controller,$else='',$check='',$t=true){
-    if(Mysql::userCheck(false)){
+    if(isset($GLOBALS['_candy']['auth']['status']) && $GLOBALS['_candy']['auth']['status'] ? Auth::check() : Mysql::userCheck(false)){
       Route::post($page,$controller,$check,$t);
     }elseif($else!=''){
       Route::post($page,$else,$check,$t);
