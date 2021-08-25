@@ -34,6 +34,10 @@ class Auth{
     $_table = $GLOBALS['_candy']['auth']['table'];
     self::$user = $user;
     if($_token !== null){
+      $check_table = Mysql::query('SHOW TABLES LIKE "'.$_token.'"',true);
+      if($check_table->rows == 0){
+        $sql_create = Mysql::query("CREATE TABLE ".$_token." (id INT NOT NULL AUTO_INCREMENT, userid INT NOT NULL, token1 VARCHAR(255) NOT NULL, token2 VARCHAR(255) NOT NULL, token3 VARCHAR(255) NOT NULL, ip VARCHAR(255) NOT NULL, `date` TIMESTAMP on update CURRENT_TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, PRIMARY KEY (id))", false);
+      }
       $token = [
         'userid' => $user->$_key,
         'token1' => uniqid(mt_rand(), true).rand(10000,99999).(time()*100),
@@ -48,6 +52,25 @@ class Auth{
       $sql = Mysql::table($_token)->add($token);
     }
     return $sql !== false;
+  }
+
+  public static function register($vars){
+    switch ($GLOBALS['_candy']['auth']['storage']) {
+      case 'mysql':
+        if($GLOBALS['_candy']['auth']['db']) Mysql::connect($GLOBALS['_candy']['auth']['db']);
+        else Mysql::connect();
+        $add = Mysql::table($GLOBALS['_candy']['auth']['table'])
+                    ->add($vars);
+        if($add === false) return false;
+        $primary = $GLOBALS['_candy']['auth']['key'];
+        self::login([$primary => $add->$primary]);
+        return true;
+        break;
+
+      default:
+        return false;
+        break;
+    }
   }
 
 }
