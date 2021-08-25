@@ -23,6 +23,16 @@ class Auth{
       }
       if(!$equal) return false;
       return $user;
+    } else {
+      if(!isset($_COOKIE['token1']) || !isset($_COOKIE['token2']) || !isset($_SERVER['HTTP_USER_AGENT'])) return false;
+      $token1 = $_COOKIE['token1'];
+      $token2 = $_COOKIE['token2'];
+      $token3 = md5($_SERVER['HTTP_USER_AGENT']);
+      $sql_token = Mysql::table($GLOBALS['_candy']['auth']['token'])->where(['token1',$token1],['token2',$token2],['token3',$token3]);
+      if($sql_token->rows() != 1) return false;
+      $get_token = $sql_token->first();
+      $ip_update = isset($get_token->date) && (intval(Candy::dateFormatter($get_token->date,'YmdH'))+1 < intval(date('YmdH'))) ? $sql_token->set(['ip' => $_SERVER['REMOTE_ADDR']]) : false;
+      return true;
     }
   }
 
