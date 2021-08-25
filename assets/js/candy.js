@@ -60,11 +60,8 @@ class Candy {
     return JSON.parse(unescape(document.cookie.split('candy=')[1].split(';')[0]));
   }
   form(id,callback,m){
-    if(_candy_forms.includes(id)){
-      return false;
-    }else{
-      _candy_forms.push(id);
-    }
+    if(_candy_forms.includes(id)) return false;
+    else _candy_forms.push(id);
     $(document).on("submit",'#'+id,function(e){
       e.preventDefault();
       var candy_form = $(this);
@@ -75,11 +72,8 @@ class Candy {
       if($('#'+id+' input[type=file]').length > 0){
         var datastring = new FormData();
         $('#'+id+' input, #'+id+' select, #'+id+' textarea').each(function(index){
-          if($(this).attr('type')=='file'){
-            datastring.append($(this).attr('name'), $(this).prop('files')[0]);
-          }else{
-            datastring.append($(this).attr('name'), $(this).val());
-          }
+          if($(this).attr('type')=='file') datastring.append($(this).attr('name'), $(this).prop('files')[0]);
+          else datastring.append($(this).attr('name'), $(this).val());
         });
         datastring.append('token', candy.token());
         var cache = false;
@@ -112,27 +106,36 @@ class Candy {
                 }
               }else{
                 var errors = data.errors;
+                var invalid_input_class = '_candy_error';
+                if(_candy_action.candy && _candy_action.candy.form && _candy_action.candy.form.input && _candy_action.candy.form.input.class && _candy_action.candy.form.input.class.invalid)
+                invalid_input_class += ' ' + _candy_action.candy.form.input.class.invalid
+                var invalid_span_class = '_candy_form_info';
+                if(_candy_action.candy && _candy_action.candy.form && _candy_action.candy.form.span && _candy_action.candy.form.span.class && _candy_action.candy.form.span.class.invalid)
+                invalid_span_class += ' ' + _candy_action.candy.form.span.class.invalid
+                var invalid_span_style = '';
+                if(_candy_action.candy && _candy_action.candy.form && _candy_action.candy.form.span && _candy_action.candy.form.span.style && _candy_action.candy.form.span.style.invalid)
+                invalid_span_style += ' ' + _candy_action.candy.form.span.style.invalid
+                else if (!_candy_action.candy || !_candy_action.candy.form || !_candy_action.candy.form.span || !_candy_action.candy.form.span.class || !_candy_action.candy.form.span.class.invalid)
+                invalid_span_style = 'color:red';
+
                 $.each(errors, function(index, value) {
-                  if($('#'+id+' ._candy_'+index).length){
+                  if ($('#'+id+' ._candy_'+index).length) {
                     $('#'+id+' ._candy_'+index).html(value);
                     $('#'+id+' ._candy_'+index).show();
-                  }else{
-                    if(index == '_candy_form'){
-                      $('#'+id).append('<span class="_candy_form_info" style="color:red">'+value+'</span>');
-                    }else{
-                      $('#'+id+' *[name ="'+index+'"]').after('<span class="_candy_form_info" style="color:red">'+value+'</span>');
-                    }
+                  } else if ($(`#${id} [candy-form-error="${index}"], [candy-form-error="${index}"][candy-form="${id}"]`).length) {
+                    $(`#${id} [candy-form-error="${index}"], [candy-form-error="${index}"][candy-form="${id}"]`).html(value);
+                    $(`#${id} [candy-form-error="${index}"], [candy-form-error="${index}"][candy-form="${id}"]`).show();
+                  } else {
+                    if(index == '_candy_form') $('#'+id).append(`<span class="${invalid_span_class}" style="${invalid_span_style}">${value}</span>`);
+                    else $('#'+id+' *[name ="'+index+'"]').after(`<span class="${invalid_span_class}" style="${invalid_span_style}">${value}</span>`);
                   }
-                  $('#'+id+' *[name ="'+index+'"]').addClass('_candy_error');
+                  $('#'+id+' *[name ="'+index+'"]').addClass(invalid_input_class);
                 });
               }
             }
             if(callback!==undefined){
-              if(typeof callback === "function"){
-                callback(data);
-              }else if(data.success.result){
-                window.location.replace(callback);
-              }
+              if(typeof callback === "function") callback(data);
+              else if(data.success.result) window.location.replace(callback);
             }
           }
         },
@@ -246,6 +249,8 @@ class Candy {
           });
           break;
         case 'function':
+          break;
+        case 'candy':
           break;
         default:
           $.each(val, function(key2, val2){
