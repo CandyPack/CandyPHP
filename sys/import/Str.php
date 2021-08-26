@@ -55,6 +55,13 @@ class Str{
     return \str_replace(array_keys($arr),$arr,$this->str);
   }
 
+  public function clear($arr){
+    $replace = [];
+    $arr = is_array($arr) ? $arr : func_get_args();
+    foreach ($arr as $key) $replace[$key] = '';
+    return self::replace($replace);
+  }
+
   public function isBegin($var){
     $str = $this->str;
     return substr($str,0,strlen($var)) == $var;
