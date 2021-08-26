@@ -4,9 +4,9 @@ class Auth{
   static $user = false;
 
   public static function check($where = null){
+    if(!isset($GLOBALS['_candy']['auth']['status']) || !$GLOBALS['_candy']['auth']['status']) return false;
+    $_table = $GLOBALS['_candy']['auth']['table'];
     if($where !== null){
-      if(!isset($GLOBALS['_candy']['auth']['status']) || !$GLOBALS['_candy']['auth']['status']) return false;
-      $_table = $GLOBALS['_candy']['auth']['table'];
       $sql = \Mysql::table($_table);
       foreach($where as $key => $val) $sql->orWhere($key, $val);
       if(empty($sql->rows())) return false;
@@ -32,17 +32,18 @@ class Auth{
       if($sql_token->rows() != 1) return false;
       $get_token = $sql_token->first();
       $ip_update = isset($get_token->date) && (intval(Candy::dateFormatter($get_token->date,'YmdH'))+1 < intval(date('YmdH'))) ? $sql_token->set(['ip' => $_SERVER['REMOTE_ADDR']]) : false;
+      self::$user = Mysql::table($_table)->where($GLOBALS['_candy']['auth']['key'], $get_token->userid)->first();
       return true;
     }
   }
 
   public static function login($where){
+    self::$user = false;
     $user = self::check($where);
     if(!$user) return false;
     $_key = $GLOBALS['_candy']['auth']['key'];
     $_token = $GLOBALS['_candy']['auth']['token'];
     $_table = $GLOBALS['_candy']['auth']['table'];
-    self::$user = $user;
     if($_token !== null){
       $check_table = Mysql::query('SHOW TABLES LIKE "'.$_token.'"',true);
       if($check_table->rows == 0){
@@ -65,6 +66,7 @@ class Auth{
   }
 
   public static function register($vars){
+    self::$user = false;
     switch ($GLOBALS['_candy']['auth']['storage']) {
       case 'mysql':
         if($GLOBALS['_candy']['auth']['db']) Mysql::connect($GLOBALS['_candy']['auth']['db']);
@@ -81,6 +83,17 @@ class Auth{
         return false;
         break;
     }
+  }
+
+  public static function logout(){
+    self::$user = false;
+  }
+
+  public static function user($col = null){
+    if(empty(self::$user)) self::check();
+    if(empty(self::$user)) return false;
+    if($col === null) return self::$user;
+    else return self::$user->$col;
   }
 
 }
