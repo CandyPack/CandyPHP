@@ -24,11 +24,13 @@ class Auth{
       if(!$equal) return false;
       return $user;
     } else {
+      $check_table = Mysql::query('SHOW TABLES LIKE "'.$GLOBALS['_candy']['auth']['token'].'"',true);
+      if($check_table->rows == 0) return false;
       if(!isset($_COOKIE['token1']) || !isset($_COOKIE['token2']) || !isset($_SERVER['HTTP_USER_AGENT'])) return false;
       $token1 = $_COOKIE['token1'];
       $token2 = $_COOKIE['token2'];
-      $token3 = md5($_SERVER['HTTP_USER_AGENT']);
-      $sql_token = Mysql::table($GLOBALS['_candy']['auth']['token'])->where(['token1',$token1],['token2',$token2],['token3',$token3]);
+      $browser = $_SERVER['HTTP_USER_AGENT'];
+      $sql_token = Mysql::table($GLOBALS['_candy']['auth']['token'])->where(['token1',$token1],['token2',$token2],['browser',$browser]);
       if($sql_token->rows() != 1) return false;
       $get_token = $sql_token->first();
       $ip_update = isset($get_token->date) && (intval(Candy::dateFormatter($get_token->date,'YmdH'))+1 < intval(date('YmdH'))) ? $sql_token->set(['ip' => $_SERVER['REMOTE_ADDR']]) : false;
@@ -47,13 +49,13 @@ class Auth{
     if($_token !== null){
       $check_table = Mysql::query('SHOW TABLES LIKE "'.$_token.'"',true);
       if($check_table->rows == 0){
-        $sql_create = Mysql::query("CREATE TABLE ".$_token." (id INT NOT NULL AUTO_INCREMENT, userid INT NOT NULL, token1 VARCHAR(255) NOT NULL, token2 VARCHAR(255) NOT NULL, token3 VARCHAR(255) NOT NULL, ip VARCHAR(255) NOT NULL, `date` TIMESTAMP on update CURRENT_TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, PRIMARY KEY (id))", false);
+        $sql_create = Mysql::query("CREATE TABLE ".$_token." (id INT NOT NULL AUTO_INCREMENT, userid INT NOT NULL, token1 VARCHAR(255) NOT NULL, token2 VARCHAR(255) NOT NULL, browser VARCHAR(255) NOT NULL, ip VARCHAR(255) NOT NULL, `date` TIMESTAMP on update CURRENT_TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, PRIMARY KEY (id))", false);
       }
       $token = [
         'userid' => $user->$_key,
         'token1' => uniqid(mt_rand(), true).rand(10000,99999).(time()*100),
         'token2' => md5($_SERVER['REMOTE_ADDR']),
-        'token3' => md5($_SERVER['HTTP_USER_AGENT']),
+        'browser' => $_SERVER['HTTP_USER_AGENT'],
         'ip' => $_SERVER['REMOTE_ADDR']
       ];
       setcookie("token1", $token['token1'], time() + 61536000, "/", (!empty(ini_get('session.cookie_domain')) ? ini_get('session.cookie_domain') : null),false,true);
