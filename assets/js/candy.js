@@ -94,7 +94,7 @@ const Candy = {
         success: function(data) {
           if(!data.success) return false
           if(obj.messages == undefined || obj.messages) {
-            if(data.success.result && (obj.messages == true || obj.messages.includes('success'))){
+            if(data.success.result){
               if (form.find('*[candy-form-success]').length) form.find('*[candy-form-success]').html(data.success.message).fadeIn();
               else form.append(`<span candy-form-success="${obj.form}">${data.success.message}</span>`);
             }else{
@@ -139,7 +139,7 @@ const Candy = {
           }
         },
         error: function() {
-          console.error('CandyJS:',"Somethings went wrong...","\nForm: #"+id+"\nRequest: "+$("#"+id).attr('action'));
+          console.error('CandyJS:',"Somethings went wrong...","\nForm: "+obj.form+"\nRequest: "+form.attr('action'));
         },
         complete: function() {
           form.find('button, input[type="button"], input[type="submit"]').prop('disabled',false);
@@ -150,8 +150,8 @@ const Candy = {
 
   token: function(){
     var data = Candy.data();
-    if(Candy.candy.token === undefined || Candy.candy.token === null){
-      if(Candy.candy.token === undefined && data !== null) {
+    if(!Candy.candy.token || !Candy.candy.token){
+      if(!Candy.candy.token && data) {
         Candy.candy.page = data.candy.page;
         Candy.candy.token = data.candy.token;
       } else {
