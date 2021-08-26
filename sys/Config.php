@@ -86,7 +86,7 @@ class Config {
       $storage->last = $date;
       Candy::storage('sys')->set('backup',$storage);
       set_time_limit(0);
-      ini_set('memory_limit', '4G');
+      ini_set('memory_limit', '-1');
       $directory = BACKUP_DIRECTORY;
       $backupdirectory = $directory;
       if(!file_exists($backupdirectory.'mysql/')) mkdir($backupdirectory.'mysql/', 0777, true);
@@ -138,7 +138,6 @@ class Config {
       } catch (\Exception $e) {
 
       }
-
     }
   }
   public static function autoUpdate($b = true){
