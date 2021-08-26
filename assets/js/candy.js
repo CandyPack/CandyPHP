@@ -1,10 +1,11 @@
-var _candy_token,_candy_page,_candy_action,_candy_forms=[];class CandyJS{test(){alert("Hi, World")}showModal(n){$("#"+n).modal("show")}get(n,a){$.get(n,function(n,c){a(n,c)})}getToken(n=!1){if(n){var a=new XMLHttpRequest;a.open("GET","?_candy=token",!1),a.setRequestHeader("X-Requested-With","xmlhttprequest"),a.send(null);var c=JSON.parse(a.response);_candy_page=c.page,_candy_token=c.token}else $.get("?_candy=token",function(n){var a=JSON.parse(JSON.stringify(n));_candy_token=a.token,_candy_page=a.page})}token(){var n=candy.data();null==_candy_token&&(void 0===_candy_token&&null!==n?(_candy_page=n.candy.page,_candy_token=n.candy.token):candy.getToken(!0));var a=_candy_token;return _candy_token=null,candy.getToken(),a}page(){var n=candy.data();return null!==n?_candy_page=n.candy.page:candy.getToken(!0),_candy_page}data(){return document.cookie.includes("candy=")?JSON.parse(unescape(document.cookie.split("candy=")[1].split(";")[0])):null}form(n,a,c){if(_candy_forms.includes(n))return!1;_candy_forms.push(n),$(document).on("submit","#"+n,function(e){e.preventDefault();var t=$(this);if($("#"+n+" ._candy_form_info").remove(),$("#"+n+" ._candy").html(""),$("#"+n+" ._candy").hide(),$("#"+n+" ._candy_error").removeClass("_candy_error"),$("#"+n+" input[type=file]").length>0){var o=new FormData;$("#"+n+" input, #"+n+" select, #"+n+" textarea").each(function(n){"file"==$(this).attr("type")?o.append($(this).attr("name"),$(this).prop("files")[0]):o.append($(this).attr("name"),$(this).val())}),o.append("token",candy.token());var d=!1,i=!1,s=!1}else o=$("#"+n).serialize()+"&token="+candy.token(),d=!0,i="application/x-www-form-urlencoded; charset=UTF-8",s=!0;t.find('button, input[type="button"], input[type="submit"]').prop("disabled",!0),$.ajax({type:$("#"+n).attr("method"),url:$("#"+n).attr("action"),data:o,dataType:"json",contentType:i,processData:s,cache:d,success:function(e){if(e.success){if(void 0===c||c)if(e.success.result)$("#"+n+" ._candy_success").length?($("#"+n+" ._candy_success").show(),$("#"+n+" ._candy_success").html(e.success.message)):$("#"+n).append('<span class="_candy_form_info">'+e.success.message+"</span>");else{var t=e.errors,o="_candy_error";_candy_action.candy&&_candy_action.candy.form&&_candy_action.candy.form.input&&_candy_action.candy.form.input.class&&_candy_action.candy.form.input.class.invalid&&(o+=" "+_candy_action.candy.form.input.class.invalid);var d="_candy_form_info";_candy_action.candy&&_candy_action.candy.form&&_candy_action.candy.form.span&&_candy_action.candy.form.span.class&&_candy_action.candy.form.span.class.invalid&&(d+=" "+_candy_action.candy.form.span.class.invalid);var i="";_candy_action.candy&&_candy_action.candy.form&&_candy_action.candy.form.span&&_candy_action.candy.form.span.style&&_candy_action.candy.form.span.style.invalid?i+=" "+_candy_action.candy.form.span.style.invalid:_candy_action.candy&&_candy_action.candy.form&&_candy_action.candy.form.span&&_candy_action.candy.form.span.class&&_candy_action.candy.form.span.class.invalid||(i="color:red"),$.each(t,function(a,c){$("#"+n+" ._candy_"+a).length?($("#"+n+" ._candy_"+a).html(c),$("#"+n+" ._candy_"+a).show()):$(`#${n} [candy-form-error="${a}"], [candy-form-error="${a}"][candy-form="${n}"]`).length?($(`#${n} [candy-form-error="${a}"], [candy-form-error="${a}"][candy-form="${n}"]`).html(c),$(`#${n} [candy-form-error="${a}"], [candy-form-error="${a}"][candy-form="${n}"]`).show()):"_candy_form"==a?$("#"+n).append(`<span class="${d}" style="${i}">${c}</span>`):$("#"+n+' *[name ="'+a+'"]').after(`<span class="${d}" style="${i}">${c}</span>`),$("#"+n+' *[name ="'+a+'"]').addClass(o)})}void 0!==a&&("function"==typeof a?a(e):e.success.result&&window.location.replace(a))}},error:function(){console.error("Candy JS:","Somethings went wrong...","\nForm: #"+n+"\nRequest: "+$("#"+n).attr("action"))},complete:function(){t.find('button, input[type="button"], input[type="submit"]').prop("disabled",!1)}})})}loader(n,a,c){$(document).on("click",n,function(n){var e=window.location.href,t=$(this).attr("href"),o=$(this).attr("target");null!=o&&"_self"!=o||""==t||"javascript:"==t.substring(0,11)||"#"==t.substring(0,1)||t.includes("://")&&e.split("/")[2]!=t.split("/")[2]||(n.preventDefault(),_candy_action.candy&&_candy_action.candy.loader&&_candy_action.candy.loader.start&&_candy_action.candy.loader.start&&"function"==typeof _candy_action.candy.loader.start&&_candy_action.candy.loader.start(),t!=e&&window.history.pushState(null,document.title,t),$.ajax({url:t,type:"GET",beforeSend:function(n){n.setRequestHeader("X-CANDY","ajaxload"),n.setRequestHeader("X-CANDY-LOAD",Object.keys(a).join(","))},success:function(n,e,t){_candy_page=t.getResponseHeader("x-candy-page"),$.each(a,function(a,c){$(c).fadeOut(400,function(){$(c).html(n.output[a]),$(c).fadeIn()})});setTimeout(function(){void 0!==_candy_action&&"function"==typeof _candy_action.load&&_candy_action.load(candy.page(),n.variables),void 0!==_candy_action&&void 0!==_candy_action.page&&"function"==typeof _candy_action.page[_candy_page]&&_candy_action.page[_candy_page](candy.data()),void 0!==c&&c(candy.page(),n.variables),$("html, body").animate({scrollTop:0})},500)},error:function(){window.location.replace(t)}}))}),$(window).on("popstate",function(){var n=window.location.href;""==n||"javascript:"==n.substring(0,11)||n.includes("#")||$.each(a,function(n,e){$.ajax({url:window.location.href,type:"GET",beforeSend:function(n){n.setRequestHeader("X-CANDY","ajaxload"),n.setRequestHeader("X-CANDY-LOAD",Object.keys(a).join(","))},success:function(n,e,t){_candy_page=t.getResponseHeader("x-candy-page"),$.each(a,function(a,c){$(c).fadeOut(400,function(){$(c).html(n.output[a]),$(c).fadeIn()})});setTimeout(function(){void 0!==_candy_action&&"function"==typeof _candy_action.load&&_candy_action.load(),void 0!==_candy_action&&void 0!==_candy_action.page&&"function"==typeof _candy_action.page[_candy_page]&&_candy_action.page[_candy_page](),void 0!==c&&c(candy.page(),n.variables)},500)},error:function(){window.location.replace(window.location.href)}})})})}action(n){if("object"!=typeof n)return _candy_action;_candy_action=n,$.each(n,function(a,c){switch(a){case"load":$(function(){c()});break;case"page":$.each(c,function(n,a){n==candy.page()&&$(function(){a(candy.data())})});break;case"start":$(function(){c()});break;case"interval":$.each(c,function(n,a){$(function(){setInterval(function(){a()},n)})});break;case"function":case"candy":break;default:$.each(c,function(e,t){if("function"==typeof c[e])$(document).on(a,e,c[e]);else{var o="",d="";if(c[e].includes(".")?d=".":c[e].includes("#")?d="#":c[e].includes(" ")&&(d=" "),""!=(o=""!=d?c[e].split(d):[c[e]])){var i=n;o.forEach(function(n){i=void 0!==i[n]?i[n]:i[d+n]}),$(document).on(a,e,i)}}})}})}}var candy=new CandyJS;
+var _candy_token,_candy_page,_candy_action,_candy_forms=[];class CandyJS{test(){console.error("candy is deprecated please use it as Candy."),alert("Hi, World")}showModal(a){console.error("candy is deprecated please use it as Candy."),$("#"+a).modal("show")}get(a,n){console.error("candy is deprecated please use it as Candy."),$.get(a,function(a,e){n(a,e)})}getToken(a=!1){if(console.error("candy is deprecated please use it as Candy."),a){var n=new XMLHttpRequest;n.open("GET","?_candy=token",!1),n.setRequestHeader("X-Requested-With","xmlhttprequest"),n.send(null);var e=JSON.parse(n.response);_candy_page=e.page,_candy_token=e.token}else $.get("?_candy=token",function(a){var n=JSON.parse(JSON.stringify(a));_candy_token=n.token,_candy_page=n.page})}token(){console.error("candy is deprecated please use it as Candy.");var a=candy.data();null==_candy_token&&(void 0===_candy_token&&null!==a?(_candy_page=a.candy.page,_candy_token=a.candy.token):candy.getToken(!0));var n=_candy_token;return _candy_token=null,candy.getToken(),n}page(){console.error("candy is deprecated please use it as Candy.");var a=candy.data();return null!==a?_candy_page=a.candy.page:candy.getToken(!0),_candy_page}data(){return console.error("candy is deprecated please use it as Candy."),document.cookie.includes("candy=")?JSON.parse(unescape(document.cookie.split("candy=")[1].split(";")[0])):null}form(a,n,e){if(console.error("candy is deprecated please use it as Candy."),_candy_forms.includes(a))return!1;_candy_forms.push(a),$(document).on("submit","#"+a,function(c){c.preventDefault();var t=$(this);if($("#"+a+" ._candy_form_info").remove(),$("#"+a+" ._candy").html(""),$("#"+a+" ._candy").hide(),$("#"+a+" ._candy_error").removeClass("_candy_error"),$("#"+a+" input[type=file]").length>0){var o=new FormData;$("#"+a+" input, #"+a+" select, #"+a+" textarea").each(function(a){"file"==$(this).attr("type")?o.append($(this).attr("name"),$(this).prop("files")[0]):o.append($(this).attr("name"),$(this).val())}),o.append("token",candy.token());var d=!1,s=!1,i=!1}else o=$("#"+a).serialize()+"&token="+candy.token(),d=!0,s="application/x-www-form-urlencoded; charset=UTF-8",i=!0;t.find('button, input[type="button"], input[type="submit"]').prop("disabled",!0),$.ajax({type:$("#"+a).attr("method"),url:$("#"+a).attr("action"),data:o,dataType:"json",contentType:s,processData:i,cache:d,success:function(c){if(c.success){if(void 0===e||e)if(c.success.result)$("#"+a+" ._candy_success").length?($("#"+a+" ._candy_success").show(),$("#"+a+" ._candy_success").html(c.success.message)):$("#"+a).append('<span class="_candy_form_info">'+c.success.message+"</span>");else{var t=c.errors,o="_candy_error";_candy_action.candy&&_candy_action.candy.form&&_candy_action.candy.form.input&&_candy_action.candy.form.input.class&&_candy_action.candy.form.input.class.invalid&&(o+=" "+_candy_action.candy.form.input.class.invalid);var d="_candy_form_info";_candy_action.candy&&_candy_action.candy.form&&_candy_action.candy.form.span&&_candy_action.candy.form.span.class&&_candy_action.candy.form.span.class.invalid&&(d+=" "+_candy_action.candy.form.span.class.invalid);var s="";_candy_action.candy&&_candy_action.candy.form&&_candy_action.candy.form.span&&_candy_action.candy.form.span.style&&_candy_action.candy.form.span.style.invalid?s+=" "+_candy_action.candy.form.span.style.invalid:_candy_action.candy&&_candy_action.candy.form&&_candy_action.candy.form.span&&_candy_action.candy.form.span.class&&_candy_action.candy.form.span.class.invalid||(s="color:red"),$.each(t,function(n,e){$("#"+a+" ._candy_"+n).length?($("#"+a+" ._candy_"+n).html(e),$("#"+a+" ._candy_"+n).show()):$(`#${a} [candy-form-error="${n}"], [candy-form-error="${n}"][candy-form="${a}"]`).length?($(`#${a} [candy-form-error="${n}"], [candy-form-error="${n}"][candy-form="${a}"]`).html(e),$(`#${a} [candy-form-error="${n}"], [candy-form-error="${n}"][candy-form="${a}"]`).show()):"_candy_form"==n?$("#"+a).append(`<span class="${d}" style="${s}">${e}</span>`):$("#"+a+' *[name ="'+n+'"]').after(`<span class="${d}" style="${s}">${e}</span>`),$("#"+a+' *[name ="'+n+'"]').addClass(o)})}void 0!==n&&("function"==typeof n?n(c):c.success.result&&window.location.replace(n))}},error:function(){console.error("Candy JS:","Somethings went wrong...","\nForm: #"+a+"\nRequest: "+$("#"+a).attr("action"))},complete:function(){t.find('button, input[type="button"], input[type="submit"]').prop("disabled",!1)}})})}loader(a,n,e){console.error("candy is deprecated please use it as Candy."),$(document).on("click",a,function(a){var c=window.location.href,t=$(this).attr("href"),o=$(this).attr("target");null!=o&&"_self"!=o||""==t||"javascript:"==t.substring(0,11)||"#"==t.substring(0,1)||t.includes("://")&&c.split("/")[2]!=t.split("/")[2]||(a.preventDefault(),_candy_action.candy&&_candy_action.candy.loader&&_candy_action.candy.loader.start&&_candy_action.candy.loader.start&&"function"==typeof _candy_action.candy.loader.start&&_candy_action.candy.loader.start(),t!=c&&window.history.pushState(null,document.title,t),$.ajax({url:t,type:"GET",beforeSend:function(a){a.setRequestHeader("X-CANDY","ajaxload"),a.setRequestHeader("X-CANDY-LOAD",Object.keys(n).join(","))},success:function(a,c,t){_candy_page=t.getResponseHeader("x-candy-page"),$.each(n,function(n,e){$(e).fadeOut(400,function(){$(e).html(a.output[n]),$(e).fadeIn()})});setTimeout(function(){void 0!==_candy_action&&"function"==typeof _candy_action.load&&_candy_action.load(candy.page(),a.variables),void 0!==_candy_action&&void 0!==_candy_action.page&&"function"==typeof _candy_action.page[_candy_page]&&_candy_action.page[_candy_page](candy.data()),void 0!==e&&e(candy.page(),a.variables),$("html, body").animate({scrollTop:0})},500)},error:function(){window.location.replace(t)}}))}),$(window).on("popstate",function(){var a=window.location.href;""==a||"javascript:"==a.substring(0,11)||a.includes("#")||$.each(n,function(a,c){$.ajax({url:window.location.href,type:"GET",beforeSend:function(a){a.setRequestHeader("X-CANDY","ajaxload"),a.setRequestHeader("X-CANDY-LOAD",Object.keys(n).join(","))},success:function(a,c,t){_candy_page=t.getResponseHeader("x-candy-page"),$.each(n,function(n,e){$(e).fadeOut(400,function(){$(e).html(a.output[n]),$(e).fadeIn()})});setTimeout(function(){void 0!==_candy_action&&"function"==typeof _candy_action.load&&_candy_action.load(),void 0!==_candy_action&&void 0!==_candy_action.page&&"function"==typeof _candy_action.page[_candy_page]&&_candy_action.page[_candy_page](),void 0!==e&&e(candy.page(),a.variables)},500)},error:function(){window.location.replace(window.location.href)}})})})}action(a){if(console.error("candy is deprecated please use it as Candy."),"object"!=typeof a)return _candy_action;_candy_action=a,$.each(a,function(n,e){switch(n){case"load":$(function(){e()});break;case"page":$.each(e,function(a,n){a==candy.page()&&$(function(){n(candy.data())})});break;case"start":$(function(){e()});break;case"interval":$.each(e,function(a,n){$(function(){setInterval(function(){n()},a)})});break;case"function":case"candy":break;default:$.each(e,function(c,t){if("function"==typeof e[c])$(document).on(n,c,e[c]);else{var o="",d="";if(e[c].includes(".")?d=".":e[c].includes("#")?d="#":e[c].includes(" ")&&(d=" "),""!=(o=""!=d?e[c].split(d):[e[c]])){var s=a;o.forEach(function(a){s=void 0!==s[a]?s[a]:s[d+a]}),$(document).on(n,c,s)}}})}})}}var candy=new CandyJS;
 // - DEPRECATED
 
 const Candy = {
   candy: {
     token: null,
-    actions: {}
+    page: null,
+    actions: {},
   },
 
   action: function(arr){
@@ -151,7 +152,7 @@ const Candy = {
     var data = Candy.data();
     if(Candy.candy.token === undefined || Candy.candy.token === null){
       if(Candy.candy.token === undefined && data !== null) {
-        _candy_page = data.candy.page;
+        Candy.candy.page = data.candy.page;
         Candy.candy.token = data.candy.token;
       } else {
         var req = new XMLHttpRequest();
@@ -159,7 +160,7 @@ const Candy = {
         req.setRequestHeader("X-Requested-With", "xmlhttprequest");
         req.send(null);
         var req_data = JSON.parse(req.response);
-        _candy_page = req_data.page;
+        Candy.candy.page = req_data.page;
         Candy.candy.token = req_data.token;
       }
     }
@@ -168,20 +169,85 @@ const Candy = {
     $.get('?_candy=token',function(data){
       var result = JSON.parse(JSON.stringify(data));
       Candy.candy.token = result.token;
-      _candy_page = result.page;
+      Candy.candy.page = result.page;
     });
     return return_token;
   },
 
   page: function(){
-    let data = candy.data();
-    if(data !== null) _candy_page = data.candy.page;
-    else Candy.getToken(true);
-    return _candy_page;
+    let data = Candy.data();
+    if(data !== null) Candy.candy.page = data.candy.page;
+    else Candy.token(true);
+    return Candy.candy.page;
   },
 
   data: function(){
     if(!document.cookie.includes('candy=')) return null;
     return JSON.parse(unescape(document.cookie.split('candy=')[1].split(';')[0]));
+  },
+
+  loader: function(element,arr,callback){
+    $(document).on('click',element,function(e){
+      var url_now = window.location.href;
+      var url_go = $(this).attr('href');
+      var target = $(this).attr('target');
+      var page = url_go;
+      if((target==null || target=='_self') && (url_go!='' && url_go.substring(0,11)!='javascript:' && url_go.substring(0,1)!='#') && (!url_go.includes('://') || url_now.split("/")[2]==url_go.split("/")[2])){
+        e.preventDefault();
+        if(url_go != url_now) window.history.pushState(null, document.title, url_go);
+        $.ajax({
+          url: url_go,
+          type: "GET",
+          beforeSend: function(xhr){xhr.setRequestHeader('X-CANDY', 'ajaxload');xhr.setRequestHeader('X-CANDY-LOAD', Object.keys(arr).join(','))},
+          success: function(_data, status, request){
+            Candy.candy.page = request.getResponseHeader('x-candy-page');
+            $.each(arr, function(index, value){
+              $(value).fadeOut(400,function(){
+                $(value).html(_data.output[index]);
+                $(value).fadeIn();
+              });
+            });
+            var _t = setTimeout(function(){
+              if(typeof Candy.candy.actions.load == 'function') Candy.candy.actions.load(Candy.page(),_data.variables);
+              if(Candy.candy.actions.page !== undefined && typeof Candy.candy.actions.page[Candy.candy.page] == "function") Candy.candy.actions.page[Candy.candy.page](Candy.data());
+              if(callback!==undefined) callback(Candy.page(),_data.variables);
+              $("html, body").animate({ scrollTop: 0 });
+            }, 500);
+          },
+          error : function(){
+            window.location.replace(url_go);
+          }
+        });
+      }
+    });
+    $(window).on('popstate', function(){
+      var url_go = window.location.href;
+      if((url_go!='' && url_go.substring(0,11)!='javascript:' && !url_go.includes('#'))){
+        $.each(arr, function(index, value){
+          $.ajax({
+            url: window.location.href,
+            type: "GET",
+            beforeSend: function(xhr){xhr.setRequestHeader('X-CANDY', 'ajaxload');xhr.setRequestHeader('X-CANDY-LOAD', Object.keys(arr).join(','));},
+            success: function(_data, status, request){
+              Candy.candy.page = request.getResponseHeader('x-candy-page');
+              $.each(arr, function(index, value){
+                $(value).fadeOut(400,function(){
+                  $(value).html(_data.output[index]);
+                  $(value).fadeIn();
+                });
+              });
+              var _t = setTimeout(function(){
+                if(typeof Candy.candy.actions.load == 'function') Candy.candy.actions.load();
+                if(Candy.candy.actions.page !== undefined && typeof Candy.candy.actions.page[Candy.candy.page] == "function") Candy.candy.actions.page[Candy.candy.page]();
+                if(callback!==undefined) callback(candy.page(),_data.variables);
+              }, 500);
+            },
+            error : function(){
+              window.location.replace(window.location.href);
+            }
+          });
+        });
+      }
+    });
   }
 }
