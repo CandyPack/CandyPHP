@@ -150,7 +150,7 @@ const Candy = {
 
   token: function(){
     var data = Candy.data();
-    if(!Candy.candy.token || !Candy.candy.token){
+    if(!Candy.candy.token){
       if(!Candy.candy.token && data) {
         Candy.candy.page = data.candy.page;
         Candy.candy.token = data.candy.token;
@@ -175,9 +175,11 @@ const Candy = {
   },
 
   page: function(){
-    let data = Candy.data();
-    if(data !== null) Candy.candy.page = data.candy.page;
-    else Candy.token(true);
+    if(!Candy.candy.page){
+      let data = Candy.data();
+      if(data !== null) Candy.candy.page = data.candy.page;
+      else Candy.token(true);
+    }
     return Candy.candy.page;
   },
 
