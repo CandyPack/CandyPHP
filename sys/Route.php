@@ -246,7 +246,44 @@ class Route {
     }
     require_once('route/'.$routefile.'.php');
     $GLOBALS['_candy']['route']['name'] = $routefile;
-    if(isset($_GET['_candy']) && $_GET['_candy']!=''){
+    if (php_sapi_name() == "cli" && !empty($_SERVER['argv'])) {
+      if($_SERVER['argv'][1] != 'candy') self::printPage();
+      switch ($_SERVER['argv'][2]) {
+        case 'cron':
+          if(!defined('CRON_JOBS') || CRON_JOBS !== true) self::printPage();
+          $GLOBALS['cron'] = [];
+          if(file_exists("route/".$_SERVER['argv'][3])){
+            $routefile = $_SERVER['argv'][3];
+            include("route/$routefile");
+          }
+          $now = date('Y-m-d H:i');
+          $storage = Candy::storage('sys')->get('cron');
+          $storage->route = isset($storage->route) ? $storage->route : new \stdClass;
+          $storage->route->$routefile = isset($storage->route->$routefile) ? $storage->route->$routefile : new \stdClass;
+          if(!isset($storage->route->$routefile->run)) $storage->route->$routefile->run = '0000-00-00 00:00';
+          if($storage->route->$routefile->run == $now) return false;
+          $storage->route->$routefile->run = $now;
+          Candy::storage('sys')->set('cron',$storage);
+          function set($p,$v=null,$a=null){
+            return Candy::set($p,$v,$a);
+          }
+          if(isset($GLOBALS['cron'])){
+            foreach ($GLOBALS['cron'] as $key => $value){
+              if($value){
+                $cron = 'cron/'.$key;
+                if(strpos($key, '.') !== false){
+                  $cron = str_replace('.','/',$key);
+                  $cron = preg_replace("((.*)\/)", "$1/".'cron'.'/', $cron);
+                }
+                Candy::async(function($cron){
+                  include('controller/'.$cron.'.php');
+                },$cron);
+              }
+            }
+          }
+          break;
+      }
+    }else if(isset($_GET['_candy']) && $_GET['_candy']!=''){
       switch($_GET['_candy']){
         case 'token':
           if(!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest' && isset($_SERVER['HTTP_REFERER']) && parse_url($_SERVER['HTTP_REFERER'])['host']==$_SERVER['HTTP_HOST']){
