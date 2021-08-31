@@ -24,7 +24,7 @@ class Storage
     public static function set($key,$var){
       if(!is_object(self::$_arr)) self::$_arr = new \stdClass();
       self::$_arr->$key = $var;
-      self::$_json = json_encode(self::$_arr);
+      self::$_json = json_encode(self::$_arr,JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
       file_put_contents(self::$_path, self::$_json);
       return new static();
     }
