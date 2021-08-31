@@ -89,6 +89,13 @@ class Auth{
 
   public static function logout(){
     self::$user = false;
+    Mysql::table($GLOBALS['_candy']['auth']['token'])->where(
+      ['token1',  $_COOKIE['token1']],
+      ['token2',  $_COOKIE['token2']],
+      ['browser', $_SERVER['HTTP_USER_AGENT']]
+    )->delete();
+    setcookie("token1", "", time() - 3600);
+    setcookie("token2", "", time() - 3600);
   }
 
   public static function user($col = null){
