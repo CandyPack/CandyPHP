@@ -125,7 +125,9 @@ class Route {
           }
         }
         function __(){
-          return call_user_func_array("sprintf", array_values(func_get_args()));
+          $arr = func_get_args();
+          $arr[0] = Lang::get($arr[0]);
+          return call_user_func_array("sprintf", $arr);
         }
       }
       if(isset($GLOBALS['_candy']['route']['page'])){

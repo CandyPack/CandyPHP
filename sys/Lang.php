@@ -3,7 +3,8 @@ class Lang {
   public $lang;
 
   public static function get($var, $arr = null){
-    $return = isset($GLOBALS['_lang'][$var]) ? $GLOBALS['_lang'][$var] : $var;
+    if(is_callable($GLOBALS['_lang'])) $return = $GLOBALS['_lang']($var);
+    else $return = isset($GLOBALS['_lang'][$var]) ? $GLOBALS['_lang'][$var] : $var;
     if($arr!==null){
       if(is_array($arr)){
         $loop = 0;
@@ -29,7 +30,9 @@ class Lang {
   }
 
   public static function set($code){
-    if(file_exists("lang/$code.php")){
+    if(isset($GLOBALS['_candy']['language']['default']) && is_callable($GLOBALS['_candy']['language']['default'])){
+      $GLOBALS['_lang'] = $GLOBALS['_candy']['language']['default'];
+    }elseif(file_exists("lang/$code.php")){
       Lang::setArray(self::returnLang($code));
     }elseif(isset($GLOBALS['_candy']['language']['default']) && file_exists("lang/".$GLOBALS['_candy']['language']['default'].".php")){
       Lang::setArray(self::returnLang($GLOBALS['_candy']['language']['default']));
