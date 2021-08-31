@@ -38,7 +38,7 @@ class Candy {
       self::$ajax_var->candy->token = self::token(null,true);
       self::$ajax_var->candy->page = self::page();
     }
-    setcookie('candy',json_encode(self::$ajax_var),0,"/");
+    setcookie('candy',json_encode(self::$ajax_var),0,"/",false,true);
   }
 
   public static function configCheck(){

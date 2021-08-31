@@ -90,7 +90,7 @@ class Route {
     Candy::$ajax_var->candy = new \stdClass();
     Candy::$ajax_var->candy->token = Candy::token(null,true);
     Candy::$ajax_var->candy->page = Candy::page();
-    setcookie('candy',json_encode(Candy::$ajax_var),0,"/");
+    setcookie('candy',json_encode(Candy::$ajax_var),0,"/",false,true);
     if(!function_exists('request')){
       function request($v=null,$method=null){
         if($v==null){
