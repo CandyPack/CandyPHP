@@ -94,7 +94,7 @@ const Candy = {
         success: function(data) {
           if(!data.success) return false
           if(obj.messages == undefined || obj.messages) {
-            if(data.success.result){
+            if(data.success.result && (obj.messages.includes('success') || obj.messages == true){
               if (form.find('*[candy-form-success]').length) form.find('*[candy-form-success]').html(data.success.message).fadeIn();
               else form.append(`<span candy-form-success="${obj.form}">${data.success.message}</span>`);
             }else{
