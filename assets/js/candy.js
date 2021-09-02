@@ -61,6 +61,7 @@ const Candy = {
   form: function(obj, callback) {
     if(typeof obj != 'object') obj = { form: obj }
     $(obj.form).unbind('submit.candy');
+    $(document).off("submit.candy", obj.form);
     $(document).on("submit.candy", obj.form, function(e){
       e.preventDefault();
       let form = $(this);
@@ -94,7 +95,7 @@ const Candy = {
         success: function(data) {
           if(!data.success) return false
           if(obj.messages == undefined || obj.messages) {
-            if(data.success.result && (obj.messages.includes('success') || obj.messages == true){
+            if(data.success.result && (obj.messages == undefined || obj.messages.includes('success') || obj.messages == true)){
               if (form.find('*[candy-form-success]').length) form.find('*[candy-form-success]').html(data.success.message).fadeIn();
               else form.append(`<span candy-form-success="${obj.form}">${data.success.message}</span>`);
             }else{
