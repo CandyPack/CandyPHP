@@ -86,7 +86,7 @@ class Route {
         return Candy::set($p,$v,$a);
       }
     }
-    if($GLOBALS['_candy']['route']['method'] == 'page'){
+    if(isset($GLOBALS['_candy']['route']['method']) && $GLOBALS['_candy']['route']['method'] == 'page'){
       Candy::$ajax_var = new stdClass();
       Candy::$ajax_var->candy = new \stdClass();
       Candy::$ajax_var->candy->token = Candy::token(null,true);
