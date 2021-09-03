@@ -183,7 +183,7 @@ class Validation
             case 'user':
               $user_data = Auth::user($vars[1]);
               if(Candy::string($user_data)->is('bcrypt')) $this->_error = isset($this->_method[$this->_name]) && (!Auth::check() || !Candy::hash($this->_method[$this->_name], $user_data));
-              if(Candy::string($user_data)->is('md5'))    $this->_error = isset($this->_method[$this->_name]) && (!Auth::check() || !md5($this->_method[$this->_name]) == $user_data);
+              else if(Candy::string($user_data)->is('md5'))    $this->_error = isset($this->_method[$this->_name]) && (!Auth::check() || !md5($this->_method[$this->_name]) == $user_data);
               else $this->_error = isset($this->_method[$this->_name]) && (!Auth::check() || $this->_method[$this->_name] != Auth::user($vars[1]));
               break;
           }
