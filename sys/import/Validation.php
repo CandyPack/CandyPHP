@@ -181,7 +181,10 @@ class Validation
               $this->_error = isset($this->_method[$this->_name]) && isset($vars[1]) && empty(preg_match("/".$vars[1]."/", $this->_method[$this->_name]));
               break;
             case 'user':
-              $this->_error = isset($this->_method[$this->_name]) && (!Mysql::userCheck() || $this->_method[$this->_name] != Mysql::userCheck(true)->fetch[$vars[1]]);
+              $user_data = Auth::user($vars[1]);
+              if(Candy::string($user_data)->is('bcrypt')) $this->_error = isset($this->_method[$this->_name]) && (!Auth::check() || !Candy::hash($this->_method[$this->_name], $user_data));
+              if(Candy::string($user_data)->is('md5'))    $this->_error = isset($this->_method[$this->_name]) && (!Auth::check() || !md5($this->_method[$this->_name]) == $user_data);
+              else $this->_error = isset($this->_method[$this->_name]) && (!Auth::check() || $this->_method[$this->_name] != Auth::user($vars[1]));
               break;
           }
         }
