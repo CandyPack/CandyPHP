@@ -129,6 +129,7 @@ class Route {
         function __(){
           $arr = func_get_args();
           $arr[0] = Lang::get($arr[0]);
+          if(!isset($arr[1])) return $arr[0];
           return call_user_func_array("sprintf", $arr);
         }
       }
