@@ -3,7 +3,7 @@ var _candy_token,_candy_page,_candy_action,_candy_forms=[];class CandyJS{test(){
 
 const Candy = {
   candy: {
-    token: null,
+    token: {hash:null, data:false},
     page: null,
     actions: {},
   },
@@ -151,10 +151,11 @@ const Candy = {
 
   token: function(){
     var data = Candy.data();
-    if(!Candy.candy.token){
-      if(!Candy.candy.token && data) {
+    if(!Candy.candy.token.hash){
+      if(!Candy.candy.token.data && data) {
         Candy.candy.page = data.candy.page;
-        Candy.candy.token = data.candy.token;
+        Candy.candy.token.hash = data.candy.token;
+        Candy.candy.token.data = true;
       } else {
         var req = new XMLHttpRequest();
         req.open('GET', '?_candy=token', false);
@@ -162,14 +163,14 @@ const Candy = {
         req.send(null);
         var req_data = JSON.parse(req.response);
         Candy.candy.page = req_data.page;
-        Candy.candy.token = req_data.token;
+        Candy.candy.token.hash = req_data.token;
       }
     }
-    var return_token = Candy.candy.token;
-    Candy.candy.token = null;
+    var return_token = Candy.candy.token.hash;
+    Candy.candy.token.hash = null;
     $.get('?_candy=token',function(data){
       var result = JSON.parse(JSON.stringify(data));
-      Candy.candy.token = result.token;
+      Candy.candy.token.hash = result.token;
       Candy.candy.page = result.page;
     });
     return return_token;
