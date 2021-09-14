@@ -1,5 +1,5 @@
 <?php
-// namespace Candy;
+namespace Candy;
 
 class Mail {
   private $_arr = [];

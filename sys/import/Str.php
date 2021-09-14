@@ -11,27 +11,20 @@ class Str{
   public function is($val){
     $any = $this->any;
     $this->any = false;
-    if(!is_array($val)) $val = [$val];
+    $val = is_array($val) ? $val : func_get_args();
     $result = !$any;
     if(in_array('json',$val)){
       json_decode($this->str);
-      if($any) $result = $result || json_last_error() === JSON_ERROR_NONE;
-      else     $result = $result && json_last_error() === JSON_ERROR_NONE;
+      $result = $any ? ($result || json_last_error() === JSON_ERROR_NONE) : ($result && json_last_error() === JSON_ERROR_NONE);
     }
-    if(in_array('md5',$val)){
-      if($any) $result = $result || ((bool) preg_match('/^[a-f0-9A-F]{32}$/', $this->str));
-      else     $result = $result && ((bool) preg_match('/^[a-f0-9A-F]{32}$/', $this->str));
-    }
-    if(in_array('numeric',$val)){
-      if($any) $result = $result || is_numeric($this->str);
-      else     $result = $result && is_numeric($this->str);
-    }
+    if(in_array('md5',$val)) $result = $any ? ($result || ((bool) preg_match('/^[a-f0-9A-F]{32}$/', $this->str))) : ($result && ((bool) preg_match('/^[a-f0-9A-F]{32}$/', $this->str)));
+    if(in_array('numeric',$val)) $result = $any ? ($result || is_numeric($this->str)) : ($result && is_numeric($this->str));
     return $result;
   }
 
   public function isAny($val){
     $this->any = true;
-    return $this->is($val);
+    return $this->is(is_array($val) ? $val : func_get_args());
   }
 
   public function contains($val){
