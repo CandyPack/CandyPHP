@@ -21,6 +21,14 @@ class Validation
     return new static($this->_name,$this->_request,$this->_error,$this->_message,$this->_method,$this->_type);
   }
 
+  function var($n,$v=null){
+    $this->_method = [$n => ($v === null ? $n : $v)];
+    $this->_name = $n;
+    $this->_error = false;
+    $this->_type = $n;
+    return new static($this->_name,$this->_request,$this->_error,$this->_message,$this->_method,$this->_type);
+  }
+
   function post($n){
     $this->_method=$_POST;
     $this->_name=$n;
@@ -158,6 +166,12 @@ class Validation
               break;
             case 'maxlen':
               $this->_error = isset($this->_method[$this->_name]) && $this->_method[$this->_name]!='' && isset($vars[1]) && strlen($this->_method[$this->_name])>$vars[1];
+              break;
+            case 'mindate':
+              $this->_error = isset($this->_method[$this->_name]) && $this->_method[$this->_name]!='' && isset($vars[1]) && strtotime($this->_method[$this->_name])<strtotime($vars[1]);
+              break;
+            case 'maxdate':
+              $this->_error = isset($this->_method[$this->_name]) && $this->_method[$this->_name]!='' && isset($vars[1]) && strtotime($this->_method[$this->_name])>strtotime($vars[1]);
               break;
             case 'same':
               $this->_error = isset($this->_method[$this->_name]) && isset($this->_method[$vars[1]]) && $this->_method[$this->_name]!==$this->_method[$vars[1]];
