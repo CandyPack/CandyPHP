@@ -120,25 +120,25 @@ class Validation
               $this->_error = !isset($this->_method[$this->_name]) || ($this->_method[$this->_name]!=1 && $this->_method[$this->_name]!='on' && $this->_method[$this->_name]!='yes' && $this->_method[$this->_name]!=true);
               break;
             case 'numeric':
-              $this->_error = isset($this->_method[$this->_name]) && $this->_method[$this->_name]!='' && !is_numeric($this->_method[$this->_name]);
+              $this->_error = isset($this->_method[$this->_name]) && $this->_method[$this->_name]!='' && !Candy::var($this->_method[$this->_name])->is('numeric');
               break;
             case 'email':
-              $this->_error = isset($this->_method[$this->_name]) && $this->_method[$this->_name]!='' && !filter_var($this->_method[$this->_name], FILTER_VALIDATE_EMAIL);
+              $this->_error = isset($this->_method[$this->_name]) && $this->_method[$this->_name]!='' && !Candy::var($this->_method[$this->_name])->is('email');
               break;
             case 'ip':
-              $this->_error = isset($this->_method[$this->_name]) && $this->_method[$this->_name]!='' && !filter_var($this->_method[$this->_name], FILTER_VALIDATE_IP);
+              $this->_error = isset($this->_method[$this->_name]) && $this->_method[$this->_name]!='' && !Candy::var($this->_method[$this->_name])->is('ip');
               break;
             case 'float':
-              $this->_error = isset($this->_method[$this->_name]) && $this->_method[$this->_name]!='' && !filter_var($this->_method[$this->_name], FILTER_VALIDATE_FLOAT);
+              $this->_error = isset($this->_method[$this->_name]) && $this->_method[$this->_name]!='' && !Candy::var($this->_method[$this->_name])->is('float');
               break;
             case 'mac':
-              $this->_error = isset($this->_method[$this->_name]) && $this->_method[$this->_name]!='' && !filter_var($this->_method[$this->_name], FILTER_VALIDATE_MAC);
+              $this->_error = isset($this->_method[$this->_name]) && $this->_method[$this->_name]!='' && !Candy::var($this->_method[$this->_name])->is('mac');
               break;
             case 'domain':
-              $this->_error = isset($this->_method[$this->_name]) && $this->_method[$this->_name]!='' && !filter_var($this->_method[$this->_name], FILTER_VALIDATE_DOMAIN);
+              $this->_error = isset($this->_method[$this->_name]) && $this->_method[$this->_name]!='' && !Candy::var($this->_method[$this->_name])->is('domain');
               break;
             case 'url':
-              $this->_error = isset($this->_method[$this->_name]) && $this->_method[$this->_name]!='' && (!preg_match("/\b(?:(?:https?|ftp):\/\/|www\.)[-a-z0-9+&@#\/%?=~_|!:,.;]*[-a-z0-9+&@#\/%=~_|]/i",$this->_method[$this->_name]));
+              $this->_error = isset($this->_method[$this->_name]) && $this->_method[$this->_name]!='' && !Candy::var($this->_method[$this->_name])->is('url');
               break;
             case 'username':
               $this->_error = isset($this->_method[$this->_name]) && !(ctype_alnum($this->_method[$this->_name]));
@@ -147,7 +147,7 @@ class Validation
               $this->_error = isset($this->_method[$this->_name]) && (strip_tags($this->_method[$this->_name]) != $this->_method[$this->_name]);
               break;
             case 'usercheck':
-              $this->_error = isset($this->_method[$this->_name]) && !Mysql::userCheck();
+              $this->_error = isset($this->_method[$this->_name]) && !Auth::check();
               break;
             case 'array':
               $this->_error = isset($this->_method[$this->_name]) && !is_array($this->_method[$this->_name]);

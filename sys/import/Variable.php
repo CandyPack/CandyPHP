@@ -17,6 +17,11 @@ class Variable{
     if(in_array('md5',    $val)) $result = (($result || $any) && (($any && $result) || (bool)preg_match('/^[a-f0-9A-F]{32}$/', $this->str) ));
     if(in_array('numeric',$val)) $result = (($result || $any) && (($any && $result) || is_numeric($this->str) ));
     if(in_array('email',  $val)) $result = (($result || $any) && (($any && $result) || filter_var($this->str, FILTER_VALIDATE_EMAIL) ));
+    if(in_array('ip',     $val)) $result = (($result || $any) && (($any && $result) || filter_var($this->str, FILTER_VALIDATE_IP) ));
+    if(in_array('float',  $val)) $result = (($result || $any) && (($any && $result) || filter_var($this->str, FILTER_VALIDATE_FLOAT) ));
+    if(in_array('mac',    $val)) $result = (($result || $any) && (($any && $result) || filter_var($this->str, FILTER_VALIDATE_MAC) ));
+    if(in_array('domain', $val)) $result = (($result || $any) && (($any && $result) || filter_var($this->str, FILTER_VALIDATE_DOMAIN) ));
+    if(in_array('url',    $val)) $result = (($result || $any) && (($any && $result) || preg_match("/\b(?:(?:https?|ftp):\/\/|www\.)[-a-z0-9+&@#\/%?=~_|!:,.;]*[-a-z0-9+&@#\/%=~_|]/i",$this->str) ));
     return $result;
   }
 
