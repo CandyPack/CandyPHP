@@ -787,14 +787,14 @@ class Candy {
   }
 
   public static function string($string){
-    self::import('Var');
-    $str = new \Candy\Var($string);
+    self::import('Variable');
+    $str = new \Candy\Variable($string);
     return $str;
   }
 
   public static function var($var){
-    self::import('Var');
-    $str = new \Candy\Var($var);
+    self::import('Variable');
+    $str = new \Candy\Variable($var);
     return $str;
   }
 

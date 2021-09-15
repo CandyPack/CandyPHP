@@ -2,7 +2,7 @@
 
 namespace Candy;
 
-class Var{
+class Variable{
   function __construct($string=''){
     $this->str = $string;
     $this->any = false;
@@ -13,7 +13,7 @@ class Var{
     $this->any = false;
     $val = is_array($val) ? $val : func_get_args();
     $result = !$any;
-    if(in_array('json',   $val)) $result = (($result || $any) && (($any && $result) || (json_decode($this->str) && json_last_error() === JSON_ERROR_NONE)) ));
+    if(in_array('json',   $val)) $result = (($result || $any) && (($any && $result) || (json_decode($this->str) && json_last_error() === JSON_ERROR_NONE) ));
     if(in_array('md5',    $val)) $result = (($result || $any) && (($any && $result) || (bool)preg_match('/^[a-f0-9A-F]{32}$/', $this->str) ));
     if(in_array('numeric',$val)) $result = (($result || $any) && (($any && $result) || is_numeric($this->str) ));
     if(in_array('email',  $val)) $result = (($result || $any) && (($any && $result) || filter_var($this->str, FILTER_VALIDATE_EMAIL) ));
