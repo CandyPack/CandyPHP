@@ -6,6 +6,7 @@ const Candy = {
     token: {hash:null, data:false},
     page: null,
     actions: {},
+    loader: {elements: {}}
   },
 
   action: function(arr){
@@ -190,68 +191,58 @@ const Candy = {
     return JSON.parse(unescape(document.cookie.split('candy=')[1].split(';')[0]));
   },
 
+  load: function(url,callback,push=true){
+    var url_now = window.location.href;
+    if(url.substr(0,4) != 'http') {
+      var domain = url_now.replace('://','{:--}').split('/');
+      domain[0] = domain[0].replace('{:--}','://');
+      if(url.substr(0,1) == '/'){
+        url = domain[0] + url
+      } else {
+        domain[domain.length - 1] = '';
+        url = domain.join('/') + url
+      }
+    }
+    if(url=='' || url.substring(0,11)=='javascript:' || url.includes('#')) return false;
+    $.ajax({
+      url: url,
+      type: "GET",
+      beforeSend: function(xhr){xhr.setRequestHeader('X-CANDY', 'ajaxload');xhr.setRequestHeader('X-CANDY-LOAD', Object.keys(Candy.loader.elements).join(','))},
+      success: function(_data, status, request){
+        if(url != url_now && push) window.history.pushState(null, document.title, url);
+        Candy.candy.page = request.getResponseHeader('x-candy-page');
+        $.each(Candy.loader.elements, function(index, value){
+          $(value).fadeOut(400,function(){
+            $(value).html(_data.output[index]);
+            $(value).fadeIn();
+          });
+        });
+        var _t = setTimeout(function(){
+          if(typeof Candy.candy.actions.load == 'function') Candy.candy.actions.load(Candy.page(),_data.variables);
+          if(Candy.candy.actions.page !== undefined && typeof Candy.candy.actions.page[Candy.candy.page] == "function") Candy.candy.actions.page[Candy.candy.page](Candy.data());
+          if(callback!==undefined) callback(Candy.page(),_data.variables);
+          $("html, body").animate({ scrollTop: 0 });
+        }, 500);
+      },
+      error : function(){
+        window.location.replace(url);
+      }
+    });
+  },
+
   loader: function(element,arr,callback){
+    this.loader.elements = arr;
     $(document).on('click',element,function(e){
       var url_now = window.location.href;
       var url_go = $(this).attr('href');
       var target = $(this).attr('target');
-      var page = url_go;
       if((target==null || target=='_self') && (url_go!='' && url_go.substring(0,11)!='javascript:' && url_go.substring(0,1)!='#') && (!url_go.includes('://') || url_now.split("/")[2]==url_go.split("/")[2])){
         e.preventDefault();
-        if(url_go != url_now) window.history.pushState(null, document.title, url_go);
-        $.ajax({
-          url: url_go,
-          type: "GET",
-          beforeSend: function(xhr){xhr.setRequestHeader('X-CANDY', 'ajaxload');xhr.setRequestHeader('X-CANDY-LOAD', Object.keys(arr).join(','))},
-          success: function(_data, status, request){
-            Candy.candy.page = request.getResponseHeader('x-candy-page');
-            $.each(arr, function(index, value){
-              $(value).fadeOut(400,function(){
-                $(value).html(_data.output[index]);
-                $(value).fadeIn();
-              });
-            });
-            var _t = setTimeout(function(){
-              if(typeof Candy.candy.actions.load == 'function') Candy.candy.actions.load(Candy.page(),_data.variables);
-              if(Candy.candy.actions.page !== undefined && typeof Candy.candy.actions.page[Candy.candy.page] == "function") Candy.candy.actions.page[Candy.candy.page](Candy.data());
-              if(callback!==undefined) callback(Candy.page(),_data.variables);
-              $("html, body").animate({ scrollTop: 0 });
-            }, 500);
-          },
-          error : function(){
-            window.location.replace(url_go);
-          }
-        });
+        Candy.load(url_go,callback);
       }
     });
     $(window).on('popstate', function(){
-      var url_go = window.location.href;
-      if((url_go!='' && url_go.substring(0,11)!='javascript:' && !url_go.includes('#'))){
-        $.each(arr, function(index, value){
-          $.ajax({
-            url: window.location.href,
-            type: "GET",
-            beforeSend: function(xhr){xhr.setRequestHeader('X-CANDY', 'ajaxload');xhr.setRequestHeader('X-CANDY-LOAD', Object.keys(arr).join(','));},
-            success: function(_data, status, request){
-              Candy.candy.page = request.getResponseHeader('x-candy-page');
-              $.each(arr, function(index, value){
-                $(value).fadeOut(400,function(){
-                  $(value).html(_data.output[index]);
-                  $(value).fadeIn();
-                });
-              });
-              var _t = setTimeout(function(){
-                if(typeof Candy.candy.actions.load == 'function') Candy.candy.actions.load();
-                if(Candy.candy.actions.page !== undefined && typeof Candy.candy.actions.page[Candy.candy.page] == "function") Candy.candy.actions.page[Candy.candy.page]();
-                if(callback!==undefined) callback(candy.page(),_data.variables);
-              }, 500);
-            },
-            error : function(){
-              window.location.replace(window.location.href);
-            }
-          });
-        });
-      }
+      Candy.load(window.location.href,callback,false);
     });
   }
 }
