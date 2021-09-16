@@ -1,11 +1,12 @@
 #version:20210915
+#delete:sys/import/Str.php
 assets/css/candy.css
 assets/js/candy.js
 sys/import/Mail.php
 sys/import/Minifier.php
 sys/import/Plugin.php
 sys/import/ResizeImage.php
-sys/import/Str.php
+sys/import/Var.php
 sys/import/Validation.php
 sys/import/Mysql/Table.php
 sys/autoload.php
