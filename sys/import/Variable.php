@@ -13,15 +13,18 @@ class Variable{
     $this->any = false;
     $val = is_array($val) ? $val : func_get_args();
     $result = !$any;
-    if(in_array('json',   $val)) $result = (($result || $any) && (($any && $result) || (json_decode($this->str) && json_last_error() === JSON_ERROR_NONE) ));
-    if(in_array('md5',    $val)) $result = (($result || $any) && (($any && $result) || (bool)preg_match('/^[a-f0-9A-F]{32}$/', $this->str) ));
-    if(in_array('numeric',$val)) $result = (($result || $any) && (($any && $result) || is_numeric($this->str) ));
-    if(in_array('email',  $val)) $result = (($result || $any) && (($any && $result) || filter_var($this->str, FILTER_VALIDATE_EMAIL) ));
-    if(in_array('ip',     $val)) $result = (($result || $any) && (($any && $result) || filter_var($this->str, FILTER_VALIDATE_IP) ));
-    if(in_array('float',  $val)) $result = (($result || $any) && (($any && $result) || filter_var($this->str, FILTER_VALIDATE_FLOAT) ));
-    if(in_array('mac',    $val)) $result = (($result || $any) && (($any && $result) || filter_var($this->str, FILTER_VALIDATE_MAC) ));
-    if(in_array('domain', $val)) $result = (($result || $any) && (($any && $result) || filter_var($this->str, FILTER_VALIDATE_DOMAIN) ));
-    if(in_array('url',    $val)) $result = (($result || $any) && (($any && $result) || preg_match("/\b(?:(?:https?|ftp):\/\/|www\.)[-a-z0-9+&@#\/%?=~_|!:,.;]*[-a-z0-9+&@#\/%=~_|]/i",$this->str) ));
+    if(in_array('alpha',        $val)) $result = (($result || $any) && (($any && $result) || ctype_alpha($this->str) ));
+    if(in_array('alphanumeric', $val)) $result = (($result || $any) && (($any && $result) || ctype_alnum($this->str) ));
+    if(in_array('domain',       $val)) $result = (($result || $any) && (($any && $result) || preg_match('/([a-z0-9\-]+\.){1,2}[a-z]{2,6}/i', $this->str) ));
+    if(in_array('email',        $val)) $result = (($result || $any) && (($any && $result) || filter_var($this->str, FILTER_VALIDATE_EMAIL) ));
+    if(in_array('float',        $val)) $result = (($result || $any) && (($any && $result) || filter_var($this->str, FILTER_VALIDATE_FLOAT) ));
+    if(in_array('host',         $val)) $result = (($result || $any) && (($any && $result) || filter_var((\Candy::string($this->str)->is('ip') ? $this->str : gethostbyname($this->str)), FILTER_VALIDATE_IP) ));
+    if(in_array('ip',           $val)) $result = (($result || $any) && (($any && $result) || filter_var($this->str, FILTER_VALIDATE_IP) ));
+    if(in_array('json',         $val)) $result = (($result || $any) && (($any && $result) || (json_decode($this->str) && json_last_error() === JSON_ERROR_NONE) ));
+    if(in_array('mac',          $val)) $result = (($result || $any) && (($any && $result) || filter_var($this->str, FILTER_VALIDATE_MAC) ));
+    if(in_array('md5',          $val)) $result = (($result || $any) && (($any && $result) || (bool)preg_match('/^[a-f0-9A-F]{32}$/', $this->str) ));
+    if(in_array('numeric',      $val)) $result = (($result || $any) && (($any && $result) || is_numeric($this->str) ));
+    if(in_array('url',          $val)) $result = (($result || $any) && (($any && $result) || preg_match("/\b(?:(?:https?|ftp):\/\/|www\.)[-a-z0-9+&@#\/%?=~_|!:,.;]*[-a-z0-9+&@#\/%=~_|]/i",$this->str) ));
     return $result;
   }
 

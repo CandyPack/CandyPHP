@@ -122,6 +122,12 @@ class Validation
             case 'numeric':
               $this->_error = isset($this->_method[$this->_name]) && $this->_method[$this->_name]!='' && !Candy::var($this->_method[$this->_name])->is('numeric');
               break;
+            case 'alpha':
+              $this->_error = isset($this->_method[$this->_name]) && $this->_method[$this->_name]!='' && !Candy::var($this->_method[$this->_name])->is('alpha');
+              break;
+            case 'alphanumeric':
+              $this->_error = isset($this->_method[$this->_name]) && $this->_method[$this->_name]!='' && !Candy::var($this->_method[$this->_name])->is('alphanumeric');
+              break;
             case 'email':
               $this->_error = isset($this->_method[$this->_name]) && $this->_method[$this->_name]!='' && !Candy::var($this->_method[$this->_name])->is('email');
               break;
