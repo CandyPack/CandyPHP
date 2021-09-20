@@ -231,6 +231,8 @@ class Route {
   }
   public static function print(){
     global $conn;
+    function set(){ return call_user_func_array("Candy::set", array_values(func_get_args())); }
+    function get(){ return call_user_func_array("Candy::get", array_values(func_get_args())); }
     Config::devmodeVersion();
     $route = new Route;
     $directory = 'controller';
