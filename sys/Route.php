@@ -81,11 +81,6 @@ class Route {
     global $conn;
     Config::checkBruteForce();
     if(!defined('CANDY_REQUESTS')) define('CANDY_REQUESTS',self::$request);
-    if(!function_exists('set')){
-      function set($p,$v=null,$a=null){
-        return Candy::set($p,$v,$a);
-      }
-    }
     if(isset($GLOBALS['_candy']['route']['method']) && $GLOBALS['_candy']['route']['method'] == 'page'){
       Candy::$ajax_var = new stdClass();
       Candy::$ajax_var->candy = new \stdClass();
@@ -271,9 +266,6 @@ class Route {
           if($storage->route->$routefile->run == $now) return false;
           $storage->route->$routefile->run = $now;
           Candy::storage('sys')->set('cron',$storage);
-          function set($p,$v=null,$a=null){
-            return Candy::set($p,$v,$a);
-          }
           if(isset($GLOBALS['cron'])){
             foreach ($GLOBALS['cron'] as $key => $value){
               if($value){
@@ -314,9 +306,6 @@ class Route {
                   if($storage->route->$routefile->run == $now) return false;
                   $storage->route->$routefile->run = $now;
                   Candy::storage('sys')->set('cron',$storage);
-                  function set($p,$v=null,$a=null){
-                    return Candy::set($p,$v,$a);
-                  }
                   if(isset($GLOBALS['cron'])){
                     foreach ($GLOBALS['cron'] as $key => $value){
                       if($value){
@@ -341,9 +330,6 @@ class Route {
           $storage = Candy::storage('sys')->get('cache');
           $hash = $_GET['hash'];
           if(!file_exists('storage/cache/async_'.$_GET['hash'].'.php')) return self::printPage();
-          function set($p,$v=null,$a=null){
-            return Candy::set($p,$v,$a);
-          }
           ignore_user_abort(true);
           $GLOBALS['_candy_async'] = $_GET['hash'];
           $storage = Candy::storage("cache/async/".$_GET['async_data'])->get('data');
