@@ -150,8 +150,9 @@ class Mysql_Table {
     if($sql === false) return $this->error();
     $this->success = $sql;
     $this->id = mysqli_insert_id(Mysql::$conn);
-    self::clearcache();
-    return new static($this->arr, ['id' => $this->id]);
+    $this->affected = mysqli_affected_rows(Mysql::$conn);
+    if($this->affected > 0) self::clearcache();
+    return new static($this->arr, ['id' => $this->id,'affected' => $this->affected]);
   }
   function replace($arr){
     $this->id = 1;
