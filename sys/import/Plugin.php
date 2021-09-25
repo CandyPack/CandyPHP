@@ -6,13 +6,14 @@ class Plugin{
   private $dir;
   private $name;
 
-  public function plugin($name){
+  public function plugin($name,$includes=null){
     if(!is_dir("plugin")) mkdir('plugin');
     $this->dir = "plugin/".$name;
     $this->plugin = $name;
     $arr_name = explode('/',$name);
     $this->name = end($arr_name);
     if(!file_exists("$this->dir/candy_loader.php")) self::get($name);
+    if($includes && is_array($includes)) foreach ($includes as $include) include("$this->dir/$include");
     return file_exists("$this->dir/candy_loader.php") ? include("$this->dir/candy_loader.php") : false;
   }
 
