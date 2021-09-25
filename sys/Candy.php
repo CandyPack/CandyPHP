@@ -773,10 +773,10 @@ class Candy {
     return $results;
   }
 
-  public static function plugin($name){
+  public static function plugin($name,$includes=null){
     self::import('Plugin');
     $plugin = new \Candy\Plugin();
-    return $plugin->plugin($name);
+    return $plugin->plugin($name,$includes);
   }
 
   public static function page($page=null){
