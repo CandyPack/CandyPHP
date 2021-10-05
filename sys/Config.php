@@ -91,6 +91,7 @@ class Config {
       $backupdirectory = $directory;
       if(!file_exists($backupdirectory.'mysql/')) mkdir($backupdirectory.'mysql/', 0777, true);
       if(!file_exists($backupdirectory.'www/')) mkdir($backupdirectory.'www/', 0777, true);
+      $file_date = date("Y-m-d");
       foreach($conns as $key => $conn){
         $tables = [];
         $result = mysqli_query($conn,"SHOW TABLES");
@@ -115,7 +116,6 @@ class Config {
           }
           $return .= "\n\n\n";
         }
-        $file_date = date("Y-m-d");
         $handle = fopen($backupdirectory."mysql/$file_date-$key.sql", 'w+');
         fwrite($handle, $return);
         fclose($handle);
@@ -244,7 +244,10 @@ class Config {
         $dh  = opendir($dir);
         while(false !== ($filename = readdir($dh))){
           if($filename=='.' || $filename=='..') continue;
-          if(strpos($dir.$filename, '.zip.') !== false) unlink($dir.$filename);
+          if(strpos($dir.$filename, '.zip.') !== false){
+            unlink($dir.$filename);
+            continue;
+          }
           $filemtime = filemtime($dir.$filename);
           $diff = time()-$filemtime;
           $days = round($diff/86400);
