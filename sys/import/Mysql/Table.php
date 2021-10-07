@@ -23,7 +23,7 @@ class Mysql_Table {
         }
       }
     }
-    if($type == 'add') return "INSERT INTO ".$this->escape($this->arr['table'],'table').' '.$this->arr['into'].' VALUES '.$this->arr['values'].'';
+    if($type == 'add') return "INSERT ".(isset($this->arr['ignore']) ? 'IGNORE' : '')." INTO ".$this->escape($this->arr['table'],'table').' '.$this->arr['into'].' VALUES '.$this->arr['values'].'';
     if($type == 'get') return "SELECT ".(isset($this->arr['select']) ? $this->arr['select'] : '*')." FROM ".$this->escape($this->arr['table'],'table')." ".$query;
     if($type == 'set') return "UPDATE `".$this->arr['table']."` SET ".$this->arr['set']." ".$query;
     if($type == 'delete') return "DELETE FROM ".$this->escape($this->arr['table'],'table')." ".$query;
@@ -153,6 +153,10 @@ class Mysql_Table {
     $this->affected = mysqli_affected_rows(Mysql::$conn);
     if($this->affected > 0) self::clearcache();
     return new static($this->arr, ['id' => $this->id,'affected' => $this->affected]);
+  }
+  function insertIgnore($arr){
+    $this->arr['ignore'] = true;
+    return $this->add($arr);
   }
   function replace($arr){
     $this->id = 1;
