@@ -8,7 +8,7 @@ class Plugin{
 
   public function plugin($name,$includes=null){
     if(!is_dir("plugin")) mkdir('plugin');
-    $this->dir = "plugin/".$name;
+    $this->dir = BASE_PATH."/plugin/$name";
     $this->plugin = $name;
     $arr_name = explode('/',$name);
     $this->name = end($arr_name);
