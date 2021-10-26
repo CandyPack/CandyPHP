@@ -123,7 +123,7 @@ class Candy {
           $count++;
         }
       }
-    }elseif($_SERVER['REQUEST_METHOD']==='POST'){
+    }elseif(isset($_SERVER['REQUEST_METHOD']) && $_SERVER['REQUEST_METHOD']==='POST'){
       $count = 1;
     }
     if($t){
