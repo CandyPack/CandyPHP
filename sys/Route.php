@@ -263,7 +263,7 @@ class Route {
           $storage->route = isset($storage->route) ? $storage->route : new \stdClass;
           $storage->route->$routefile = isset($storage->route->$routefile) ? $storage->route->$routefile : new \stdClass;
           if(!isset($storage->route->$routefile->run)) $storage->route->$routefile->run = '0000-00-00 00:00';
-          // if($storage->route->$routefile->run == $now) return false;
+          if($storage->route->$routefile->run == $now) return false;
           $storage->route->$routefile->run = $now;
           Candy::storage('sys')->set('cron',$storage);
           if(isset($GLOBALS['cron'])){
