@@ -37,12 +37,24 @@ class Config {
       Lang::set($lang);
     }
   }
+
   public static function cron($b = true){
     return self::cronJobs($b);
   }
+
   public static function cronJobs($b = true){
     define('CRON_JOBS',$b);
     $command = '* * * * * curl -L -A candyPHP-cron '.str_replace('www.','',$_SERVER['SERVER_NAME']).'/?_candy=cron';
+    if($b == 'cli'){
+      $arr_subs = explode('.',$_SERVER['HTTP_HOST']);
+      $domain = '';
+      $route = 'www';
+      foreach ($arr_subs as $key){
+        $domain .= $key.'.';
+        if(file_exists('route/'.substr($domain,0,-1).'.php')) $route = substr($domain,0,-1);
+      }
+      $command = "* * * * * php ".BASE_PATH."/index.php candy cron $route";
+    }
     exec('crontab -l', $crontab);
     $append = true;
     $is_override = false;
@@ -66,13 +78,16 @@ class Config {
       }
     }
   }
+
   public static function autoBackup($b = true,$directory = '../backup/'){
     define('AUTO_BACKUP',$b);
     define('BACKUP_DIRECTORY',$directory);
   }
+
   public static function backup($b = true,$directory = '../backup/'){
     return self::autoBackup($b,$directory);
   }
+
   public static function runBackup(){
     global $backupdirectory;
     $conns = [];
@@ -140,6 +155,7 @@ class Config {
       }
     }
   }
+
   public static function autoUpdate($b = true){
     if($b && intval(date("Hi"))==10 && ((substr($_SERVER['SERVER_ADDR'],0,8)=='192.168.') || ($_SERVER['SERVER_ADDR']==$_SERVER['REMOTE_ADDR'])) && isset($_GET['_candy']) && $_GET['_candy']=='cron'){
       set_time_limit(0);
@@ -379,7 +395,7 @@ class Config {
 
   public static function checkBruteForce($c = 1){
     if(!isset($GLOBALS['_candy']['settings']['bruteforce'])) return false;
-    if($_SERVER['REQUEST_METHOD'] !== 'POST') return false;
+    if(!isset($_SERVER['REQUEST_METHOD']) || $_SERVER['REQUEST_METHOD'] !== 'POST') return false;
     $try = $GLOBALS['_candy']['settings']['bruteforce']['try'];
     $storage = Candy::storage('sys')->get('bruteforce');
     $ip = $_SERVER['REMOTE_ADDR'];

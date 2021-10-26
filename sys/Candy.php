@@ -606,7 +606,7 @@ class Candy {
     if(isset($GLOBALS['_candy_async']) && $GLOBALS['_candy_async']!=null){
       unset($GLOBALS['_candy_async']);
       if(!isset($GLOBALS['_candy']['cached'])) $GLOBALS['_candy']['cached'] = [];
-      $data_id = $_GET['async_data'];
+      $data_id = isset($_GET['async_data']) ? $_GET['async_data'] : $_SERVER['argv'][4];
       $storage = Candy::storage("cache/async/$data_id")->get('data');
       $func = new ReflectionFunction($method);
       $f = $func->getFileName();
@@ -680,16 +680,18 @@ class Candy {
     $data_id = mt_rand().time().rand(100,999);
     $storage = ['hash' => $func_hash, 'data' => $data, 'array' => is_array($data) ? 1 : 0, 'file' => $f, 'line' => $start_line];
     Candy::storage("cache/async/$data_id")->set('data',$storage);
-    $curl = self::curl(str_replace('www.','',$_SERVER['SERVER_NAME'])."/?_candy=async&hash=$func_hash&async_data=$data_id",
-               $datas,
-               null,
-               'post',
-               ['CURLOPT_TIMEOUT' => 1,
-                'CURLOPT_FRESH_CONNECT' => true,
-                'CURLOPT_FOLLOWLOCATION' => true,
-                'CURLOPT_RETURNTRANSFER' => true,
-                'CURLOPT_POST' => true,
-                'CURLOPT_SSL_VERIFYHOST' => 0]);
+    if(isset($_SERVER['SERVER_NAME'])){
+      $curl = self::curl(str_replace('www.','',$_SERVER['SERVER_NAME'])."/?_candy=async&hash=$func_hash&async_data=$data_id",
+                 $datas,
+                 null,
+                 'post',
+                 ['CURLOPT_TIMEOUT' => 1,
+                  'CURLOPT_FRESH_CONNECT' => true,
+                  'CURLOPT_FOLLOWLOCATION' => true,
+                  'CURLOPT_RETURNTRANSFER' => true,
+                  'CURLOPT_POST' => true,
+                  'CURLOPT_SSL_VERIFYHOST' => 0]);
+    } else exec("php ".BASE_PATH."/index.php candy async $func_hash $data_id > /dev/null 2>&1 &");
   }
 
   public static function isDev($f = null){

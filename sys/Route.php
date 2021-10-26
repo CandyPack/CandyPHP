@@ -252,18 +252,18 @@ class Route {
       if($_SERVER['argv'][1] != 'candy') self::printPage();
       switch ($_SERVER['argv'][2]) {
         case 'cron':
-          if(!defined('CRON_JOBS') || CRON_JOBS !== true) self::printPage();
+          if(!defined('CRON_JOBS') || CRON_JOBS === false) self::printPage();
           $GLOBALS['cron'] = [];
-          if(file_exists("route/".$_SERVER['argv'][3])){
+          if(file_exists(BASE_PATH."/route/".$_SERVER['argv'][3].".php")){
             $routefile = $_SERVER['argv'][3];
-            include("route/$routefile");
+            include(BASE_PATH."/route/$routefile.php");
           }
           $now = date('Y-m-d H:i');
           $storage = Candy::storage('sys')->get('cron');
           $storage->route = isset($storage->route) ? $storage->route : new \stdClass;
           $storage->route->$routefile = isset($storage->route->$routefile) ? $storage->route->$routefile : new \stdClass;
           if(!isset($storage->route->$routefile->run)) $storage->route->$routefile->run = '0000-00-00 00:00';
-          if($storage->route->$routefile->run == $now) return false;
+          // if($storage->route->$routefile->run == $now) return false;
           $storage->route->$routefile->run = $now;
           Candy::storage('sys')->set('cron',$storage);
           if(isset($GLOBALS['cron'])){
@@ -275,11 +275,23 @@ class Route {
                   $cron = preg_replace("((.*)\/)", "$1/".'cron'.'/', $cron);
                 }
                 Candy::async(function($cron){
-                  include('controller/'.$cron.'.php');
+                  include(BASE_PATH.'/controller/'.$cron.'.php');
                 },$cron);
               }
             }
           }
+          break;
+        case 'async':
+          if(!isset($_SERVER['argv'][3])) break;
+          $storage = Candy::storage('sys')->get('cache');
+          $hash = $_GET['hash'];
+          if(!file_exists('storage/cache/async_'.$_SERVER['argv'][3].'.php')) return self::printPage();
+          $GLOBALS['_candy_async'] = $_SERVER['argv'][3];
+          $storage = Candy::storage("cache/async/".$_SERVER['argv'][4])->get('data');
+          $f = BASE_PATH.'/storage/cache/async_'.$_SERVER['argv'][3].'.php';
+          $GLOBALS['_candy']['cached'][$f]['file'] = $storage->file;
+          $GLOBALS['_candy']['cached'][$f]['line'] = $storage->line;
+          include($f);
           break;
       }
     }else if(isset($_GET['_candy']) && $_GET['_candy']!=''){
