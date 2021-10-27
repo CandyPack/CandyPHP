@@ -230,14 +230,12 @@ class Route {
     function get(){ return call_user_func_array("Candy::get", array_values(func_get_args())); }
     Config::devmodeVersion();
     $route = new Route;
-    $directory = 'controller';
-    $import = array_diff(scandir($directory), array('..', '.','page','post','get','cron'));
+    $directory = BASE_PATH.'/controller';
+    $import = array_diff(scandir($directory), ['..', '.','page','post','get','cron']);
     foreach ($import as $key){
-      if(substr($key,-4)=='.php'){
-        include('controller/'.$key);
-      }
+      if(substr($key,-4)=='.php') include(BASE_PATH."/controller/$key");
     }
-    $arr_subs = explode('.',$_SERVER['HTTP_HOST']);
+    $arr_subs = explode('.',($_SERVER['HTTP_HOST'] ?? 'www'));
     $domain = '';
     $routefile = 'www';
     foreach ($arr_subs as $key){
@@ -246,13 +244,13 @@ class Route {
         $routefile = substr($domain,0,-1);
       }
     }
-    require_once('route/'.$routefile.'.php');
+    require_once(BASE_PATH."/route/$routefile.php");
     $GLOBALS['_candy']['route']['name'] = $routefile;
     if (php_sapi_name() == "cli" && !empty($_SERVER['argv'])) {
       if($_SERVER['argv'][1] != 'candy') self::printPage();
       switch ($_SERVER['argv'][2]) {
         case 'cron':
-          if(!defined('CRON_JOBS') || CRON_JOBS === false) self::printPage();
+          if(!defined('CRON_JOBS') || CRON_JOBS !== 'cli') self::printPage();
           $GLOBALS['cron'] = [];
           if(file_exists(BASE_PATH."/route/".$_SERVER['argv'][3].".php")){
             $routefile = $_SERVER['argv'][3];
@@ -282,10 +280,9 @@ class Route {
           }
           break;
         case 'async':
-          if(!isset($_SERVER['argv'][3])) break;
+          if(!isset($_SERVER['argv'][3])) return self::printPage();
           $storage = Candy::storage('sys')->get('cache');
-          $hash = $_GET['hash'];
-          if(!file_exists('storage/cache/async_'.$_SERVER['argv'][3].'.php')) return self::printPage();
+          if(!file_exists(BASE_PATH.'/storage/cache/async_'.$_SERVER['argv'][3].'.php')) return self::printPage();
           $GLOBALS['_candy_async'] = $_SERVER['argv'][3];
           $storage = Candy::storage("cache/async/".$_SERVER['argv'][4])->get('data');
           $f = BASE_PATH.'/storage/cache/async_'.$_SERVER['argv'][3].'.php';

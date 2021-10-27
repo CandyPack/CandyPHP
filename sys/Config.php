@@ -44,40 +44,44 @@ class Config {
 
   public static function cronJobs($b = true){
     define('CRON_JOBS',$b);
-  }
-
-  public static function runCron(){
-    if(!defined('CRON_JOBS') || !CRON_JOBS) return false;
-    if(CRON_JOBS === 'cli'){
-      $arr_subs = explode('.',($_SERVER['HTTP_HOST'] ?? 'www'));
-      $domain = '';
-      $route = 'www';
-      foreach ($arr_subs as $key){
-        $domain .= $key.'.';
-        if(file_exists('route/'.substr($domain,0,-1).'.php')) $route = substr($domain,0,-1);
-      }
-      $command = "* * * * * php ".BASE_PATH."/index.php candy cron $route";
-    } else $command = '* * * * * curl -L -A candyPHP-cron '.str_replace('www.','',$_SERVER['SERVER_NAME']).'/?_candy=cron';
+    $arr_subs = explode('.',($_SERVER['HTTP_HOST'] ?? 'www'));
+    $domain = '';
+    $route = 'www';
+    foreach ($arr_subs as $key){
+      $domain .= $key.'.';
+      if(file_exists('route/'.substr($domain,0,-1).'.php')) $route = substr($domain,0,-1);
+    }
+    if($b === 'cli'){
+      $command_add = "* * * * * php ".BASE_PATH."/index.php candy cron $route";
+      $command_delete = '* * * * * curl -L -A candyPHP-cron '.str_replace('www.','',($_SERVER['SERVER_NAME'] ?? '')).'/?_candy=cron';
+    } else {
+      if(!isset($_SERVER['SERVER_NAME'])) return false;
+      $command_add = '* * * * * curl -L -A candyPHP-cron '.str_replace('www.','',($_SERVER['SERVER_NAME'] ?? '')).'/?_candy=cron';
+      $command_delete = "* * * * * php ".BASE_PATH."/index.php candy cron $route";
+    }
     exec('crontab -l', $crontab);
     $append = true;
     $is_override = false;
+    $delete = false;
     if(isset($crontab) && is_array($crontab)){
       foreach ($crontab as $key) {
-        if($key==$command){
+        if($key==$command_add){
           $is_override = !$append;
           $append = false;
+        } else if($key==$command_delete){
+          $delete = true;
         }
       }
-      if($append || $is_override){
-        if($is_override){
+      if($append || $is_override || $delete){
+        if($is_override || $delete){
           exec('crontab -r ');
           foreach ($crontab as $key) {
-            if($key!='' && $key!=$command){
+            if($key!='' && $key!=$command_add && $key!=$command_delete){
               exec('echo -e "`crontab -l`\n'.$key.'" | crontab -', $output);
             }
           }
         }
-        exec('echo -e "`crontab -l`\n'.$command.'" | crontab -', $output);
+        exec('echo -e "`crontab -l`\n'.$command_add.'" | crontab -', $output);
       }
     }
   }
