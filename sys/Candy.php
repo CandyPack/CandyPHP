@@ -61,10 +61,9 @@ class Candy {
       }
     });
     if(defined('MYSQL_CONNECT') && MYSQL_CONNECT==true) Mysql::connect();
-    if(defined('AUTO_BACKUP') && AUTO_BACKUP==true && intval(date('H')) == 0){
-      Config::runBackup();
-      Config::backupClear();
-    }
+    Config::runBackup();
+    Config::runUpdate();
+    Config::backupClear();
     if(!defined('CANDY_COMPOSER') || (defined('CANDY_COMPOSER') && CANDY_COMPOSER)){
       if(defined('CANDY_COMPOSER_DIRECTORY')){
         include(CANDY_COMPOSER_DIRECTORY);

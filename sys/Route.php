@@ -230,12 +230,14 @@ class Route {
     function get(){ return call_user_func_array("Candy::get", array_values(func_get_args())); }
     Config::devmodeVersion();
     $route = new Route;
-    $directory = BASE_PATH.'/controller';
-    $import = array_diff(scandir($directory), ['..', '.','page','post','get','cron']);
+    $directory = 'controller';
+    $import = array_diff(scandir($directory), array('..', '.','page','post','get','cron'));
     foreach ($import as $key){
-      if(substr($key,-4)=='.php') include(BASE_PATH."/controller/$key");
+      if(substr($key,-4)=='.php'){
+        include('controller/'.$key);
+      }
     }
-    $arr_subs = explode('.',($_SERVER['HTTP_HOST'] ?? 'www'));
+    $arr_subs = explode('.',$_SERVER['HTTP_HOST']);
     $domain = '';
     $routefile = 'www';
     foreach ($arr_subs as $key){
@@ -244,7 +246,7 @@ class Route {
         $routefile = substr($domain,0,-1);
       }
     }
-    require_once(BASE_PATH."/route/$routefile.php");
+    require_once('route/'.$routefile.'.php');
     $GLOBALS['_candy']['route']['name'] = $routefile;
     if (php_sapi_name() == "cli" && !empty($_SERVER['argv'])) {
       if($_SERVER['argv'][1] != 'candy') self::printPage();
@@ -280,9 +282,10 @@ class Route {
           }
           break;
         case 'async':
-          if(!isset($_SERVER['argv'][3])) return self::printPage();
+          if(!isset($_SERVER['argv'][3])) break;
           $storage = Candy::storage('sys')->get('cache');
-          if(!file_exists(BASE_PATH.'/storage/cache/async_'.$_SERVER['argv'][3].'.php')) return self::printPage();
+          $hash = $_GET['hash'];
+          if(!file_exists('storage/cache/async_'.$_SERVER['argv'][3].'.php')) return self::printPage();
           $GLOBALS['_candy_async'] = $_SERVER['argv'][3];
           $storage = Candy::storage("cache/async/".$_SERVER['argv'][4])->get('data');
           $f = BASE_PATH.'/storage/cache/async_'.$_SERVER['argv'][3].'.php';

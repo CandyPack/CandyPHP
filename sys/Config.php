@@ -44,7 +44,11 @@ class Config {
 
   public static function cronJobs($b = true){
     define('CRON_JOBS',$b);
-    if($b == 'cli'){
+  }
+
+  public static function runCron(){
+    if(!defined('CRON_JOBS') || !CRON_JOBS) return false;
+    if(CRON_JOBS === 'cli'){
       $arr_subs = explode('.',($_SERVER['HTTP_HOST'] ?? 'www'));
       $domain = '';
       $route = 'www';
@@ -91,8 +95,11 @@ class Config {
     global $backupdirectory;
     $conns = [];
     foreach($GLOBALS['candy_mysql'] as $key => $val) if($val['backup']) $conns[$key] = Mysql::connect($key);
-    $b = defined('AUTO_BACKUP') && AUTO_BACKUP;
-    if($b && intval(date("Hi"))==1 && ((substr($_SERVER['SERVER_ADDR'],0,8)=='192.168.') || ($_SERVER['SERVER_ADDR']==$_SERVER['REMOTE_ADDR'])) && isset($_GET['_candy']) && $_GET['_candy']=='cron'){
+    if(!defined('AUTO_BACKUP') || !AUTO_BACKUP) return false;
+    $check = (substr($_SERVER['SERVER_ADDR'],0,8)=='192.168.' || $_SERVER['SERVER_ADDR']==$_SERVER['REMOTE_ADDR']) && isset($_GET['_candy']) && $_GET['_candy']=='cron';
+    $check = $check || php_sapi_name() == "cli" && $_SERVER['argv'][1] == 'candy' && $_SERVER['argv'][2] == 'cron';
+    $check = $check && AUTO_BACKUP && intval(date("Hi"))==1;
+    if($check){
       $storage = Candy::storage('sys')->get('backup');
       $date = intval(date('Ymd'));
       $storage->last = isset($storage->last) ? $storage->last : '';
@@ -101,10 +108,22 @@ class Config {
       Candy::storage('sys')->set('backup',$storage);
       set_time_limit(0);
       ini_set('memory_limit', '-1');
-      $directory = BACKUP_DIRECTORY;
-      $backupdirectory = $directory;
-      if(!file_exists($backupdirectory.'mysql/')) mkdir($backupdirectory.'mysql/', 0777, true);
-      if(!file_exists($backupdirectory.'www/')) mkdir($backupdirectory.'www/', 0777, true);
+      $directory = BASE_PATH."/".BACKUP_DIRECTORY;
+      $directory = explode('/',$directory);
+      $directory = array_reverse($directory);
+      $backupdirectory = [];
+      $last = "";
+      foreach ($directory as $val) {
+        if($last == '..' || $val == '..' || empty($val)){
+          $last = $val;
+          continue;
+        }
+        $last = $val;
+        $backupdirectory[] = $val;
+      }
+      $backupdirectory = "/".implode('/',array_reverse($backupdirectory));
+      if(!file_exists("$backupdirectory/mysql/")) mkdir("$backupdirectory/mysql/", 0777, true);
+      if(!file_exists("$backupdirectory/www/")) mkdir("$backupdirectory/www/", 0777, true);
       $file_date = date("Y-m-d");
       foreach($conns as $key => $conn){
         $tables = [];
@@ -130,46 +149,44 @@ class Config {
           }
           $return .= "\n\n\n";
         }
-        $handle = fopen($backupdirectory."mysql/$file_date-$key.sql", 'w+');
+        $handle = fopen("$backupdirectory/mysql/$file_date-$key.sql", 'w+');
         fwrite($handle, $return);
         fclose($handle);
       }
-      exec("(gzip $backupdirectory/mysql/$file_date-*.sql; rm $backupdirectory/mysql/$file_date-*.sql; rm $backupdirectory/www/$file_date-*.zip.*;) > /dev/null 2>&1 &");
-      $rootPath = realpath('./');
+      exec("(gzip $backupdirectory/mysql/$file_date-*.sql; rm $backupdirectory/mysql/$file_date-*.sql;) > /dev/null 2>&1 &");
       $zip = new ZipArchive();
-      $zip->open($backupdirectory."www/$file_date-backup.zip", ZipArchive::CREATE | ZipArchive::OVERWRITE);
-      $files = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($rootPath),
-                                             RecursiveIteratorIterator::LEAVES_ONLY);
-      foreach($files as $name => $file){
-        if(!$file->isDir()){
-          $filePath = $file->getRealPath();
-          $relativePath = substr($filePath, strlen($rootPath) + 1);
-          $zip->addFile($filePath, $relativePath);
-        }
+      $zip->open("$backupdirectory/www/$file_date-backup.zip", ZipArchive::CREATE | ZipArchive::OVERWRITE);
+      $files = Candy::dirContents(BASE_PATH);
+      foreach($files as $file){
+        if(is_dir($file) || Candy::var($file)->contains(BASE_PATH."/storage/cache")) continue;
+        $relativePath = substr($file, strlen(BASE_PATH) + 1);
+        $zip->addFile($file,$relativePath);
       }
-      try {
-        $zip->close();
-      } catch (\Exception $e) {
-
-      }
+      $zip->close();
+      exec("(sleep 60; rm $backupdirectory/www/$file_date-*.zip.*;) > /dev/null 2>&1 &");
     }
   }
 
   public static function autoUpdate($b = true){
+    define('CANDY_UPDATE',$b);
+  }
+
+  public static function runUpdate(){
+    if(!defined('CANDY_UPDATE') || !CANDY_UPDATE) return false;
     $check = (substr($_SERVER['SERVER_ADDR'],0,8)=='192.168.' || $_SERVER['SERVER_ADDR']==$_SERVER['REMOTE_ADDR']) && isset($_GET['_candy']) && $_GET['_candy']=='cron';
     $check = $check || php_sapi_name() == "cli" && $_SERVER['argv'][1] == 'candy' && $_SERVER['argv'][2] == 'cron';
-    $check = $check && $b && intval(date("Hi"))==10;
+    $check = $check && CANDY_UPDATE && intval(date("Hi"))==10;
     if($check){
       set_time_limit(0);
       ini_set('memory_limit', '4G');
       $base = 'https://raw.githubusercontent.com/CandyPack/CandyPHP/master/';
-      $get = file_get_contents($base.'update.txt');
+      $get = Candy::curl($base.'update.txt');
       $arr_get = explode("\n",$get);
       $now = getdate();
       $params = array();
       $update = false;
       if(file_exists('update.txt')){
-        $current = file_get_contents('update.txt', FILE_USE_INCLUDE_PATH);
+        $current = file_get_contents(BASE_PATH.'/update.txt', FILE_USE_INCLUDE_PATH);
         $arr_current = explode("\n",$current);
         foreach($arr_current as $current){
           if(substr($current,0,1)=='#'){
@@ -203,12 +220,12 @@ class Config {
             $makedir = '';
             for ($i=0; $i < count($arr_dir) - 1; $i++) $makedir .= $arr_dir[$i].'/';
             $makedir = substr($makedir,0,-1);
-            if(!file_exists($makedir)) mkdir($makedir, 0777, true);
+            if(!file_exists(BASE_PATH."/$makedir")) mkdir(BASE_PATH."/$makedir", 0777, true);
           }
           $content = '';
-          $content = file_get_contents($base.$key);
+          $content = Candy::curl($base.$key);
           if(trim($content)!=''){
-            $file = fopen($key, "w") or die("Unable to open file!");
+            $file = fopen(BASE_PATH."/$key", "w") or die("Unable to open file!");
             fwrite($file, $content);
             fclose($file);
           }
