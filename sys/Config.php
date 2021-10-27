@@ -44,8 +44,9 @@ class Config {
 
   public static function cronJobs($b = true){
     define('CRON_JOBS',$b);
+    $command = '* * * * * curl -L -A candyPHP-cron '.str_replace('www.','',$_SERVER['SERVER_NAME']).'/?_candy=cron';
     if($b == 'cli'){
-      $arr_subs = explode('.',($_SERVER['HTTP_HOST'] ?? 'www'));
+      $arr_subs = explode('.',$_SERVER['HTTP_HOST']);
       $domain = '';
       $route = 'www';
       foreach ($arr_subs as $key){
@@ -53,7 +54,7 @@ class Config {
         if(file_exists('route/'.substr($domain,0,-1).'.php')) $route = substr($domain,0,-1);
       }
       $command = "* * * * * php ".BASE_PATH."/index.php candy cron $route";
-    } else $command = '* * * * * curl -L -A candyPHP-cron '.str_replace('www.','',$_SERVER['SERVER_NAME']).'/?_candy=cron';
+    }
     exec('crontab -l', $crontab);
     $append = true;
     $is_override = false;
@@ -156,7 +157,10 @@ class Config {
   }
 
   public static function autoUpdate($b = true){
-    if($b && intval(date("Hi"))==10 && ((substr($_SERVER['SERVER_ADDR'],0,8)=='192.168.') || ($_SERVER['SERVER_ADDR']==$_SERVER['REMOTE_ADDR'])) && isset($_GET['_candy']) && $_GET['_candy']=='cron'){
+    $check = (substr($_SERVER['SERVER_ADDR'],0,8)=='192.168.' || $_SERVER['SERVER_ADDR']==$_SERVER['REMOTE_ADDR']) && isset($_GET['_candy']) && $_GET['_candy']=='cron';
+    $check = $check || php_sapi_name() == "cli" && $_SERVER['argv'][1] == 'candy' && $_SERVER['argv'][2] == 'cron';
+    $check = $check && $b && intval(date("Hi"))==10;
+    if($check){
       set_time_limit(0);
       ini_set('memory_limit', '4G');
       $base = 'https://raw.githubusercontent.com/CandyPack/CandyPHP/master/';
@@ -455,4 +459,4 @@ class Config {
 }
 
 $config = new Config();
-include(BASE_PATH.'/config.php');
+include('config.php');
