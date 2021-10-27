@@ -44,9 +44,8 @@ class Config {
 
   public static function cronJobs($b = true){
     define('CRON_JOBS',$b);
-    $command = '* * * * * curl -L -A candyPHP-cron '.str_replace('www.','',$_SERVER['SERVER_NAME']).'/?_candy=cron';
     if($b == 'cli'){
-      $arr_subs = explode('.',$_SERVER['HTTP_HOST']);
+      $arr_subs = explode('.',($_SERVER['HTTP_HOST'] ?? 'www'));
       $domain = '';
       $route = 'www';
       foreach ($arr_subs as $key){
@@ -54,7 +53,7 @@ class Config {
         if(file_exists('route/'.substr($domain,0,-1).'.php')) $route = substr($domain,0,-1);
       }
       $command = "* * * * * php ".BASE_PATH."/index.php candy cron $route";
-    }
+    } else $command = '* * * * * curl -L -A candyPHP-cron '.str_replace('www.','',$_SERVER['SERVER_NAME']).'/?_candy=cron';
     exec('crontab -l', $crontab);
     $append = true;
     $is_override = false;
@@ -459,4 +458,4 @@ class Config {
 }
 
 $config = new Config();
-include('config.php');
+include(BASE_PATH.'/config.php');
