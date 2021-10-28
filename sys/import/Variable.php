@@ -57,8 +57,13 @@ class Variable{
   public function clear($arr){
     $replace = [];
     $arr = is_array($arr) ? $arr : func_get_args();
-    foreach ($arr as $key) $replace[$key] = '';
-    return self::replace($replace);
+    if(is_array($this->str)) {
+      foreach ($arr as $val) if(($key = array_search($val, $this->str)) !== false) unset($this->str[$key]);
+      return $this->str;
+    } else {
+      foreach ($arr as $key) $replace[$key] = '';
+      return self::replace($replace);
+    }
   }
 
   public function isBegin($var){
