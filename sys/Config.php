@@ -31,11 +31,9 @@ class Config {
     return self::languageDetect($b);
   }
   public static function languageDetect($b  = 'en'){
-    if(isset($_SERVER['HTTP_ACCEPT_LANGUAGE'])){
-      $lang = substr($_SERVER['HTTP_ACCEPT_LANGUAGE'], 0, 2);
-      $GLOBALS['_candy']['language']['default'] = $b;
-      Lang::set($lang);
-    }
+    $lang = isset($_SERVER['HTTP_ACCEPT_LANGUAGE']) ? substr($_SERVER['HTTP_ACCEPT_LANGUAGE'], 0, 2) : $b;
+    $GLOBALS['_candy']['language']['default'] = $b;
+    Lang::set($lang);
   }
 
   public static function cron($b = true){

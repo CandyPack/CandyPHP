@@ -3,7 +3,7 @@ class Lang {
   public $lang;
 
   public static function get($var, $arr = null){
-    if(is_callable($GLOBALS['_lang'])) $return = $GLOBALS['_lang']($var);
+    if(isset($GLOBALS['_lang']) && is_callable($GLOBALS['_lang'])) $return = $GLOBALS['_lang']($var);
     else $return = isset($GLOBALS['_lang'][$var]) ? $GLOBALS['_lang'][$var] : $var;
     if($arr!==null){
       if(is_array($arr)){
