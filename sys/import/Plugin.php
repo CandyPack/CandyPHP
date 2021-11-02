@@ -84,13 +84,13 @@ class Plugin{
     $obj = json_decode($json);
     $src = $this->src($obj->autoload);
     $loader = [];
-    foreach($src as $key){
-      $loader = array_merge($loader,(is_dir($key) ? self::dir($key) : [$key]));
-    }
+    foreach($src as $key) $loader = array_merge($loader,(is_dir($key) ? self::dir($key) : [$key]));
     $loader_php = "<?php \n";
     $loader_php .= '$_plug = "'.$this->name.'";'."\n";
     $loader_php .= 'if(isset($GLOBALS["_candy"]["plugin"][$_plug])) return $GLOBALS["_candy"]["plugin"][$_plug];'."\n";
+    $loader_php .= 'spl_autoload_register(function ($class) {'."\n";
     foreach($loader as $key) if(strtolower(substr($key,-4))=='.php') $loader_php .= "include (BASE_PATH.'".str_replace(BASE_PATH,'',$key)."');\n";
+    $loader_php .= '});'."\n";
     $loader_php .= '$GLOBALS["_candy"]["plugin"][$_plug] = true;'."\n";
     $loader_php .= 'return true;';
     file_put_contents("$plug_dir/candy_loader.php", $loader_php);
@@ -110,7 +110,9 @@ class Plugin{
     $loader .= "\n/* --- CANDY PHP - BEGIN --- */\n";
     $loader .= isset($obj->begin) ? $obj->begin."\n" : '';
     $loader .= "\n/* --- CANDY PHP - AUTOLOAD --- */\n";
-    foreach($autoload as $key) if(strtolower(substr($key,-4))=='.php') $loader .= "include (BASE_PATH.'/".str_replace(BASE_PATH,'',$key)."');\n";
+    $loader_php .= 'spl_autoload_register(function ($class) {'."\n";
+    foreach($autoload as $key) if(strtolower(substr($key,-4))=='.php') $loader .= "include (BASE_PATH.'".str_replace(BASE_PATH,'',$key)."');\n";
+    $loader_php .= '});'."\n";
     $loader .= "\n/* --- CANDY PHP - END --- */\n";
     $loader .= isset($obj->end) ? $obj->end."\n" : '';
     $loader .= '$GLOBALS["_candy"]["plugin"][$_plug] = '.$return.";\n";
@@ -126,7 +128,8 @@ class Plugin{
     $mkdir = [];
     foreach($dirs as $key){
       $mkdir[] = $key;
-      if(!is_dir(implode('/',$mkdir))) mkdir(implode('/',$mkdir));
+      $dir = implode('/',$mkdir);
+      if(!empty($dir) && !is_dir($dir)) mkdir($dir);
     }
     if(file_exists("$plug_dir/git.zip")) unlink("$plug_dir/git.zip");
     $save = file_put_contents("$plug_dir/git.zip",$zip);
@@ -155,9 +158,7 @@ class Plugin{
   public function dir($path){
     $scandir = scandir($path);
     $arr = [];
-    foreach($scandir as $key){
-      if(substr($key,-4)=='.php') $arr[] = "/".$path.$key;
-    }
+    foreach($scandir as $key) if(substr($key,-4)=='.php') $arr[] = $path."/".$key;
     return $arr;
   }
 }
