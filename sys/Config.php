@@ -274,7 +274,7 @@ class Config {
   }
 
   public static function backupClear(){
-    if(intval(date('Hi')) != 10) return false;
+    if(!defined('BACKUP_DIRECTORY') || intval(date('Hi')) != 10) return false;
     $arr = ['www','mysql'];
     foreach ($arr as $key){
       $dir = substr(BACKUP_DIRECTORY,-1)=='/' ? BACKUP_DIRECTORY.$key.'/' : BACKUP_DIRECTORY.'/'.$key.'/';
