@@ -46,7 +46,7 @@ class Mysql_Table {
     if(count(func_get_args()) == 1 && !is_array(func_get_args()[0])){
       $this->arr['having'] = is_numeric(func_get_args()[0]) ? "id='".func_get_args()[0]."'" : "";
     }elseif(count(func_get_args()) > 0){
-      $this->arr['having'] = isset($this->arr['where']) && trim($this->arr['where'])!='' ? $this->arr['where'].' AND '.$this->whereExtract(func_get_args()) : $this->whereExtract(func_get_args());
+      $this->arr['having'] = isset($this->arr['having']) && trim($this->arr['having'])!='' ? $this->arr['having'].' AND '.$this->whereExtract(func_get_args()) : $this->whereExtract(func_get_args());
     }
     return new static($this->arr);
   }
