@@ -155,7 +155,7 @@ class Config {
         fwrite($handle, $return);
         fclose($handle);
       }
-      exec("(gzip $backupdirectory/mysql/$file_date-*.sql; rm $backupdirectory/mysql/$file_date-*.sql;) > /dev/null 2>&1 &");
+      exec("(gzip $backupdirectory/mysql/$file_date-*.sql; sleep 10; rm $backupdirectory/mysql/$file_date-*.sql;) > /dev/null 2>&1 &");
       $zip = new ZipArchive();
       $zip->open("$backupdirectory/www/$file_date-backup.zip", ZipArchive::CREATE | ZipArchive::OVERWRITE);
       $files = Candy::dirContents(BASE_PATH);
@@ -274,6 +274,7 @@ class Config {
   }
 
   public static function backupClear(){
+    if(intval(date('Hi')) != 10) return false;
     $arr = ['www','mysql'];
     foreach ($arr as $key){
       $dir = substr(BACKUP_DIRECTORY,-1)=='/' ? BACKUP_DIRECTORY.$key.'/' : BACKUP_DIRECTORY.'/'.$key.'/';
