@@ -764,7 +764,7 @@ class Candy {
 
   public static function validator($v = null){
     self::import('Validation');
-    return new Validation();
+    $validation = new Validation();
     return $validation->validator($v);
   }
 
