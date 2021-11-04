@@ -3,10 +3,12 @@
 #delete:sys/Storage.php
 assets/css/candy.css
 assets/js/candy.js
+sys/import/Config.php
 sys/import/Mail.php
 sys/import/Minifier.php
 sys/import/Plugin.php
 sys/import/ResizeImage.php
+sys/import/Storage.php
 sys/import/Variable.php
 sys/import/Validation.php
 sys/import/Mysql/Table.php
@@ -18,7 +20,6 @@ sys/Cron.php
 sys/Lang.php
 sys/Mysql.php
 sys/Route.php
-sys/Storage.php
 sys/View.php
 index.php
 update.txt
