@@ -2,11 +2,17 @@
 
 namespace Candy;
 
-class Storage
-{
+class Storage {
     private $path = 'sys.json';
     private $json = '';
     private $arr;
+    private $cons = false;
+
+    function __construct($s='sys') {
+      $this->cons = true;
+      $this->select($s);
+      $this->cons = false;
+    }
 
     public function select($s='sys'){
       $this->arr = new \stdClass();
@@ -21,7 +27,7 @@ class Storage
       if(!file_exists($this->path)) file_put_contents($this->path, '');
       $this->json = file_get_contents($this->path,FILE_USE_INCLUDE_PATH);
       $this->arr = json_decode($this->json);
-      return new static();
+      if(!$this->cons) return new static();
     }
 
     public function set($key,$var){

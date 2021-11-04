@@ -13,7 +13,8 @@ class Config {
 
   public static function get(){
     if(!self::$storage){
-      self::$storage = \Candy::storage('sys')->get('candy',true);
+      self::$storage = \Candy::storage('sys',true)->get('candy');
+      if(is_object(self::$storage)) self::$storage = json_decode(json_encode(self::$storage), true);
       self::$data = array_replace_recursive((is_array(self::$storage) ? self::$storage : []),self::$data);
     }
     $val = self::$data;
