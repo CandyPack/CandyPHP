@@ -475,7 +475,9 @@ class Config {
       }
     };
   }
-}
 
-$config = new Config();
-include(BASE_PATH.'/config.php');
+  public static function locale($v = 'en'){
+    \Candy::config('locale')->set($v);
+  }
+
+}

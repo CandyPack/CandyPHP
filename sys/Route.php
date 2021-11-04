@@ -76,8 +76,6 @@ class Route {
     if(!isset($GLOBALS['_candy']['route']['error']['404'])) $GLOBALS['_candy']['route']['error']['404'] = 'page/'.$controller;
   }
   public static function printPage(){
-    global $view;
-    global $candy;
     global $conn;
     Config::checkBruteForce();
     if(!defined('CANDY_REQUESTS')) define('CANDY_REQUESTS',self::$request);
@@ -145,7 +143,7 @@ class Route {
       $return = include 'controller/'.$page.'.php';
       if(!empty($return) && $return !== 1) Candy::return($return);
     }
-    $view->printView();
+    View::printView();
     if(isset($GLOBALS['_candy']['oneshot'])){
       $_SESSION['_candy']['oneshot'] = $GLOBALS['_candy']['oneshot'];
     }else{
@@ -356,5 +354,3 @@ class Route {
     if(defined('MYSQL_CONNECT') && MYSQL_CONNECT==true) Mysql::closeAll();
   }
 }
-
-$route = new Route();

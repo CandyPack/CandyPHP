@@ -214,4 +214,3 @@ class View {
     return $php_cache;
   }
 }
-$view = new View();

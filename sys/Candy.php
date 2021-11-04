@@ -41,41 +41,6 @@ class Candy {
     setcookie('candy',json_encode(self::$ajax_var),0,"/",false,true);
   }
 
-  public static function configCheck(){
-    header('X-POWERED-BY: Candy PHP');
-    register_shutdown_function(function(){
-      $error = error_get_last();
-      if(!empty($error)){
-        $types = [
-          1    => 'Fatal',
-          2    => 'Warning',
-          4    => 'Syntax',
-          8    => 'Notice',
-          256  => 'User',
-          512  => 'User Warning',
-          1024 => 'User Notice',
-          2048 => 'Strictly'
-        ];
-        $type = 'PHP '.(isset($types[$error["type"]]) ? $types[$error["type"]] : 'Unknown');
-        Config::errorReport($type,$error["message"],$error["file"],$error["line"]);
-      }
-    });
-    if(defined('MYSQL_CONNECT') && MYSQL_CONNECT==true) Mysql::connect();
-    Config::runBackup();
-    Config::runUpdate();
-    Config::backupClear();
-    if(!defined('CANDY_COMPOSER') || (defined('CANDY_COMPOSER') && CANDY_COMPOSER)){
-      if(defined('CANDY_COMPOSER_DIRECTORY')){
-        include(CANDY_COMPOSER_DIRECTORY);
-      }elseif(file_exists('../vendor/autoload.php')){
-        include('../vendor/autoload.php');
-      }elseif(file_exists('vendor/autoload.php')){
-        include('vendor/autoload.php');
-      }
-    }
-    if(intval(date('d'))==2 && intval(date('H'))<=2) foreach(glob(BASE_PATH."/storage/cache/*") as $key) if(!is_dir($key) && filemtime($key)+10000 < time()) unlink($key);
-  }
-
   public static function token($check = null, $force = false){
     global $token;
     global $tokenCheck;
@@ -403,12 +368,6 @@ class Candy {
     }
   }
 
-  public static function mail($view){
-    self::import('Mail');
-    $mail = new \Candy\Mail();
-    return $mail->view($view);
-  }
-
   public static function quickMail($to,$message,$subject = '',$from = ''){
     if(is_array($from)){
       $from_name = $from['name'];
@@ -452,10 +411,6 @@ class Candy {
     return !empty($from_mail) ? mail($to, $subject, $message, $headers, "-f $from_mail") : mail($to, $subject, $message, $headers);
   }
 
-  public static function storage($s){
-    return Storage::select($s);
-  }
-
   public static function strFormatter($str,$format){
     $output = '';
     $letter = 0;
@@ -471,12 +426,6 @@ class Candy {
       }
     }
     return $output;
-  }
-
-  public static function validator($v = null){
-    self::import('Validation');
-    $validation = new Validation();
-    return $validation->validator($v);
   }
 
   public static function session($key){
@@ -774,12 +723,6 @@ class Candy {
     return $results;
   }
 
-  public static function plugin($name,$includes=null){
-    self::import('Plugin');
-    $plugin = new \Candy\Plugin();
-    return $plugin->plugin($name,$includes);
-  }
-
   public static function page($page=null){
     if($page==null && isset($GLOBALS['_candy']['route']['page'])) return $GLOBALS['_candy']['route']['page'];
     if(isset($GLOBALS['_candy']['route']['page'])) return $page == $GLOBALS['_candy']['route']['page'];
@@ -787,22 +730,47 @@ class Candy {
     return false;
   }
 
+  // - CANDY V2
+
+  public static function auth($val=null){
+    self::import('Auth');
+    return new \Candy\Auth($val);
+  }
+
+  public static function config(){
+    self::import('Config');
+    return new \Candy\Config(func_get_args());
+  }
+
+  public static function mail($view){
+    self::import('Mail');
+    return new \Candy\Mail($view);
+  }
+
+  public static function plugin($name,$includes=null){
+    self::import('Plugin');
+    return new \Candy\Plugin($name,$includes);
+  }
+
+  public static function storage($v){
+    self::import('Storage');
+    return new \Candy\Storage($v);
+  }
+
   public static function string($string){
     self::import('Variable');
-    $str = new \Candy\Variable($string);
-    return $str;
+    return new \Candy\Variable($string);
+  }
+
+  public static function validator($v = null){
+    self::import('Validation');
+    return new Validation();
+    return $validation->validator($v);
   }
 
   public static function var($var){
     self::import('Variable');
-    $str = new \Candy\Variable($var);
-    return $str;
+    return new \Candy\Variable($var);
   }
 
-  public static function auth($val=null){
-    self::import('Auth');
-    $auth = new \Candy\Auth($val);
-    return $auth;
-  }
 }
-$candy = new Candy();
