@@ -6,6 +6,10 @@ class Plugin{
   private $dir;
   private $name;
 
+  function __construct($name=null,$includes=null){
+    if($name) $this->plugin($name, $includes); 
+  }
+
   public function plugin($name,$includes=null){
     if(!is_dir("plugin")) mkdir('plugin');
     $this->dir = BASE_PATH."/plugin/$name";

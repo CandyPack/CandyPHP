@@ -2,10 +2,9 @@
 namespace Candy;
 
 class Mail {
-  private $_arr = [];
 
-  function __construct($_arr=[]){
-    $this->_arr = $_arr;
+  function __construct($v=null){
+    if($v) $this->view($v);
   }
 
   function view($v){
