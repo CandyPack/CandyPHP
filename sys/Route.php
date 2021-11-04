@@ -255,13 +255,10 @@ class Route {
             include(BASE_PATH."/route/$routefile.php");
           }
           $now = date('Y-m-d H:i');
-          $storage = Candy::storage('sys')->get('cron');
-          $storage->route = isset($storage->route) ? $storage->route : new \stdClass;
-          $storage->route->$routefile = isset($storage->route->$routefile) ? $storage->route->$routefile : new \stdClass;
-          if(!isset($storage->route->$routefile->run)) $storage->route->$routefile->run = '0000-00-00 00:00';
-          if($storage->route->$routefile->run == $now) return false;
-          $storage->route->$routefile->run = $now;
-          Candy::storage('sys')->set('cron',$storage);
+          $storage = Candy::config('cron','route',$routefile)->get();
+          if($storage == $now) return false;
+          $storage = $now;
+          Candy::config('cron','route',$routefile)->save($now);
           if(isset($GLOBALS['cron'])){
             foreach ($GLOBALS['cron'] as $key => $value){
               if($value){
