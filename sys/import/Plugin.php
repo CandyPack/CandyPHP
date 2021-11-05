@@ -7,11 +7,11 @@ class Plugin{
   private $name;
 
   function __construct($name=null,$includes=null){
-    if($name) $this->plugin($name, $includes); 
+    if($name) $this->plugin($name, $includes);
   }
 
   public function plugin($name,$includes=null){
-    if(!is_dir("plugin")) mkdir('plugin');
+    if(!is_dir(BASE_PATH."/plugin")) mkdir(BASE_PATH.'/plugin');
     $this->dir = BASE_PATH."/plugin/$name";
     $this->plugin = $name;
     $arr_name = explode('/',$name);
