@@ -749,7 +749,8 @@ class Candy {
 
   public static function plugin($name,$includes=null){
     self::import('Plugin');
-    return new \Candy\Plugin($name,$includes);
+    $plugin = new \Candy\Plugin();
+    return $plugin->plugin($name,$includes);
   }
 
   public static function storage($v){
