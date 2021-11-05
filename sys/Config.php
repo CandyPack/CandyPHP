@@ -175,7 +175,7 @@ class Config {
 
   public static function runUpdate(){
     if(!defined('CANDY_UPDATE') || !CANDY_UPDATE) return false;
-    $check = (substr($_SERVER['SERVER_ADDR'],0,8)=='192.168.' || $_SERVER['SERVER_ADDR']==$_SERVER['REMOTE_ADDR']) && isset($_GET['_candy']) && $_GET['_candy']=='cron';
+    $check = isset($_SERVER['SERVER_ADDR']) && isset($_SERVER['REMOTE_ADDR']) && (substr($_SERVER['SERVER_ADDR'],0,8)=='192.168.' || $_SERVER['SERVER_ADDR']==$_SERVER['REMOTE_ADDR']) && isset($_GET['_candy']) && $_GET['_candy']=='cron';
     $check = $check || php_sapi_name() == "cli" && $_SERVER['argv'][1] == 'candy' && $_SERVER['argv'][2] == 'cron';
     $check = $check && CANDY_UPDATE && intval(date("Hi"))==10;
     if($check){
