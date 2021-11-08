@@ -244,7 +244,7 @@ class Route {
     }
     require_once(BASE_PATH."/route/$routefile.php");
     $GLOBALS['_candy']['route']['name'] = $routefile;
-    if (php_sapi_name() == "cli" && !empty($_SERVER['argv'])) {
+    if(in_array(php_sapi_name(),['cli','cgi-fcgi']) && !empty($_SERVER['argv'])) {
       if($_SERVER['argv'][1] != 'candy') self::printPage();
       switch ($_SERVER['argv'][2]) {
         case 'cron':
