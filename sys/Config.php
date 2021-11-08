@@ -98,16 +98,14 @@ class Config {
     $conns = [];
     foreach($GLOBALS['candy_mysql'] as $key => $val) if($val['backup']) $conns[$key] = Mysql::connect($key);
     if(!defined('AUTO_BACKUP') || !AUTO_BACKUP) return false;
-    $check = (substr($_SERVER['SERVER_ADDR'],0,8)=='192.168.' || $_SERVER['SERVER_ADDR']==$_SERVER['REMOTE_ADDR']) && isset($_GET['_candy']) && $_GET['_candy']=='cron';
+    $check = isset($_SERVER['SERVER_ADDR']) && isset($_SERVER['REMOTE_ADDR']) && (substr($_SERVER['SERVER_ADDR'],0,8)=='192.168.' || $_SERVER['SERVER_ADDR']==$_SERVER['REMOTE_ADDR']) && isset($_GET['_candy']) && $_GET['_candy']=='cron';
     $check = $check || php_sapi_name() == "cli" && $_SERVER['argv'][1] == 'candy' && $_SERVER['argv'][2] == 'cron';
     $check = $check && AUTO_BACKUP && intval(date("Hi"))==1;
     if($check){
-      $storage = Candy::storage('sys')->get('backup');
+      $storage = Candy::config('backup','date')->get() ?? 0;
       $date = intval(date('Ymd'));
-      $storage->last = isset($storage->last) ? $storage->last : '';
-      if(intval($storage->last) >= $date) return false;
-      $storage->last = $date;
-      Candy::storage('sys')->set('backup',$storage);
+      if(intval($storage) >= $date) return false;
+      Candy::config('backup','date')->save($date);
       set_time_limit(0);
       ini_set('memory_limit', '-1');
       $directory = BASE_PATH."/".BACKUP_DIRECTORY;
@@ -175,7 +173,7 @@ class Config {
 
   public static function runUpdate(){
     if(!defined('CANDY_UPDATE') || !CANDY_UPDATE) return false;
-    $check = isset($_SERVER['SERVER_ADDR']) && isset($_SERVER['REMOTE_ADDR']) && (substr($_SERVER['SERVER_ADDR'],0,8)=='192.168.' || $_SERVER['SERVER_ADDR']==$_SERVER['REMOTE_ADDR']) && isset($_GET['_candy']) && $_GET['_candy']=='cron';
+    $check = (substr($_SERVER['SERVER_ADDR'],0,8)=='192.168.' || $_SERVER['SERVER_ADDR']==$_SERVER['REMOTE_ADDR']) && isset($_GET['_candy']) && $_GET['_candy']=='cron';
     $check = $check || php_sapi_name() == "cli" && $_SERVER['argv'][1] == 'candy' && $_SERVER['argv'][2] == 'cron';
     $check = $check && CANDY_UPDATE && intval(date("Hi"))==10;
     if($check){
@@ -419,14 +417,12 @@ class Config {
     if(!isset($GLOBALS['_candy']['settings']['bruteforce'])) return false;
     if(!isset($_SERVER['REQUEST_METHOD']) || $_SERVER['REQUEST_METHOD'] !== 'POST') return false;
     $try = $GLOBALS['_candy']['settings']['bruteforce']['try'];
-    $storage = Candy::storage('sys')->get('bruteforce');
     $ip = $_SERVER['REMOTE_ADDR'];
     $now = date('YmdH');
-    $storage = !isset($storage->$now) ? new \stdClass : $storage;
-    $storage->$now = isset($storage->$now) ? $storage->$now : new \stdClass;
-    $storage->$now->$ip = !isset($storage->$now->$ip) ? $c : $storage->$now->$ip + $c;
-    if($storage->$now->$ip >= $try) Candy::abort(403);
-    Candy::storage('sys')->set('bruteforce',$storage);
+    $storage = Candy::config('brute',$now,$ip)->get() ?? 0;
+    $storage = $storage + $c;
+    if($storage >= $try) Candy::abort(403);
+    Candy::config('brute',$now,$ip)->save($storage);
   }
 
   public static function errorReport($type,$mssg=null,$file=null,$line=null){
@@ -442,10 +438,9 @@ class Config {
     if(isset($line) && !empty($line)) $log .= "<b>Line:</b>    ".(isset($GLOBALS['_candy']['cached'][$file]['line']) ? ($GLOBALS['_candy']['cached'][$file]['line'] + $line) : $line)."\n";
     $log .= "-------\n";
     file_put_contents(BASE_PATH.'/candy.log',strip_tags($open.$log));
-    $storage = Candy::storage('sys')->get('error');
-    if(defined('MASTER_MAIL') && (!isset($storage->report) || $storage->report != date('Ymd'))) Candy::quickMail(MASTER_MAIL,nl2br($log."<br><br><pre>".print_r($GLOBALS,true)."</pre>"),$_SERVER['HTTP_HOST']." - Candy PHP ERROR","candyphp@".$_SERVER['HTTP_HOST']);
-    $storage->report = date('Ymd');
-    Candy::storage('sys')->set('error',$storage);
+    $storage = Candy::config('error','notification','date')->get();
+    if(defined('MASTER_MAIL') && ($storage != date('Ymd'))) Candy::quickMail(MASTER_MAIL,nl2br($log."<br><br><pre>".print_r($GLOBALS,true)."</pre>"),$_SERVER['HTTP_HOST']." - Candy PHP ERROR","candyphp@".$_SERVER['HTTP_HOST']);
+    Candy::config('error','notification','date')->set(date('Ymd'));
   }
 
   public static function auth($b = true){
