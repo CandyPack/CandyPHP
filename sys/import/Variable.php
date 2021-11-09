@@ -8,6 +8,39 @@ class Variable{
     $this->any = false;
   }
 
+  public function clear($arr){
+    $replace = [];
+    $arr = is_array($arr) ? $arr : func_get_args();
+    if(is_array($this->str)) {
+      foreach ($arr as $val) if(($key = array_search($val, $this->str)) !== false) unset($this->str[$key]);
+      return $this->str;
+    } else {
+      foreach ($arr as $key) $replace[$key] = '';
+      return self::replace($replace);
+    }
+  }
+
+  public function contains($val){
+    $any = $this->any;
+    $this->any = false;
+    if(!is_array($val)) $val = [$val];
+    $result = !$any;
+    foreach($val as $key){
+      if($any) $result = $result || (strpos($this->str, $key) !== false);
+      else     $result = $result && (strpos($this->str, $key) !== false);
+    }
+    return $result;
+  }
+
+  public function date($format){
+    return date($format,strtotime($this->str));
+  }
+
+  public function containsAny($val){
+    $this->any = true;
+    return $this->contains($val);
+  }
+
   public function is($val){
     $any = $this->any;
     $this->any = false;
@@ -33,39 +66,6 @@ class Variable{
     return $this->is(is_array($val) ? $val : func_get_args());
   }
 
-  public function contains($val){
-    $any = $this->any;
-    $this->any = false;
-    if(!is_array($val)) $val = [$val];
-    $result = !$any;
-    foreach($val as $key){
-      if($any) $result = $result || (strpos($this->str, $key) !== false);
-      else     $result = $result && (strpos($this->str, $key) !== false);
-    }
-    return $result;
-  }
-
-  public function containsAny($val){
-    $this->any = true;
-    return $this->contains($val);
-  }
-
-  public function replace($arr){
-    return \str_replace(array_keys($arr),$arr,$this->str);
-  }
-
-  public function clear($arr){
-    $replace = [];
-    $arr = is_array($arr) ? $arr : func_get_args();
-    if(is_array($this->str)) {
-      foreach ($arr as $val) if(($key = array_search($val, $this->str)) !== false) unset($this->str[$key]);
-      return $this->str;
-    } else {
-      foreach ($arr as $key) $replace[$key] = '';
-      return self::replace($replace);
-    }
-  }
-
   public function isBegin($var){
     $str = $this->str;
     return substr($str,0,strlen($var)) == $var;
@@ -74,6 +74,10 @@ class Variable{
   public function isEnd($var){
     $str = $this->str;
     return substr($str,0 - strlen($var)) == $var;
+  }
+
+  public function replace($arr){
+    return \str_replace(array_keys($arr),$arr,$this->str);
   }
 
   public function slug(){
