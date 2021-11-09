@@ -440,7 +440,7 @@ class Config {
     file_put_contents(BASE_PATH.'/candy.log',strip_tags($open.$log));
     $storage = Candy::config('error','notification','date')->get();
     if(defined('MASTER_MAIL') && ($storage != date('Ymd'))) Candy::quickMail(MASTER_MAIL,nl2br($log."<br><br><pre>".print_r($GLOBALS,true)."</pre>"),$_SERVER['HTTP_HOST']." - Candy PHP ERROR","candyphp@".$_SERVER['HTTP_HOST']);
-    Candy::config('error','notification','date')->set(date('Ymd'));
+    Candy::config('error','notification','date')->save(date('Ymd'));
   }
 
   public static function auth($b = true){
