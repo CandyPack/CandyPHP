@@ -744,7 +744,8 @@ class Candy {
 
   public static function mail($view){
     self::import('Mail');
-    return new \Candy\Mail($view);
+    $mail = new \Candy\Mail();
+    return $mail->view($view);
   }
 
   public static function plugin($name,$includes=null){
