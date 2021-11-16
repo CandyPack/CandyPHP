@@ -3,10 +3,6 @@ namespace Candy;
 
 class Mail {
 
-  function __construct($v=null){
-    if($v) $this->view($v);
-  }
-
   function view($v){
     $exp = explode('.',$v);
     $v = 'mail/'.end($exp);
