@@ -67,8 +67,10 @@ const Candy = {
       e.preventDefault();
       let form = $(this);
       form.find('button, input[type="button"], input[type="submit"]').prop('disabled',true);
-      if(obj.messages == undefined || obj.messages == true || obj.messages.includes('error')) form.find('*[candy-form-error]').hide();
-      if(obj.messages == undefined || obj.messages == true || obj.messages.includes('success')) form.find('*[candy-form-success]').hide();
+      if(obj.messages !== false) {
+        if(obj.messages == undefined || obj.messages == true || obj.messages.includes('error')) form.find('*[candy-form-error]').hide();
+        if(obj.messages == undefined || obj.messages == true || obj.messages.includes('success')) form.find('*[candy-form-success]').hide();
+      }
       if(form.find('input[type=file]').length > 0){
         var datastring = new FormData();
         form.find('input, select, textarea').each(function(index){
