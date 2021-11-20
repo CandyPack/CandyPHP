@@ -99,72 +99,71 @@ class Config {
     foreach($GLOBALS['candy_mysql'] as $key => $val) if($val['backup']) $conns[$key] = Mysql::connect($key);
     if(!defined('AUTO_BACKUP') || !AUTO_BACKUP) return false;
     $check = isset($_SERVER['SERVER_ADDR']) && isset($_SERVER['REMOTE_ADDR']) && (substr($_SERVER['SERVER_ADDR'],0,8)=='192.168.' || $_SERVER['SERVER_ADDR']==$_SERVER['REMOTE_ADDR']) && isset($_GET['_candy']) && $_GET['_candy']=='cron';
-    $check = $check || php_sapi_name() == "cli" && $_SERVER['argv'][1] == 'candy' && $_SERVER['argv'][2] == 'cron';
-    $check = $check && AUTO_BACKUP && intval(date("Hi"))==1;
-    if($check){
-      $storage = Candy::config('backup','date')->get() ?? 0;
-      $date = intval(date('Ymd'));
-      if(intval($storage) >= $date) return false;
-      Candy::config('backup','date')->save($date);
-      set_time_limit(0);
-      ini_set('memory_limit', '-1');
-      $directory = BASE_PATH."/".BACKUP_DIRECTORY;
-      $directory = explode('/',$directory);
-      $directory = array_reverse($directory);
-      $backupdirectory = [];
-      $last = "";
-      foreach ($directory as $val) {
-        if($last == '..' || $val == '..' || empty($val)){
-          $last = $val;
-          continue;
-        }
+    $check = $check || in_array(php_sapi_name(),['cli','cgi-fcgi']) && $_SERVER['argv'][1] == 'candy' && $_SERVER['argv'][2] == 'cron';
+    $check = $check && AUTO_BACKUP /*&& intval(date("Hi"))==1*/;
+    if(!$check) return false;
+    $storage = Candy::config('backup','date')->get() ?? 0;
+    $date = intval(date('Ymd'));
+    if(intval($storage) >= $date) return false;
+    Candy::config('backup','date')->save($date);
+    set_time_limit(0);
+    ini_set('memory_limit', '-1');
+    $directory = BASE_PATH."/".BACKUP_DIRECTORY;
+    $directory = explode('/',$directory);
+    $directory = array_reverse($directory);
+    $backupdirectory = [];
+    $last = "";
+    foreach ($directory as $val) {
+      if($last == '..' || $val == '..' || empty($val)){
         $last = $val;
-        $backupdirectory[] = $val;
+        continue;
       }
-      $backupdirectory = "/".implode('/',array_reverse($backupdirectory));
-      if(!file_exists("$backupdirectory/mysql/")) mkdir("$backupdirectory/mysql/", 0777, true);
-      if(!file_exists("$backupdirectory/www/")) mkdir("$backupdirectory/www/", 0777, true);
-      $file_date = date("Y-m-d");
-      foreach($conns as $key => $conn){
-        $tables = [];
-        $result = mysqli_query($conn,"SHOW TABLES");
-        while($row = mysqli_fetch_row($result)) $tables[] = $row[0];
-        $return = '';
-        foreach($tables as $table){
-          $result = mysqli_query($conn, "SELECT * FROM ".$table);
-          $num_fields = mysqli_num_fields($result);
-          $return .= 'DROP TABLE '.$table.';';
-          $row2 = mysqli_fetch_row(mysqli_query($conn, 'SHOW CREATE TABLE '.$table));
-          $return .= "\n\n".$row2[1].";\n\n";
-          for($i=0; $i < $num_fields; $i++){
-            while($row = mysqli_fetch_row($result)){
-              $return .= 'INSERT INTO '.$table.' VALUES(';
-              for($j=0; $j < $num_fields; $j++){
-                $row[$j] = addslashes($row[$j]);
-                $return .= isset($row[$j]) ? '"'.$row[$j].'"' : ',';
-                if($j<$num_fields-1) $return .= ',';
-              }
-              $return .= ");\n";
-            }
-          }
-          $return .= "\n\n\n";
-        }
-        $handle = fopen("$backupdirectory/mysql/$file_date-$key.sql", 'w+');
-        fwrite($handle, $return);
-        fclose($handle);
-      }
-      exec("(gzip $backupdirectory/mysql/$file_date-*.sql; sleep 10; rm $backupdirectory/mysql/$file_date-*.sql;) > /dev/null 2>&1 &");
-      $zip = new ZipArchive();
-      $zip->open("$backupdirectory/www/$file_date-backup.zip", ZipArchive::CREATE | ZipArchive::OVERWRITE);
-      $files = Candy::dirContents(BASE_PATH);
-      foreach($files as $file){
-        if(is_dir($file) || Candy::var($file)->contains(BASE_PATH."/storage/cache")) continue;
-        $relativePath = substr($file, strlen(BASE_PATH) + 1);
-        $zip->addFile($file,$relativePath);
-      }
-      $zip->close();
-      exec("(sleep 60; rm $backupdirectory/www/$file_date-*.zip.*;) > /dev/null 2>&1 &");
+      $last = $val;
+      $backupdirectory[] = $val;
     }
+    $backupdirectory = "/".implode('/',array_reverse($backupdirectory));
+    if(!file_exists("$backupdirectory/mysql/")) mkdir("$backupdirectory/mysql/", 0777, true);
+    if(!file_exists("$backupdirectory/www/")) mkdir("$backupdirectory/www/", 0777, true);
+    $file_date = date("Y-m-d");
+    foreach($conns as $key => $conn){
+      $tables = [];
+      $result = mysqli_query($conn,"SHOW TABLES");
+      while($row = mysqli_fetch_row($result)) $tables[] = $row[0];
+      $return = '';
+      foreach($tables as $table){
+        $result = mysqli_query($conn, "SELECT * FROM ".$table);
+        $num_fields = mysqli_num_fields($result);
+        $return .= 'DROP TABLE '.$table.';';
+        $row2 = mysqli_fetch_row(mysqli_query($conn, 'SHOW CREATE TABLE '.$table));
+        $return .= "\n\n".$row2[1].";\n\n";
+        for($i=0; $i < $num_fields; $i++){
+          while($row = mysqli_fetch_row($result)){
+            $return .= 'INSERT INTO '.$table.' VALUES(';
+            for($j=0; $j < $num_fields; $j++){
+              $row[$j] = addslashes($row[$j]);
+              $return .= isset($row[$j]) ? '"'.$row[$j].'"' : ',';
+              if($j<$num_fields-1) $return .= ',';
+            }
+            $return .= ");\n";
+          }
+        }
+        $return .= "\n\n\n";
+      }
+      $handle = fopen("$backupdirectory/mysql/$file_date-$key.sql", 'w+');
+      fwrite($handle, $return);
+      fclose($handle);
+    }
+    exec("(gzip $backupdirectory/mysql/$file_date-*.sql; sleep 10; rm $backupdirectory/mysql/$file_date-*.sql;) > /dev/null 2>&1 &");
+    $zip = new ZipArchive();
+    $zip->open("$backupdirectory/www/$file_date-backup.zip", ZipArchive::CREATE | ZipArchive::OVERWRITE);
+    $files = Candy::dirContents(BASE_PATH);
+    foreach($files as $file){
+      if(is_dir($file) || Candy::var($file)->contains(BASE_PATH."/storage/cache")) continue;
+      $relativePath = substr($file, strlen(BASE_PATH) + 1);
+      $zip->addFile($file,$relativePath);
+    }
+    $zip->close();
+    exec("(sleep 60; rm $backupdirectory/www/$file_date-*.zip.*;) > /dev/null 2>&1 &");
   }
 
   public static function autoUpdate($b = true){
@@ -174,7 +173,7 @@ class Config {
   public static function runUpdate(){
     if(!defined('CANDY_UPDATE') || !CANDY_UPDATE) return false;
     $check = (substr($_SERVER['SERVER_ADDR'],0,8)=='192.168.' || $_SERVER['SERVER_ADDR']==$_SERVER['REMOTE_ADDR']) && isset($_GET['_candy']) && $_GET['_candy']=='cron';
-    $check = $check || php_sapi_name() == "cli" && $_SERVER['argv'][1] == 'candy' && $_SERVER['argv'][2] == 'cron';
+    $check = $check || in_array(php_sapi_name(),['cli','cgi-fcgi']) && $_SERVER['argv'][1] == 'candy' && $_SERVER['argv'][2] == 'cron';
     $check = $check && CANDY_UPDATE && intval(date("Hi"))==10;
     if($check){
       set_time_limit(0);
@@ -440,7 +439,7 @@ class Config {
     file_put_contents(BASE_PATH.'/candy.log',strip_tags($open.$log));
     $storage = Candy::config('error','notification','date')->get();
     if(defined('MASTER_MAIL') && ($storage != date('Ymd'))) Candy::quickMail(MASTER_MAIL,nl2br($log."<br><br><pre>".print_r($GLOBALS,true)."</pre>"),$_SERVER['HTTP_HOST']." - Candy PHP ERROR","candyphp@".$_SERVER['HTTP_HOST']);
-    Candy::config('error','notification','date')->save(date('Ymd'));
+    Candy::config('error','notification','date')->set(date('Ymd'));
   }
 
   public static function auth($b = true){
