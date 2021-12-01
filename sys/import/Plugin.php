@@ -5,19 +5,20 @@ class Plugin{
   private $plugin;
   private $dir;
   private $name;
+  private $branch = 'master';
 
   function __construct($name=null,$includes=null){
     if($name) $this->plugin($name, $includes);
   }
 
-  public function plugin($name,$includes=null){
-    if(!is_dir(BASE_PATH."/plugin")) mkdir(BASE_PATH.'/plugin');
+  public function plugin($name,$version=null){
+    if(!is_dir("plugin")) mkdir('plugin');
     $this->dir = BASE_PATH."/plugin/$name";
     $this->plugin = $name;
     $arr_name = explode('/',$name);
     $this->name = end($arr_name);
+    $this->version = $version;
     if(!file_exists("$this->dir/candy_loader.php")) self::get($name);
-    if($includes && is_array($includes)) foreach ($includes as $include) include("$this->dir/$include");
     return file_exists("$this->dir/candy_loader.php") ? include("$this->dir/candy_loader.php") : false;
   }
 
@@ -72,7 +73,28 @@ class Plugin{
   }
 
   private function github($name){
-    $download = self::download("https://github.com/$name/archive/master.zip");
+    $check = json_decode(\Candy::curl("https://repo.packagist.org/p2/$name.json"));
+    $branch = json_decode(\Candy::curl("https://api.github.com/repos/$name/branches",null,['User-Agent: CandyPHP']));
+    $this->branch = is_array($branch) ? $branch[0]->name : 'master';
+    $package = null;
+    $ver = explode('.',str_replace('^','',$this->version));
+    $ver[0] = $ver[0] ?? 0;
+    $ver[1] = $ver[1] ?? 0;
+    $ver[2] = $ver[2] ?? 0;
+    if($this->version && isset($check->packages->$name)) foreach ($check->packages->$name as $version){
+      if(!isset($version->version)){
+        $package = $version;
+        continue;
+      }
+      $exp = explode('.',$version->version);
+      $exp[0] = $ver[0] ?? 0;
+      $exp[1] = $ver[1] ?? 0;
+      $exp[2] = $ver[2] ?? 0;
+      if($ver[0]>$exp[0] || ($ver[0]==$exp[0] && $ver[1]>$exp[0]) || ($ver[0]==$exp[0] && $ver[1]==$exp[1] && $ver[2]>=$exp[2])) $package = $version;
+    }
+    if(!$package && isset($check->packages)) $package = $check->packages->$name[0];
+    $url = $package->dist->url ?? "https://github.com/$name/archive/$this->branch.zip";
+    $download = self::download($url);
     if($download === false) return false;
     $plug_dir = $this->dir;
     $json = self::getJson($name);
@@ -80,24 +102,33 @@ class Plugin{
   }
 
   private function getJson($name){
-    $json = \Candy::curl("https://raw.githubusercontent.com/$name/master/candy.json");
+    $json = \Candy::curl("https://raw.githubusercontent.com/$name/$this->branch/candy.json");
     if(!empty($json) && $json!='404: Not Found') return self::candyExtract($json);
-    $json = \Candy::curl("https://raw.githubusercontent.com/$name/master/composer.json");
+    $vendor = explode('/',$name);
+    $check = json_decode(\Candy::curl("https://repo.packagist.org/p2/".$vendor[0]."/".$vendor[1].".json"));
+    $url = $check->packages->$name[0]->source->url ?? "https://raw.githubusercontent.com/$name/$this->branch/composer.json";
+    $url = str_replace('https://github.com/','https://raw.githubusercontent.com/',$url);
+    if(\Candy::var($url)->isEnd('.git')) $url = substr($url,0,-4)."/$this->branch/composer.json";
+    $json = \Candy::curl($url);
     if($json=='404: Not Found') return false;
-    $plug_dir = $this->dir;
+    $plug_dir = "$this->dir/$this->name-$this->branch/";
     $obj = json_decode($json);
-    $src = $this->src($obj->autoload);
-    $loader = [];
-    foreach($src as $key) $loader = array_merge($loader,(is_dir($key) ? self::dir($key) : [$key]));
+    $dir = ' $dir = [];'.PHP_EOL;
+    foreach ($obj->autoload as $autoload) foreach ($autoload as $key => $val) $dir .= ' $dir["'.str_replace('\\','/',$key).'"] = "'.str_replace(BASE_PATH."/",'',$plug_dir).$val.'/";'.PHP_EOL;
+    $required = '';
+    foreach ($obj->require as $require => $version) if(\Candy::var($require)->contains('/')) $required .= 'Candy::plugin("'.$require.'","'.$version.'");'.PHP_EOL;
     $loader_php = "<?php \n";
     $loader_php .= '$_plug = "'.$this->name.'";'."\n";
     $loader_php .= 'if(isset($GLOBALS["_candy"]["plugin"][$_plug])) return $GLOBALS["_candy"]["plugin"][$_plug];'."\n";
+    $loader_php .= $required;
     $loader_php .= 'spl_autoload_register(function ($class) {'."\n";
-    foreach($loader as $key) if(strtolower(substr($key,-4))=='.php') $loader_php .= "include (BASE_PATH.'".str_replace(BASE_PATH,'',$key)."');\n";
+    $loader_php .= $dir;
+    $loader_php .= ' $path = Candy::var(str_replace("\\\\","/",$class))->replace($dir).".php";'."\n";
+    $loader_php .= ' if(file_exists($path) && !Candy::config("plugin",$class)->get()) Candy::config("plugin",$class)->set(include ($path))'.";\n";
     $loader_php .= '});'."\n";
     $loader_php .= '$GLOBALS["_candy"]["plugin"][$_plug] = true;'."\n";
     $loader_php .= 'return true;';
-    file_put_contents("$plug_dir/candy_loader.php", $loader_php);
+    file_put_contents("$this->dir/candy_loader.php", $loader_php);
   }
 
   private function candyExtract($json){
@@ -125,7 +156,7 @@ class Plugin{
   }
 
   private function download($url){
-    $zip = \Candy::curl($url);
+    $zip = \Candy::curl($url,null,['User-Agent: CandyPHP']);
     if($zip=='Not Found') return false;
     $plug_dir = $this->dir;
     $dirs = explode('/',$plug_dir);
@@ -146,6 +177,12 @@ class Plugin{
     $zip->extractTo("$this->dir/");
     $zip->close();
     unlink($path);
+    if($this->version){
+      $vendor = explode('/',$this->name);
+      $newfolder = substr($path,0,-7).$vendor[0].'-'.$this->branch;
+      if(file_exists($newfolder)) $this->delete($newfolder);
+      foreach(\Candy::var(scandir($this->dir))->clear('.','..','candy_loader.php') as $folder) rename(substr($path,0,-7).$folder,$newfolder);
+    }
     return true;
   }
 
@@ -154,7 +191,7 @@ class Plugin{
     if(is_array($autoload) || is_object($autoload)){
       foreach($autoload as $key) $result = array_merge($result, $this->src($key));
     }else{
-      $result = array_merge($result, ["$this->dir/$this->name-master/$autoload"]);
+      $result = array_merge($result, ["$this->dir/$this->name-$this->branch/$autoload"]);
     }
     return $result;
   }
@@ -164,5 +201,11 @@ class Plugin{
     $arr = [];
     foreach($scandir as $key) if(substr($key,-4)=='.php') $arr[] = $path."/".$key;
     return $arr;
+  }
+
+  public function delete($path){
+    foreach(\Candy::dirContents($path) as $file) if(is_file($file)) unlink($file);
+    foreach(\Candy::dirContents($path) as $folder) if(is_dir($folder)) rmdir($folder);
+    rmdir($path);
   }
 }
