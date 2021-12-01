@@ -78,19 +78,19 @@ class Plugin{
     $this->branch = is_array($branch) ? $branch[0]->name : 'master';
     $package = null;
     $ver = explode('.',str_replace('^','',$this->version));
-    $ver[0] = $ver[0] ?? 0;
-    $ver[1] = $ver[1] ?? 0;
-    $ver[2] = $ver[2] ?? 0;
+    $ver[0] = intval($ver[0] ?? 0);
+    $ver[1] = intval($ver[1] ?? 0);
+    $ver[2] = intval($ver[2] ?? 0);
     if($this->version && isset($check->packages->$name)) foreach ($check->packages->$name as $version){
       if(!isset($version->version)){
         $package = $version;
         continue;
       }
       $exp = explode('.',$version->version);
-      $exp[0] = $ver[0] ?? 0;
-      $exp[1] = $ver[1] ?? 0;
-      $exp[2] = $ver[2] ?? 0;
-      if($ver[0]>$exp[0] || ($ver[0]==$exp[0] && $ver[1]>$exp[0]) || ($ver[0]==$exp[0] && $ver[1]==$exp[1] && $ver[2]>=$exp[2])) $package = $version;
+      $exp[0] = intval($exp[0] ?? 0);
+      $exp[1] = intval($exp[1] ?? 0);
+      $exp[2] = intval($exp[2] ?? 0);
+      if($exp[0]>$ver[0] || ($exp[0]==$ver[0] && $exp[1]>$ver[1]) || ($exp[0]==$ver[0] && $exp[1]==$ver[1] && $exp[2]>=$ver[2])) $package = $version;
     }
     if(!$package && isset($check->packages)) $package = $check->packages->$name[0];
     $url = $package->dist->url ?? "https://github.com/$name/archive/$this->branch.zip";
@@ -181,7 +181,10 @@ class Plugin{
       $vendor = explode('/',$this->name);
       $newfolder = substr($path,0,-7).$vendor[0].'-'.$this->branch;
       if(file_exists($newfolder)) $this->delete($newfolder);
-      foreach(\Candy::var(scandir($this->dir))->clear('.','..','candy_loader.php') as $folder) rename(substr($path,0,-7).$folder,$newfolder);
+      foreach(\Candy::var(scandir($this->dir))->clear('.','..','candy_loader.php') as $folder){
+        rename(substr($path,0,-7).$folder,$newfolder);
+        break;
+      }
     }
     return true;
   }
