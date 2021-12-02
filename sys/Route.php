@@ -229,9 +229,11 @@ class Route {
     Config::devmodeVersion();
     $route = new Route;
     $directory = BASE_PATH.'/controller';
-    $import = array_diff(scandir($directory), ['..', '.','page','post','get','cron']);
-    foreach ($import as $key){
-      if(substr($key,-4)=='.php') include(BASE_PATH."/controller/$key");
+    if(file_exists($directory)){
+      $import = array_diff(scandir($directory), ['..', '.','page','post','get','cron']);
+      foreach ($import as $key){
+        if(substr($key,-4)=='.php') include(BASE_PATH."/controller/$key");
+      }
     }
     $arr_subs = explode('.',($_SERVER['HTTP_HOST'] ?? 'www'));
     $domain = '';
@@ -245,8 +247,8 @@ class Route {
     require_once(BASE_PATH."/route/$routefile.php");
     $GLOBALS['_candy']['route']['name'] = $routefile;
     if(in_array(php_sapi_name(),['cli','cgi-fcgi']) && !empty($_SERVER['argv'])) {
-      if($_SERVER['argv'][1] != 'candy') self::printPage();
-      switch ($_SERVER['argv'][2]) {
+      if(!isset($_SERVER['argv'][1]) || $_SERVER['argv'][1] != 'candy') self::printPage();
+      switch ($_SERVER['argv'][2] ?? null) {
         case 'cron':
           if(!defined('CRON_JOBS') || CRON_JOBS !== 'cli') self::printPage();
           $GLOBALS['cron'] = [];
