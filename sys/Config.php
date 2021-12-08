@@ -100,7 +100,7 @@ class Config {
   public static function runBackup(){
     global $backupdirectory;
     $conns = [];
-    foreach($GLOBALS['candy_mysql'] as $key => $val) if($val['backup']) $conns[$key] = Mysql::connect($key);
+    foreach(($GLOBALS['candy_mysql'] ?? []) as $key => $val) if($val['backup']) $conns[$key] = Mysql::connect($key);
     if(!defined('AUTO_BACKUP') || !AUTO_BACKUP) return false;
     $check = isset($_SERVER['SERVER_ADDR']) && isset($_SERVER['REMOTE_ADDR']) && (substr($_SERVER['SERVER_ADDR'],0,8)=='192.168.' || $_SERVER['SERVER_ADDR']==$_SERVER['REMOTE_ADDR']) && isset($_GET['_candy']) && $_GET['_candy']=='cron';
     $check = $check || in_array(php_sapi_name(),['cli','cgi-fcgi']) && $_SERVER['argv'][1] == 'candy' && $_SERVER['argv'][2] == 'cron';
