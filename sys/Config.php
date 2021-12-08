@@ -63,10 +63,13 @@ class Config {
     $delete = false;
     if(isset($crontab) && is_array($crontab)){
       foreach ($crontab as $key) {
-        if($key==$command_add){
+        $command = str_replace(' >/dev/null 2>&1','',$key);
+        if($command == $key && $command == $command_add){
+          $delete = true;
+        }elseif($command==$command_add){
           $is_override = !$append;
           $append = false;
-        } else if($key==$command_delete){
+        } else if($command==$command_delete){
           $delete = true;
         }
       }
@@ -74,12 +77,13 @@ class Config {
         if($is_override || $delete){
           exec('crontab -r ');
           foreach ($crontab as $key) {
-            if($key!='' && $key!=$command_add && $key!=$command_delete){
+            $command = str_replace(' >/dev/null 2>&1','',$key);
+            if($command!='' && $command!=$command_add && $command!=$command_delete){
               exec('echo -e "`crontab -l`\n'.$key.'" | crontab -', $output);
             }
           }
         }
-        exec('echo -e "`crontab -l`\n'.$command_add.'" | crontab -', $output);
+        exec('echo -e "`crontab -l`\n'.$command_add.' >/dev/null 2>&1" | crontab -', $output);
       }
     }
   }
@@ -96,7 +100,7 @@ class Config {
   public static function runBackup(){
     global $backupdirectory;
     $conns = [];
-    foreach(($GLOBALS['candy_mysql'] ?? []) as $key => $val) if($val['backup']) $conns[$key] = Mysql::connect($key);
+    foreach($GLOBALS['candy_mysql'] as $key => $val) if($val['backup']) $conns[$key] = Mysql::connect($key);
     if(!defined('AUTO_BACKUP') || !AUTO_BACKUP) return false;
     $check = isset($_SERVER['SERVER_ADDR']) && isset($_SERVER['REMOTE_ADDR']) && (substr($_SERVER['SERVER_ADDR'],0,8)=='192.168.' || $_SERVER['SERVER_ADDR']==$_SERVER['REMOTE_ADDR']) && isset($_GET['_candy']) && $_GET['_candy']=='cron';
     $check = $check || in_array(php_sapi_name(),['cli','cgi-fcgi']) && $_SERVER['argv'][1] == 'candy' && $_SERVER['argv'][2] == 'cron';
