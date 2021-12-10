@@ -111,8 +111,9 @@ class Validation
     }else{
       foreach(explode('|',$c) as $key){
         $vars = explode(':',$key);
+        $else = substr($vars[0],0,1) === '!';
         if(!$this->_error && !isset($this->_message[$this->_name])){
-          switch($vars[0]){
+          switch($else ? substr($vars[0],1) : $vars[0]){
             case 'required':
               $this->_error = !isset($this->_method[$this->_name]) || $this->_method[$this->_name]=='' || $this->_method[$this->_name]==null;
               break;
@@ -125,8 +126,14 @@ class Validation
             case 'alpha':
               $this->_error = isset($this->_method[$this->_name]) && $this->_method[$this->_name]!='' && !Candy::var($this->_method[$this->_name])->is('alpha');
               break;
+            case 'alphaspace':
+              $this->_error = isset($this->_method[$this->_name]) && $this->_method[$this->_name]!='' && !Candy::var($this->_method[$this->_name])->is('alphaspace');
+              break;
             case 'alphanumeric':
               $this->_error = isset($this->_method[$this->_name]) && $this->_method[$this->_name]!='' && !Candy::var($this->_method[$this->_name])->is('alphanumeric');
+              break;
+            case 'alphanumericspace':
+              $this->_error = isset($this->_method[$this->_name]) && $this->_method[$this->_name]!='' && !Candy::var($this->_method[$this->_name])->is('alphanumericspace');
               break;
             case 'email':
               $this->_error = isset($this->_method[$this->_name]) && $this->_method[$this->_name]!='' && !Candy::var($this->_method[$this->_name])->is('email');
@@ -166,6 +173,9 @@ class Validation
               break;
             case 'max':
               $this->_error = isset($this->_method[$this->_name]) && $this->_method[$this->_name]!='' && isset($vars[1]) && $this->_method[$this->_name]>$vars[1];
+              break;
+            case 'len':
+              $this->_error = isset($this->_method[$this->_name]) && $this->_method[$this->_name]!='' && isset($vars[1]) && strlen($this->_method[$this->_name])!=$vars[1];
               break;
             case 'minlen':
               $this->_error = isset($this->_method[$this->_name]) && $this->_method[$this->_name]!='' && isset($vars[1]) && strlen($this->_method[$this->_name])<$vars[1];
@@ -207,6 +217,7 @@ class Validation
               else $this->_error = isset($this->_method[$this->_name]) && (!Auth::check() || $this->_method[$this->_name] != Auth::user($vars[1]));
               break;
           }
+          $this->_error = $else || $this->_error;
         }
       }
     }
