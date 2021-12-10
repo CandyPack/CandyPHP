@@ -730,6 +730,10 @@ class Candy {
     return false;
   }
 
+  public static function string($string){
+    return self::var($string);
+  }
+
   // - CANDY V2
 
   public static function auth($val=null){
@@ -759,9 +763,9 @@ class Candy {
     return new \Candy\Storage($v);
   }
 
-  public static function string($string){
-    self::import('Variable');
-    return new \Candy\Variable($string);
+  public static function upload($string){
+    self::import('Upload');
+    return new \Candy\Upload($name);
   }
 
   public static function validator($v = null){
