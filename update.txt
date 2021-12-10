@@ -9,6 +9,7 @@ sys/import/Minifier.php
 sys/import/Plugin.php
 sys/import/ResizeImage.php
 sys/import/Storage.php
+sys/import/Upload.php
 sys/import/Variable.php
 sys/import/Validation.php
 sys/import/Mysql/Table.php
