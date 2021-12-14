@@ -8,9 +8,9 @@ class Upload {
   }
 
   public function put($file=null){
-    if(!isset($_FILES[$this->name])) return 1;
+    if(!isset($_FILES[$this->name])) return false;
     if(!$file) 'storage/upload/'.Candy::var(basename($_FILES[$this->name]['name']))->slug();
-    if(!$this->dir($file)) return 2;
+    if(!$this->dir($file)) return false;
     return move_uploaded_file($_FILES[$this->name]['tmp_name'], $file);
   }
 
