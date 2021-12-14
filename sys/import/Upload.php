@@ -8,14 +8,14 @@ class Upload {
   }
 
   public function put($file=null){
-    if(!isset($_FILES[$this->name])) return false;
+    if(!isset($_FILES[$this->name])) return 1;
     if(!$file) 'storage/upload/'.Candy::var(basename($_FILES[$this->name]['name']))->slug();
-    if(!$this->dir($file)) return false;
+    if(!$this->dir($file)) return 2;
     return move_uploaded_file($_FILES[$this->name]['tmp_name'], $file);
   }
 
   private function dir($path){
-    if(!Candy::var($path)->contains('/')) return true;
+    if(!\Candy::var($path)->contains('/')) return true;
     $exp = explode('/',$path);
     unset($exp[count($exp) - 1]);
     $dir = '';
