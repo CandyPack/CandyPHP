@@ -763,7 +763,7 @@ class Candy {
     return new \Candy\Storage($v);
   }
 
-  public static function upload($string){
+  public static function upload($name){
     self::import('Upload');
     return new \Candy\Upload($name);
   }
