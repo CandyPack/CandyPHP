@@ -85,6 +85,8 @@ class Route {
       Candy::$ajax_var->candy->token = Candy::token(null,true);
       Candy::$ajax_var->candy->page = Candy::page();
       setcookie('candy',json_encode(Candy::$ajax_var),0,"/",false,true);
+    }else if(!isset($_SERVER['HTTP_ORIGIN']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH'] ?? '') == 'xmlhttprequest' && parse_url($_SERVER['HTTP_REFERER'] ?? '')['host']==$_SERVER['HTTP_HOST']){
+      header('X-Candy-Token: '.Candy::token(null,true));
     }
     if(!function_exists('request')){
       function request($v=null,$method=null){
@@ -229,11 +231,9 @@ class Route {
     Config::devmodeVersion();
     $route = new Route;
     $directory = BASE_PATH.'/controller';
-    if(file_exists($directory)){
-      $import = array_diff(scandir($directory), ['..', '.','page','post','get','cron']);
-      foreach ($import as $key){
-        if(substr($key,-4)=='.php') include(BASE_PATH."/controller/$key");
-      }
+    $import = array_diff(scandir($directory), ['..', '.','page','post','get','cron']);
+    foreach ($import as $key){
+      if(substr($key,-4)=='.php') include(BASE_PATH."/controller/$key");
     }
     $arr_subs = explode('.',($_SERVER['HTTP_HOST'] ?? 'www'));
     $domain = '';
@@ -247,8 +247,8 @@ class Route {
     require_once(BASE_PATH."/route/$routefile.php");
     $GLOBALS['_candy']['route']['name'] = $routefile;
     if(in_array(php_sapi_name(),['cli','cgi-fcgi']) && !empty($_SERVER['argv'])) {
-      if(!isset($_SERVER['argv'][1]) || $_SERVER['argv'][1] != 'candy') self::printPage();
-      switch ($_SERVER['argv'][2] ?? null) {
+      if($_SERVER['argv'][1] != 'candy') self::printPage();
+      switch ($_SERVER['argv'][2]) {
         case 'cron':
           if(!defined('CRON_JOBS') || CRON_JOBS !== 'cli') self::printPage();
           $GLOBALS['cron'] = [];
