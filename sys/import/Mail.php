@@ -4,7 +4,7 @@ namespace Candy;
 class Mail {
 
   function __construct($_arr=[]){
-    if(!is_array($_arr)) $this->_arr = $_arr;
+    if(is_array($_arr)) $this->_arr = $_arr;
     else $this->view($_arr);
   }
 
