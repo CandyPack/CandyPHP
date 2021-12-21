@@ -217,7 +217,7 @@ class Validation
               else $this->_error = isset($this->_method[$this->_name]) && (!Auth::check() || $this->_method[$this->_name] != Auth::user($vars[1]));
               break;
           }
-          $this->_error = $else && $this->_error;
+          if($else) $this->_error = !$this->_error;
         }
       }
     }
