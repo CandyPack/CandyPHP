@@ -74,6 +74,7 @@ const Candy = {
       if(form.find('input[type=file]').length > 0){
         var datastring = new FormData();
         form.find('input, select, textarea').each(function(index){
+          if($(this).attr('disabled')) return false;
           if($(this).attr('type')=='file') {
             datastring.append($(this).attr('name'), $(this).prop('files')[0]);
           } else if(['checkbox','radio'].includes($(this).attr('type'))) {
