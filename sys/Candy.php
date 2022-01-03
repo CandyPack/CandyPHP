@@ -512,7 +512,7 @@ class Candy {
       507 => 'Insufficient Storage', 509 => 'Bandwidth Limit Exceeded', 510 => 'Not Extended'
     ];
     if(isset($status[$exc])){
-      header($_SERVER['SERVER_PROTOCOL'].' '.$exc.' '.$status[$exc]);
+      header(($_SERVER['SERVER_PROTOCOL'] ?? '').' '.$exc.' '.$status[$exc]);
     }else{
       http_response_code(intval($exc));
     }
