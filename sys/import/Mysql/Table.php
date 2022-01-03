@@ -294,6 +294,9 @@ class Mysql_Table {
         $ex = $this->valuesExtract($val);
         $query_key = $ex['into'];
         $query_val[] = $ex['values'];
+      }elseif($val === null){
+        $query_key[] = $this->escape($key,'col');
+        $query_val[] = 'NULL';
       }else{
         $query_key[] = $this->escape($key,'col');
         $query_val[] = $this->escape($val);
