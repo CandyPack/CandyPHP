@@ -5,31 +5,17 @@ class Route {
 
   public static function all($controller,$type = 'page'){
     $get_page = isset($_GET['_page']) ? $_GET['_page'] : '';
-    if(is_callable($controller)){
-      $return = $controller();
-      if(!empty($return) && $return !== 1) Candy::return($return);
-      $GLOBALS['_candy']['route']['page'] = false;
-      $GLOBALS['_candy']['route']['method'] = 'page';
-    }else{
-      $GLOBALS['_candy']['route']['page'] = $controller;
-      $GLOBALS['_candy']['route']['method'] = 'page';
-      self::$request['page'] = $get_page;
-    }
+    $GLOBALS['_candy']['route']['page'] = $controller;
+    $GLOBALS['_candy']['route']['method'] = 'page';
+    self::$request['page'] = $get_page;
   }
 
   public static function page($page,$controller,$type = 'page'){
     $get_page = isset($_GET['_page']) ? $_GET['_page'] : '';
     $page = substr($page,0,1) == '/' ? substr($page,1) : $page;
     if(self::checkRequest($page,$get_page)){
-      if(is_callable($controller)){
-        $return = $controller();
-        if(!empty($return) && $return !== 1) Candy::return($return);
-        $GLOBALS['_candy']['route']['page'] = false;
-        $GLOBALS['_candy']['route']['method'] = 'page';
-      }else{
-        $GLOBALS['_candy']['route']['page'] = $controller;
-        $GLOBALS['_candy']['route']['method'] = 'page';
-      }
+      $GLOBALS['_candy']['route']['page'] = $controller;
+      $GLOBALS['_candy']['route']['method'] = 'page';
     }
   }
   public static function get($page,$controller,$check='',$t=true){
@@ -56,7 +42,7 @@ class Route {
   }
   public static function error($code, $page){
     if(is_callable($page)){
-      $page();
+      return $page();
     }else{
       if(!isset($GLOBALS['_candy'])) $GLOBALS['_candy'] = [];
       if(!isset($GLOBALS['_candy']['route'])) $GLOBALS['_candy']['route'] = [];
@@ -93,23 +79,13 @@ class Route {
         if($v==null){
           $rec = file_get_contents('php://input');
           $json = json_decode($rec);
-          if(json_last_error() == JSON_ERROR_NONE){
-            return $json;
-          }
+          if(json_last_error() == JSON_ERROR_NONE) return $json;
           $xml = @simplexml_load_string($rec);
-          if($xml){
-            return new SimpleXMLElement($rec);;
-          }else{
-            return false;
-          }
+          return $xml ? new SimpleXMLElement($rec) : false;
         }elseif($method==null){
-          if(isset(CANDY_REQUESTS[$v])){
-            return is_string(CANDY_REQUESTS[$v]) ? trim(CANDY_REQUESTS[$v]) : CANDY_REQUESTS[$v];
-          }elseif(isset($_POST[$v])){
-            return is_string($_POST[$v]) ? trim($_POST[$v]) : $_POST[$v];
-          }elseif(isset($_GET[$v])){
-            return is_string($_GET[$v]) ? trim($_GET[$v]) : $_GET[$v];
-          }
+          if (isset(CANDY_REQUESTS[$v])) return is_string(CANDY_REQUESTS[$v]) ? trim(CANDY_REQUESTS[$v]) : CANDY_REQUESTS[$v];
+          else if (isset($_POST[$v])) return is_string($_POST[$v]) ? trim($_POST[$v]) : $_POST[$v];
+          else if (isset($_GET[$v])) return is_string($_GET[$v]) ? trim($_GET[$v]) : $_GET[$v];
         }else{
           switch($method){
             case 'post':
@@ -118,39 +94,41 @@ class Route {
             case 'get':
               return isset($_GET[$v]) ? $_GET[$v] : null;
               break;
-            }
           }
         }
-        function __(){
-          $arr = func_get_args();
-          $arr[0] = Lang::get($arr[0]);
-          if(!isset($arr[1])) return $arr[0];
-          return call_user_func_array("sprintf", $arr);
-        }
       }
+      function __(){
+        $arr = func_get_args();
+        $arr[0] = Lang::get($arr[0]);
+        if(!isset($arr[1])) return $arr[0];
+        return call_user_func_array("sprintf", $arr);
+      }
+    }
+    if(is_callable($GLOBALS['_candy']['route']['page']) ?? null){
+      $return = $GLOBALS['_candy']['route']['page']();
+      if(!empty($return)) Candy::return($return);
+    } else {
       if(isset($GLOBALS['_candy']['route']['page'])){
         $page = $GLOBALS['_candy']['route']['method'].'/'.$GLOBALS['_candy']['route']['page'];
-      if(strpos($GLOBALS['_candy']['route']['page'], '.') !== false){
-        $page = str_replace('.','/',$GLOBALS['_candy']['route']['page']);
-        $page = preg_replace("((.*)\/)", "$1/".$GLOBALS['_candy']['route']['method'].'/', $page);
+        if(strpos($GLOBALS['_candy']['route']['page'], '.') !== false){
+          $page = str_replace('.','/',$GLOBALS['_candy']['route']['page']);
+          $page = preg_replace("((.*)\/)", "$1/".$GLOBALS['_candy']['route']['method'].'/', $page);
+        }
+      }else{
+        http_response_code(404);
+        $GLOBALS['_candy']['route']['page'] = isset($GLOBALS['_candy']['route']['error']['controller']['404']) ? $GLOBALS['_candy']['route']['error']['controller']['404'] : '';
+        $page = isset($GLOBALS['_candy']['route']['error']['404']) ? $GLOBALS['_candy']['route']['error']['404'] : die();
       }
-    }else{
-      http_response_code(404);
-      $GLOBALS['_candy']['route']['page'] = isset($GLOBALS['_candy']['route']['error']['controller']['404']) ? $GLOBALS['_candy']['route']['error']['controller']['404'] : '';
-      $page = isset($GLOBALS['_candy']['route']['error']['404']) ? $GLOBALS['_candy']['route']['error']['404'] : die();
-    }
-    header('X-Candy-Page: '.(isset($GLOBALS['_candy']['route']['page']) ? $GLOBALS['_candy']['route']['page'] : ''));
-    if(file_exists('controller/'.$page.'.php')){
-      if(!defined('PAGE')) define('PAGE', $page);
-      $return = include 'controller/'.$page.'.php';
-      if(!empty($return) && $return !== 1) Candy::return($return);
+      header('X-Candy-Page: '.(isset($GLOBALS['_candy']['route']['page']) ? $GLOBALS['_candy']['route']['page'] : ''));
+      if(file_exists('controller/'.$page.'.php')){
+        if(!defined('PAGE')) define('PAGE', $page);
+        $return = include 'controller/'.$page.'.php';
+        if(!empty($return) && $return !== 1) Candy::return($return);
+      }
     }
     View::printView();
-    if(isset($GLOBALS['_candy']['oneshot'])){
-      $_SESSION['_candy']['oneshot'] = $GLOBALS['_candy']['oneshot'];
-    }else{
-      unset($_SESSION['_candy']['oneshot']);
-    }
+    if(isset($GLOBALS['_candy']['oneshot'])) $_SESSION['_candy']['oneshot'] = $GLOBALS['_candy']['oneshot'];
+    else unset($_SESSION['_candy']['oneshot']);
   }
   public static function cron($controller,$array='*'){
     $cron = new Cron();
