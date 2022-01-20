@@ -105,7 +105,7 @@ class Route {
       }
     }
     if(is_callable($GLOBALS['_candy']['route']['page']) ?? null){
-      $return = $GLOBALS['_candy']['route']['page']();
+      $return = $GLOBALS['_candy']['route']['page'](request());
       if(!empty($return)) Candy::return($return);
     } else {
       if(isset($GLOBALS['_candy']['route']['page'])){
