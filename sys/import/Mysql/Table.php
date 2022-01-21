@@ -289,6 +289,7 @@ class Mysql_Table {
     $query_val = [];
     $multiple = false;
     foreach($arr as $key => $val){
+      if(is_object($val)) $val = (array)$val;
       if(is_array($val) && (!isset($val['ct']) || $val['ct']!=$GLOBALS['candy_token_mysql'])){
         $multiple = true;
         $ex = $this->valuesExtract($val);
