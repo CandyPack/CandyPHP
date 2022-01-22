@@ -2,5 +2,5 @@ RewriteEngine On
 
 # CANDY PHP
 RewriteBase /
-RewriteRule ^(assets)($|/) - [L]
+RewriteRule ^(assets|.well-known)($|/) - [L]
 RewriteRule ^(.*)$ index.php?_page=$1 [QSA,L]
