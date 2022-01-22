@@ -104,7 +104,7 @@ class Route {
         return call_user_func_array("sprintf", $arr);
       }
     }
-    if(is_callable($GLOBALS['_candy']['route']['page']) ?? null){
+    if(is_callable($GLOBALS['_candy']['route']['page'] ?? null)){
       $return = $GLOBALS['_candy']['route']['page'](request());
       if(!empty($return)) Candy::return($return);
     } else {
