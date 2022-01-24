@@ -57,6 +57,7 @@ class Config {
         \Config::errorReport($type,$error["message"],$error["file"],$error["line"]);
       }
     });
+    if(!file_exists('.htaccess')) file_put_contents('.htaccess',"RewriteEngine On\n\n# CANDY PHP\nRewriteBase /\nRewriteRule ^(assets|.well-known)($|/) - [L]\nRewriteRule ^(.*)$ index.php?_page=$1 [QSA,L]");
     $config = file_get_contents(BASE_PATH.'/config.php',FILE_USE_INCLUDE_PATH);
     include(BASE_PATH.'/config.php');
     if(defined('MYSQL_CONNECT') && MYSQL_CONNECT==true) \Mysql::connect();
@@ -64,13 +65,9 @@ class Config {
     \Config::runUpdate();
     \Config::backupClear();
     if(!defined('CANDY_COMPOSER') || (defined('CANDY_COMPOSER') && CANDY_COMPOSER)){
-      if(defined('CANDY_COMPOSER_DIRECTORY')){
-        include(CANDY_COMPOSER_DIRECTORY);
-      }elseif(file_exists('../vendor/autoload.php')){
-        include('../vendor/autoload.php');
-      }elseif(file_exists('vendor/autoload.php')){
-        include('vendor/autoload.php');
-      }
+      if(defined('CANDY_COMPOSER_DIRECTORY')) include(CANDY_COMPOSER_DIRECTORY);
+      else if(file_exists('../vendor/autoload.php')) include('../vendor/autoload.php');
+      else if(file_exists('vendor/autoload.php')) include('vendor/autoload.php');
     }
     if(intval(date('d'))==2 && intval(date('H'))<=2) foreach(glob(BASE_PATH."/storage/cache/*") as $key) if(!is_dir($key) && filemtime($key)+10000 < time()) unlink($key);
   }
