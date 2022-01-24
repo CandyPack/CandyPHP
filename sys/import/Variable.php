@@ -85,6 +85,12 @@ class Variable{
   }
 
   public function replace($arr){
+    if(!is_array($arr)) $arr = [$arr => func_get_args()[1]];
+    if(is_array($this->str) || is_object($this->str)){
+      $new = [];
+      foreach((array)$this->str as $key => $value) $new[$key] = \str_replace(array_keys($arr),$arr,$value);
+      return is_object($this->str) ? (object)$new : $new;
+    }
     return \str_replace(array_keys($arr),$arr,$this->str);
   }
 
