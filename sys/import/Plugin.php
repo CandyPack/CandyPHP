@@ -112,9 +112,11 @@ class Plugin{
     $json = \Candy::curl($url);
     if($json=='404: Not Found') return false;
     $plug_dir = "$this->dir/$this->name-$this->branch/";
+    if(!file_exists($plug_dir)) foreach(scandir($this->dir) as $subdir) if(!in_array($subdir,['.','..']) && is_dir("$this->dir/$subdir/")) $plug_dir = "$this->dir/$subdir/";
     $obj = json_decode($json);
     $dir = ' $dir = [];'.PHP_EOL;
-    foreach ($obj->autoload as $autoload) foreach ($autoload as $key => $val) $dir .= ' $dir["'.str_replace('\\','/',$key).'"] = "'.str_replace(BASE_PATH."/",'',$plug_dir).$val.'/";'.PHP_EOL;
+    foreach ($obj->autoload as $path => $autoload) if(\Candy::var($path)->isBegin('psr-')) foreach ($autoload as $key => $val) $dir .= ' $dir["'.str_replace('\\','/',$key).'"] = "'.str_replace(BASE_PATH."/",'',$plug_dir).$val.'/";'.PHP_EOL;
+    $dir = \Candy::var($dir)->replace(['//' => '/']);
     $required = '';
     foreach ($obj->require as $require => $version) if(\Candy::var($require)->contains('/')) $required .= 'Candy::plugin("'.$require.'","'.$version.'");'.PHP_EOL;
     $loader_php = "<?php \n";
