@@ -75,7 +75,7 @@ class Plugin{
   private function github($name){
     $check = json_decode(\Candy::curl("https://repo.packagist.org/p2/$name.json"));
     $branch = json_decode(\Candy::curl("https://api.github.com/repos/$name/branches",null,['User-Agent: CandyPHP']));
-    $this->branch = is_array($branch) ? $branch[0]->name : 'master';
+    $this->branch = is_array($branch) ? end($branch)->name : 'master';
     $package = null;
     $ver = explode('.',str_replace('^','',$this->version));
     $ver[0] = intval($ver[0] ?? 0);
@@ -115,6 +115,7 @@ class Plugin{
     if(!file_exists($plug_dir)) foreach(scandir($this->dir) as $subdir) if(!in_array($subdir,['.','..']) && is_dir("$this->dir/$subdir/")) $plug_dir = "$this->dir/$subdir/";
     $obj = json_decode($json);
     $dir = ' $dir = [];'.PHP_EOL;
+    if(!($obj->autoload ?? false)) return false;
     foreach ($obj->autoload as $path => $autoload) if(\Candy::var($path)->isBegin('psr-')) foreach ($autoload as $key => $val) $dir .= ' $dir["'.str_replace('\\','/',$key).'"] = "'.str_replace(BASE_PATH."/",'',$plug_dir).$val.'/";'.PHP_EOL;
     $dir = \Candy::var($dir)->replace(['//' => '/']);
     $required = '';
