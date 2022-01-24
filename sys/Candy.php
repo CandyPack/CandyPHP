@@ -593,7 +593,7 @@ class Candy {
         if(substr($body,-1)==';') $body = 'Candy::async('.substr($body,0,-1).');';
       }else{
         if(strpos($body,'Candy::async(') !== false) $body = explode('Candy::async(',$body,2)[1];
-        if(substr($body,0,8)=='function') $body = 'Candy::async('.$body;
+        if(substr($body,0,8)=='function' || Candy::var($body)->isBegin('fn')) $body = 'Candy::async('.$body;
         if(substr($body,-1)=='}') $body = $body.');';
       }
       if(substr($body,0,5)=='<?php') $body = preg_replace('/'.preg_quote('<?php', '/').'/', '', $body, 1);
