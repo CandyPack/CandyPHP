@@ -23,7 +23,7 @@ class Variable{
   public function contains($val){
     $any = $this->any;
     $this->any = false;
-    if(!is_array($val)) $val = [$val];
+    if(!is_array($val)) $val = func_get_args();
     $result = !$any;
     foreach($val as $key){
       if($any) $result = $result || (strpos($this->str, $key) !== false);
@@ -41,7 +41,7 @@ class Variable{
 
   public function containsAny($val){
     $this->any = true;
-    return $this->contains($val);
+    return $this->contains(count(func_get_args()) > 0 ? func_get_args() : $val);
   }
 
   public function is($val){
