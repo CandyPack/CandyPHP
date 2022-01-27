@@ -35,18 +35,7 @@ class Mysql_Table {
   function table($t){
     $this->arr['table'] = $t;
     if(!$this->table) $this->table = [];
-    $this->table[$t] = Candy::config('mysql','db',(Mysql::$name ?? 'default'),$t)->get();
-    if(!($this->table[$t] ?? false)){
-      $columns = [];
-      $sql = mysqli_query(Mysql::$conn, 'SHOW COLUMNS FROM ' . $this->escape($this->arr['table'],'table'));
-      $this->table[$t] = ['time' => time()];
-      while($get = mysqli_fetch_object($sql)){
-        $columns[$get->Field] = (array)$get;
-        if($get->Key == 'PRI') $this->table[$t]['primary'] = $get->Field;
-      }
-      $this->table[$t]['columns'] = $columns;
-      Candy::config('mysql','db',(Mysql::$name ?? 'default'),$t)->save($this->table[$t]);
-    }
+    $this->define($t);
     return new static($this->table,$this->arr);
   }
   function where(){
@@ -247,6 +236,7 @@ class Mysql_Table {
   }
   function join($tb,$col1,$st=null,$col2=null,$type='inner join'){
     $this->arr[$type] = isset($this->arr[$type]) ? $this->arr[$type] : [];
+    $this->define($tb);
     $tb = $this->escape($tb,'col');
     if($st===null && $col2===null){
       $col1 = self::whereExtract($col1);
@@ -332,7 +322,7 @@ class Mysql_Table {
       if(is_array($v)){
         $as = array_values($v)[0];
         $v = array_keys($v)[0];
-        $as = "AS $as ";
+        $as = "AS \"$as\" ";
       }
       if(strpos($v,'.') !== false) return ' `'.implode('`.`',array_map(function($val){return(Mysql::escape($val));},explode('.',$v))).'` '.$as;
       return ' `'.Mysql::escape($v).'` '.$as;
@@ -354,23 +344,51 @@ class Mysql_Table {
     if(Candy::isDev() && defined('DEV_ERRORS')) printf("Candy Mysql Error: %s\n<br />".$caller['file'].' : '.$caller['line'], mysqli_error(Mysql::$conn));
     return false;
   }
-  private function type($col, $value, $action = 'decode'){
-    if ($this->arr['select'] ?? false) {
-      $type = 'string';
-    } else {
-      $type = $this->table[$this->arr['table']]['columns'][$col]['Type'];
+  private function define($t){
+    $this->table[$t] = Candy::config('mysql','db',(Mysql::$name ?? 'default'),$t)->get();
+    if(!($this->table[$t] ?? false)){
+      $columns = [];
+      $sql = mysqli_query(Mysql::$conn, 'SHOW COLUMNS FROM ' . $this->escape($this->arr['table'],'table'));
+      $this->table[$t] = ['time' => time()];
+      while($get = mysqli_fetch_object($sql)){
+        $columns[$get->Field] = (array)$get;
+        if($get->Key == 'PRI') $this->table[$t]['primary'] = $get->Field;
+      }
+      $this->table[$t]['columns'] = $columns;
+      Candy::config('mysql','db',(Mysql::$name ?? 'default'),$t)->save($this->table[$t]);
     }
-    if($type == 'decode'){
-          if(Candy::var($type)->isBegin('tinyint(1)')) $value = boolval($value);
-      elseif(Candy::var($type)->contains('int'))       $value = intval($value);
-      elseif(Candy::var($type)->isBegin('double'))     $value = doubleval($value);
-      elseif(Candy::var($type)->isBegin('float'))      $value = floatval($value);
-      elseif(Candy::var($type)->isBegin('boolean'))    $value = boolval($value);
-      elseif(Candy::var($type)->isBegin('json'))       $value = json_decode($value);
+  }
+  private function type($col, $value, $action = 'decode'){
+    if($this->types ?? false) $this->types = [];
+    if(!isset($this->types[$col])) {
+      $this->types[$col] = 'string';
+      if($this->arr['select'] ?? false) {
+        foreach($this->table as $key => $table){
+          if(Candy::var($this->arr['select'])->contains(" AS \"$col\"")){
+            $real_col = explode('.',Candy::var(trim(explode(' AS',explode('" AS \"$col\""',$this->arr['select'])[0])[0]))->clear('`'));
+            $real_table = trim($real_col[0]);
+            $real_col = trim($real_col[1]);
+            $this->types[$col] = $this->types[$col] = $this->table[$real_table]['columns'][$real_col]['Type'] ?? $this->types[$col];
+            break;
+          } else if(Candy::var($this->arr['select'])->containsAny(" `$col`", " `".$key."`.`$col`")){
+            $this->types[$col] = $table['columns'][$col]['Type'] ?? $this->types[$col];
+          }
+        }
+      } else {
+        $this->types[$col] = $this->table[$this->arr['table']]['columns'][$col]['Type'] ?? $this->types[$col];
+      }
+    }
+    if($action == 'decode'){
+          if(Candy::var($this->types[$col])->isBegin('tinyint(1)')) $value = boolval($value);
+      elseif(Candy::var($this->types[$col])->contains('int'))       $value = intval($value);
+      elseif(Candy::var($this->types[$col])->isBegin('double'))     $value = doubleval($value);
+      elseif(Candy::var($this->types[$col])->isBegin('float'))      $value = floatval($value);
+      elseif(Candy::var($this->types[$col])->isBegin('boolean'))    $value = boolval($value);
+      elseif(Candy::var($this->types[$col])->isBegin('json'))       $value = json_decode($value);
     } else if(!is_string($value)) {
-          if(Candy::var($type)->isBegin('tinyint(1)')) $value = boolval($value);
-      elseif(Candy::var($type)->isBegin('boolean'))    $value = intval($value);
-      elseif(Candy::var($type)->isBegin('json'))       $value = json_encode($value);
+          if(Candy::var($this->types[$col])->isBegin('tinyint(1)')) $value = boolval($value);
+      elseif(Candy::var($this->types[$col])->isBegin('boolean'))    $value = intval($value);
+      elseif(Candy::var($this->types[$col])->isBegin('json'))       $value = json_encode($value);
     }
     return $value;
   }
