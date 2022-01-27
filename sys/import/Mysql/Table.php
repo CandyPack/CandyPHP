@@ -375,7 +375,12 @@ class Mysql_Table {
           }
         }
       } else {
-        $this->types[$col] = $this->table[$this->arr['table']]['columns'][$col]['Type'] ?? $this->types[$col];
+        foreach($this->table as $key => $table){
+          if(isset($this->table[$key]['columns'][$col]['Type'])){
+            $this->types[$col] = $this->table[$key]['columns'][$col]['Type'] ?? $this->types[$col];
+            break;
+          }
+        }
       }
     }
     if($action == 'decode'){
