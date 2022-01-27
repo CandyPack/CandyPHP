@@ -2,10 +2,12 @@
 class Mysql_Table {
   protected $arr = [];
   protected $result = [];
+  protected $table;
   protected $statements = ['=','>','>=','<','<=','!=','LIKE','NOT LIKE','IN','NOT IN','BETWEEN','NOT BETWEEN'];
   protected $val_statements = ['IS NULL','IS NOT NULL'];
 
- function __construct($arr=[], $vals=[]){
+ function __construct($table=null, $arr=[], $vals=[]){
+   $this->table = $table;
    $this->arr = $arr;
    foreach($vals as $key => $val) $this->$key = $val;
   }
@@ -25,14 +27,27 @@ class Mysql_Table {
     }
     if($type == 'add') return "INSERT ".(isset($this->arr['ignore']) ? 'IGNORE' : '')." INTO ".$this->escape($this->arr['table'],'table').' '.$this->arr['into'].' VALUES '.$this->arr['values'].'';
     if($type == 'get') return "SELECT ".(isset($this->arr['select']) ? $this->arr['select'] : '*')." FROM ".$this->escape($this->arr['table'],'table')." ".$query;
-    if($type == 'set') return "UPDATE `".$this->arr['table']."` SET ".$this->arr['set']." ".$query;
+    if($type == 'set') return "UPDATE ".$this->escape($this->arr['table'],'table')." SET ".$this->arr['set']." ".$query;
     if($type == 'delete') return "DELETE FROM ".$this->escape($this->arr['table'],'table')." ".$query;
     if($type == 'replace') return "REPLACE INTO ".$this->escape($this->arr['table'],'table').' '.$this->arr['into'].' VALUES '.$this->arr['values'].'';
     return $query;
   }
   function table($t){
     $this->arr['table'] = $t;
-    return new static($this->arr);
+    if(!$this->table) $this->table = [];
+    $this->table[$t] = Candy::config('mysql','db',(Mysql::$name ?? 'default'),$t)->get();
+    if(!($this->table[$t] ?? false)){
+      $columns = [];
+      $sql = mysqli_query(Mysql::$conn, 'SHOW COLUMNS FROM ' . $this->escape($this->arr['table'],'table'));
+      $this->table[$t] = ['time' => time()];
+      while($get = mysqli_fetch_object($sql)){
+        $columns[$get->Field] = (array)$get;
+        if($get->Key == 'PRI') $this->table[$t]['primary'] = $get->Field;
+      }
+      $this->table[$t]['columns'] = $columns;
+      Candy::config('mysql','db',(Mysql::$name ?? 'default'),$t)->save($this->table[$t]);
+    }
+    return new static($this->table,$this->arr);
   }
   function where(){
     if(count(func_get_args()) == 1 && !is_array(func_get_args()[0])){
@@ -40,7 +55,7 @@ class Mysql_Table {
     }elseif(count(func_get_args()) > 0){
       $this->arr['where'] = isset($this->arr['where']) && trim($this->arr['where'])!='' ? $this->arr['where'].' AND '.$this->whereExtract(func_get_args()) : $this->whereExtract(func_get_args());
     }
-    return new static($this->arr);
+    return new static($this->table,$this->arr);
   }
   function having(){
     if(count(func_get_args()) == 1 && !is_array(func_get_args()[0])){
@@ -48,17 +63,17 @@ class Mysql_Table {
     }elseif(count(func_get_args()) > 0){
       $this->arr['having'] = isset($this->arr['having']) && trim($this->arr['having'])!='' ? $this->arr['having'].' AND '.$this->whereExtract(func_get_args()) : $this->whereExtract(func_get_args());
     }
-    return new static($this->arr);
+    return new static($this->table,$this->arr);
   }
   function orWhere(){
     if(count(func_get_args()) > 0){
       $this->arr['where'] = isset($this->arr['where']) && trim($this->arr['where'])!='' ? $this->arr['where'].' OR '.$this->whereExtract(func_get_args()) : $this->whereExtract(func_get_args());
     }
-    return new static($this->arr);
+    return new static($this->table,$this->arr);
   }
   function whereJson($col,$val){
     //return 'JSON_SEARCH('.$col.', "one", "'.$val.'") IS NOT NULL';
-    return new static($this->arr);
+    return new static($this->table,$this->arr);
   }
   function cache($t=3600){
     if(!is_numeric($t)){
@@ -74,7 +89,7 @@ class Mysql_Table {
       }
     }
     $this->arr['cache'] = $t;
-    return new static($this->arr);
+    return new static($this->table,$this->arr);
   }
   function get($b=false){
     $query = $this->query('get');
@@ -88,7 +103,10 @@ class Mysql_Table {
     }
     $sql = mysqli_query(Mysql::$conn, $query);
     if($sql === false) return $this->error();
-    while($row = ($b ? mysqli_fetch_assoc($sql) : mysqli_fetch_object($sql))) $data[] = $row;
+    while($row = mysqli_fetch_assoc($sql)){
+      foreach($row as $key => $value) $row[$key] = $this->type($key, $value);
+      $data[] = $b ? $row : (object)$row;
+    }
     mysqli_free_result($sql);
     if(isset($cache)){
       $cache->data = $data;
@@ -102,7 +120,7 @@ class Mysql_Table {
     $sql = mysqli_query(Mysql::$conn, $query);
     $this->affected = mysqli_affected_rows(Mysql::$conn);
     if($this->affected > 0) self::clearcache();
-    return new static($this->arr, ['affected' => $this->affected]);
+    return new static($this->table,$this->arr, ['affected' => $this->affected]);
   }
   function rows($b=false){
     $query = $this->query('get');
@@ -125,20 +143,15 @@ class Mysql_Table {
   }
   function set($arr,$val=null){
     $vars = "";
-    if(!is_array($arr) && $val !== null){
-      $vars .= $this->escape($arr,'col').' = '. $this->escape($val) .',';
-    }else{
-      foreach($arr as $key => $val) {
-        $vars .= $this->escape($key,'col').' = '. $this->escape($val) .',';
-      }
-    }
+    if(!is_array($arr) && $val !== null) $vars .= $this->escape($arr,'col').' = '. $this->escape($val) .',';
+    else foreach($arr as $key => $val)   $vars .= $this->escape($key,'col').' = '. $this->escape($val) .',';
     $this->arr['set'] = substr($vars,0,-1);
     $query = $this->query('set');
     $sql = mysqli_query(Mysql::$conn, $query);
     if($sql === false) return $this->error();
     $this->affected = mysqli_affected_rows(Mysql::$conn);
     if($this->affected > 0) self::clearcache();
-    return new static($this->arr, ['affected' => $this->affected]);
+    return new static($this->table,$this->arr, ['affected' => $this->affected]);
   }
   function add($arr){
     $this->id = 1;
@@ -152,7 +165,7 @@ class Mysql_Table {
     $this->id = mysqli_insert_id(Mysql::$conn);
     $this->affected = mysqli_affected_rows(Mysql::$conn);
     if($this->affected > 0) self::clearcache();
-    return new static($this->arr, ['id' => $this->id,'affected' => $this->affected]);
+    return new static($this->table,$this->arr, ['id' => $this->id,'affected' => $this->affected]);
   }
   function insertIgnore($arr){
     $this->arr['ignore'] = true;
@@ -169,7 +182,7 @@ class Mysql_Table {
     $this->success = $sql;
     $this->id = mysqli_insert_id(Mysql::$conn);
     self::clearcache();
-    return new static($this->arr, ['id' => $this->id]);
+    return new static($this->table,$this->arr, ['id' => $this->id]);
   }
   function first($b=false){
     $this->arr['limit'] = 1;
@@ -195,7 +208,7 @@ class Mysql_Table {
       }
     }
     $this->arr['select'] = implode(', ',$select);
-    return new static($this->arr);
+    return new static($this->table,$this->arr);
   }
   function orderBy($v1,$v2='asc'){
     if(is_array($v1) && (!isset($v1['ct']) || $v1['ct'] != $GLOBALS['candy_token_mysql'])){
@@ -205,7 +218,7 @@ class Mysql_Table {
       else $order[] = $this->escape($val,'col').' ASC';
       $this->arr['order by'] = implode(',',$order);
     }else $this->arr['order by'] = $this->escape($v1,'col').(strtolower($v2) == 'desc' ? ' DESC' : ' ASC');
-    return new static($this->arr);
+    return new static($this->table,$this->arr);
   }
   function groupBy(){
     $this->arr['group by'] = isset($this->arr['group by']) ? $this->arr['group by'] : '';
@@ -220,11 +233,11 @@ class Mysql_Table {
       }
     }else foreach(func_get_args() as $key) $select[] = $this->escape($key,'col');
     $this->arr['group by'] = implode(', ',$select);
-    return new static($this->arr);
+    return new static($this->table,$this->arr);
   }
   function limit($v1,$v2=null){
     $this->arr['limit'] = $v2===null ? $v1 : "$v1, $v2";
-    return new static($this->arr);
+    return new static($this->table,$this->arr);
   }
   function leftJoin($tb,$col1,$st=null,$col2=null){
     return $this->join($tb,$col1,$st,$col2,'left join');
@@ -245,12 +258,12 @@ class Mysql_Table {
       $state = $this->escape(($col2 !== null ? $st : '='),'st');
     }
     $this->arr[$type][] = $tb . ' ON ' . $col1 . $state . $col2;
-    return new static($this->arr);
+    return new static($this->table,$this->arr);
   }
   function login($tb_token = 'candy_token', $key = 'id'){
     $sql = $this->first();
     if($sql === false) return false;
-    return new static($this->arr);
+    return new static($this->table,$this->arr);
   }
   private function whereExtract($arr){
     $q = "";
@@ -300,7 +313,7 @@ class Mysql_Table {
         $query_val[] = 'NULL';
       }else{
         $query_key[] = $this->escape($key,'col');
-        $query_val[] = $this->escape($val);
+        $query_val[] = $this->escape($this->type($key,$val,'encode'));
       }
     }
     return [
@@ -340,5 +353,25 @@ class Mysql_Table {
     Config::errorReport('MYSQL',mysqli_error(Mysql::$conn),$caller['file'],$caller['line']);
     if(Candy::isDev() && defined('DEV_ERRORS')) printf("Candy Mysql Error: %s\n<br />".$caller['file'].' : '.$caller['line'], mysqli_error(Mysql::$conn));
     return false;
+  }
+  private function type($col, $value, $action = 'decode'){
+    if ($this->arr['select'] ?? false) {
+      $type = 'string';
+    } else {
+      $type = $this->table[$this->arr['table']]['columns'][$col]['Type'];
+    }
+    if($type == 'decode'){
+          if(Candy::var($type)->isBegin('tinyint(1)')) $value = boolval($value);
+      elseif(Candy::var($type)->contains('int'))       $value = intval($value);
+      elseif(Candy::var($type)->isBegin('double'))     $value = doubleval($value);
+      elseif(Candy::var($type)->isBegin('float'))      $value = floatval($value);
+      elseif(Candy::var($type)->isBegin('boolean'))    $value = boolval($value);
+      elseif(Candy::var($type)->isBegin('json'))       $value = json_decode($value);
+    } else if(!is_string($value)) {
+          if(Candy::var($type)->isBegin('tinyint(1)')) $value = boolval($value);
+      elseif(Candy::var($type)->isBegin('boolean'))    $value = intval($value);
+      elseif(Candy::var($type)->isBegin('json'))       $value = json_encode($value);
+    }
+    return $value;
   }
 }
