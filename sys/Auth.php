@@ -23,6 +23,8 @@ class Auth{
       }
       if(!$equal) return false;
       return $user;
+    } else if(self::$user){
+      return true;
     } else {
       $check_table = Mysql::query('SHOW TABLES LIKE "'.$GLOBALS['_candy']['auth']['token'].'"',true);
       if($check_table->rows == 0) return false;
