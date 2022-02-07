@@ -363,11 +363,9 @@ class Mysql_Table {
     if(!isset($this->types[$col])) {
       $this->types[$col] = 'string';
       foreach($this->table as $key => $table){
-        if(isset($this->table[$key]['columns'][$col]['Type'])){
+        if(!isset($this->arr['select']) && isset($this->table[$key]['columns'][$col]['Type'])){
           $this->types[$col] = $this->table[$key]['columns'][$col]['Type'] ?? $this->types[$col];
           break;
-        } else if (!isset($this->arr['select'])){
-          continue;
         } else if(Candy::var($this->arr['select'])->contains(" AS \"$col\"")){
           $real_col = explode('.',Candy::var(trim(explode(' AS',explode('" AS \"$col\""',$this->arr['select'])[0])[0]))->clear('`'));
           $real_table = trim($real_col[0]);
