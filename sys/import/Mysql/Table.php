@@ -348,7 +348,7 @@ class Mysql_Table {
     $this->table[$t] = Candy::config('mysql','db',(Mysql::$name ?? 'default'),$t)->get();
     if(!($this->table[$t] ?? false)){
       $columns = [];
-      $sql = mysqli_query(Mysql::$conn, 'SHOW COLUMNS FROM ' . $this->escape($this->arr['table'],'table'));
+      $sql = mysqli_query(Mysql::$conn, 'SHOW COLUMNS FROM ' . $this->escape($t,'table'));
       $this->table[$t] = ['time' => time()];
       while($get = mysqli_fetch_object($sql)){
         $columns[$get->Field] = (array)$get;
