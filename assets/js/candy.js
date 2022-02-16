@@ -264,6 +264,7 @@ const Candy = {
   loader: function(element,arr,callback){
     this.loader.elements = arr;
     $(document).on('click',element,function(e){
+      if(e.ctrlKey || e.metaKey) return;
       var url_now = window.location.href;
       var url_go = $(this).attr('href');
       var target = $(this).attr('target');
