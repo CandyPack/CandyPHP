@@ -3,10 +3,10 @@ class Candy {
   public $var;
   public static $ajax_var;
   public static $imported = [];
-  public $token;
+  public static $token;
+  public static $tokenCheck = [];
   public $postToken;
   public $getToken;
-  public $tokenCheck = '';
 
   public static function import($class){
     if(!in_array($class,self::$imported)){
@@ -42,39 +42,25 @@ class Candy {
   }
 
   public static function token($check = null, $force = false){
-    global $token;
-    global $tokenCheck;
-    if($check === null || $check==='input' || $check==='json' || $check==='echo'){
-      if($token=='' || $force){
-        $token = md5(uniqid(mt_rand(), true));
-        if(isset($_SESSION['_token']) && is_array($_SESSION['_token'])){
-          $sess = $_SESSION['_token'];
-          array_unshift($sess,$token);
-          array_splice($sess,60);
-        }else{
-          $sess = [$token];
-        }
+    if(!Candy::var($check)->is('md5')){
+      if(!self::$token || $force){
+        self::$token = md5(uniqid(mt_rand(), true));
+        $sess = is_array($_SESSION['_token'] ?? false) ? $_SESSION['_token'] : [];
+        array_unshift($sess, self::$token);
+        array_splice($sess, 60);
         $_SESSION['_token'] = $sess;
+        if($force) self::$token = null;
       }
-      if($check==='input'){
-        echo '<input name="token" value="'.$token.'" hidden="">';
-      }elseif($check==='json'){
-        return json_encode(['token' => $token]);
-      }elseif($check==='echo'){
-        echo $token;
-      }
-      return $token;
-    }else{
-      if(strpos($tokenCheck, ','.$check.',') !== false){
-        return true;
-      }elseif(isset($_SESSION['_token']) && is_array($_SESSION['_token']) && in_array($check,$_SESSION['_token'])){
-        $_SESSION['_token'] = array_diff($_SESSION['_token'], [$check]);
-        $tokenCheck .= ','.$check.',';
-        return true;
-      }else{
-        return false;
-      }
+           if($check==='input') echo '<input name="token" value="'.self::$token.'" hidden="">';
+      else if($check==='json')  return json_encode(['token' => self::$token]);
+      else if($check==='echo')  echo self::$token;
+      return self::$token;
     }
+    if(in_array($check, self::$tokenCheck)) return true;
+    if(!is_array($_SESSION['_token'] ?? false) || !in_array($check,$_SESSION['_token'])) return false;
+    $_SESSION['_token'] = array_diff($_SESSION['_token'], [$check]);
+    self::$tokenCheck[] = $check;
+    return true;
   }
 
   public static function postCheck($post='',$t=true){
@@ -249,10 +235,7 @@ class Candy {
   }
 
   public static function dateFormatter($date = '0', $format = 'd / m / Y'){
-    $date = str_replace('/','-',$date);
-    $date = new DateTime($date);
-    $date = $date->format($format);
-    return $date;
+    return Candy::var($date)->date($format);
   }
 
   public static function getJs($path, $min = true){
@@ -412,20 +395,7 @@ class Candy {
   }
 
   public static function strFormatter($str,$format){
-    $output = '';
-    $letter = 0;
-    for ($i=0; $i < strlen($format); $i++) {
-      if(substr($format,$i,1)=='?'){
-        $output .= substr($str,$letter,1);
-        $letter = $letter + 1;
-      }elseif(substr($format,$i,1)=='*'){
-        $output .= substr($str,$letter);
-        $letter = $letter + strlen(substr($str,$letter));
-      }else{
-        $output .= substr($format,$i,1);
-      }
-    }
-    return $output;
+    return Candy::var($str)->format($format);
   }
 
   public static function session($key){
