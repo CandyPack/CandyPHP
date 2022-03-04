@@ -389,7 +389,7 @@ class Mysql_Table {
       elseif(Candy::var($this->types[$col])->isBegin('boolean'))    $value = boolval($value);
       elseif(Candy::var($this->types[$col])->isBegin('json'))       $value = json_decode($value);
     } else if(!is_string($value)) {
-          if(Candy::var($this->types[$col])->isBegin('tinyint(1)')) $value = boolval($value);
+          if(Candy::var($this->types[$col])->isBegin('tinyint(1)')) $value = intval($value);
       elseif(Candy::var($this->types[$col])->isBegin('boolean'))    $value = intval($value);
       elseif(Candy::var($this->types[$col])->isBegin('json'))       $value = json_encode($value);
     }
