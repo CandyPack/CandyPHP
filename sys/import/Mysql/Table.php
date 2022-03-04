@@ -3,8 +3,8 @@ class Mysql_Table {
   protected $arr = [];
   protected $result = [];
   protected $table;
-  protected $statements = ['=','>','>=','<','<=','!=','LIKE','NOT LIKE','IN','NOT IN','BETWEEN','NOT BETWEEN'];
-  protected $val_statements = ['IS NULL','IS NOT NULL'];
+  protected $statements = ['=','>','>=','<','<=','!=','LIKE','NOT LIKE','IN','NOT IN','BETWEEN','NOT BETWEEN','IS','IS NOT'];
+  // protected $val_statements = ['IS NULL','IS NOT NULL'];
 
  function __construct($table=null, $arr=[], $vals=[]){
    $this->table = $table;
@@ -267,11 +267,11 @@ class Mysql_Table {
         $in_arr = true;
         $last = 1;
       }elseif(count($arr)==2 && $loop==2){
-        if(!is_array($key) && in_array(strtoupper($key),$this->val_statements)){
-          $q .= " ".strtoupper($key);
-        }else{
+        // if(!is_array($key) && in_array(strtoupper($key),$this->val_statements)){
+          // $q .= " ".strtoupper($key);
+        // }else{
           $q .= " =" . $this->escape($key);
-        }
+        // }
       }elseif($in_arr){
         $q .= strtoupper($key)=='OR' ? " OR " : " AND ";
         $last = 2;
@@ -279,6 +279,8 @@ class Mysql_Table {
         $state = in_array(strtoupper($key),$this->statements) ? strtoupper($key) : "=";
         $q .= " ".$state;
         $last = 1;
+      }elseif($key === null){
+        $q .= " NULL ";
       }else{
         $q .= ' '.$this->escape($key,($loop==1 ? 'table' : 'value')).' ';
         $last = 1;
