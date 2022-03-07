@@ -1,0 +1,8 @@
+*
+*/*
+*/*/*
+*/*/*/*
+!sys/*
+!index.php
+!assets/css/candy.css
+!assets/css/candy.js
