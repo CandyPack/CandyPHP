@@ -67,15 +67,13 @@ class Mysql_Table {
   function cache($t=3600){
     if(!is_numeric($t)){
       $exp = explode(' ',str_replace('  ',' ',$t));
-      switch ($exp[1]) {
-        case 'second': $t = intval(trim($exp[0]));
-        case 'minute': $t = intval(trim($exp[0])) * 60;
-        case 'hour':   $t = intval(trim($exp[0])) * 60 * 60;
-        case 'day':    $t = intval(trim($exp[0])) * 60 * 60 * 24;
-        case 'week':   $t = intval(trim($exp[0])) * 60 * 60 * 24 * 7;
-        case 'month':  $t = intval(trim($exp[0])) * 60 * 60 * 24 * 30;
-        case 'year':   $t = intval(trim($exp[0])) * 60 * 60 * 24 * 365;
-      }
+      if($exp[1] == 'second') $t = intval(trim($exp[0]));
+      if($exp[1] == 'minute') $t = intval(trim($exp[0])) * 60;
+      if($exp[1] == 'hour')   $t = intval(trim($exp[0])) * 60 * 60;
+      if($exp[1] == 'day')    $t = intval(trim($exp[0])) * 60 * 60 * 24;
+      if($exp[1] == 'week')   $t = intval(trim($exp[0])) * 60 * 60 * 24 * 7;
+      if($exp[1] == 'month')  $t = intval(trim($exp[0])) * 60 * 60 * 24 * 30;
+      if($exp[1] == 'year')   $t = intval(trim($exp[0])) * 60 * 60 * 24 * 365;
     }
     $this->arr['cache'] = $t;
     return new static($this->table,$this->arr);
