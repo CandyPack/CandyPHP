@@ -371,7 +371,8 @@ class Mysql_Table {
         } else if(!isset($this->arr['select'])){
           continue;
         } else if(Candy::var($this->arr['select'])->contains(" AS \"$col\"")){
-          $real_col = explode('.',Candy::var(trim(explode(' AS',explode('" AS \"$col\""',$this->arr['select'])[0])[0]))->clear('`'));
+          $exp = explode(' ,',explode(" AS \"$col\"",$this->arr['select'])[0]);
+          $real_col = explode('.',Candy::var(trim(end($exp)))->clear('`'));
           $real_table = trim($real_col[0]);
           $real_col = trim($real_col[1]);
           $this->types[$col] = $this->types[$col] = $this->table[$real_table]['columns'][$real_col]['Type'] ?? $this->types[$col];
