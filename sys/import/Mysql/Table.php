@@ -130,8 +130,8 @@ class Mysql_Table {
   }
   function set($arr,$val=null){
     $vars = "";
-    if(!is_array($arr) && $val !== null) $vars .= $this->escape($arr,'col').' = '. $this->escape($val) .',';
-    else foreach($arr as $key => $val)   $vars .= $this->escape($key,'col').' = '. $this->escape($val) .',';
+    if(!is_array($arr) && $val !== null) $vars .= $this->escape($arr,'col').' = '. $this->escape($this->type($arr, $val, 'encode')) .',';
+    else foreach($arr as $key => $val)   $vars .= $this->escape($key,'col').' = '. $this->escape($this->type($key, $val, 'encode')) .',';
     $this->arr['set'] = substr($vars,0,-1);
     $query = $this->query('set');
     $sql = mysqli_query(Mysql::$conn, $query);
