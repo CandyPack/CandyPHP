@@ -10,7 +10,7 @@
     <img src="https://candypack.dev/assets/img/candyphp/github/readme_supported.png?v=1" />
     <br />
     <img alt="PHP 8" src="https://img.shields.io/static/v1.svg?label=PHP7&message=WORKING&color=red&style=for-the-badge&logo=php&labelColor=white"><br />
-    <img alt="PHP 8" src="https://img.shields.io/static/v1.svg?label=PHP8&message=COMING+SOON&color=lightgray&style=for-the-badge&logo=php&labelColor=white">
+    <img alt="PHP 8" src="https://img.shields.io/static/v1.svg?label=PHP8&message=WORKING&color=red&style=for-the-badge&logo=php&labelColor=white">
   </a>
 </p><br />
 
