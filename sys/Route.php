@@ -1,7 +1,7 @@
 <?php
 class Route {
   protected static $is_cron = false;
-  protected static $request = [];
+  public static $request = [];
 
   public static function all($controller,$type = 'page'){
     $get_page = isset($_GET['_page']) ? $_GET['_page'] : '';
