@@ -94,6 +94,19 @@ class Variable{
     return \str_replace(array_keys($arr),$arr,$this->str);
   }
 
+  public function save($path){
+    if(\Candy::var($path)->contains('/')){
+      $exp = explode('/',$path);
+      unset($exp[count($exp) - 1]);
+      $dir = '';
+      foreach($exp as $key){
+        $dir .= ($dir === '' ? '' : '/').$key;
+        if(!file_exists($dir) || !is_dir($dir)) mkdir($dir);
+      }
+    }
+    return file_put_contents($path,$this->str);
+  }
+
   public function slug(){
     $str = $this->str;
     $str = preg_replace('~[^\pL\d]+~u', '-', $str);
