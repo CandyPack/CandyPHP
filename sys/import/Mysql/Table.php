@@ -40,7 +40,8 @@ class Mysql_Table {
   }
   function where(){
     if(count(func_get_args()) == 1 && !is_array(func_get_args()[0])){
-      $this->arr['where'] = is_numeric(func_get_args()[0]) ? "id='".func_get_args()[0]."'" : "";
+      // $this->arr['where'] = is_numeric(func_get_args()[0]) ? "id='".func_get_args()[0]."'" : "";
+      $this->arr['where'] = $this->whereExtract([$this->table[$this->arr['table']]['primary'],func_get_args()[0]]);
     }elseif(count(func_get_args()) > 0){
       $this->arr['where'] = isset($this->arr['where']) && trim($this->arr['where'])!='' ? $this->arr['where'].' AND '.$this->whereExtract(func_get_args()) : $this->whereExtract(func_get_args());
     }
