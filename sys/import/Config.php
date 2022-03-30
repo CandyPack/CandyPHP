@@ -41,6 +41,7 @@ class Config {
   public static function start(){
     header('X-POWERED-BY: Candy PHP');
     register_shutdown_function(function(){
+      \Mysql::closeAll();
       $error = error_get_last();
       if(!empty($error)){
         $types = [
