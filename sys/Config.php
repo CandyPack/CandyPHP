@@ -130,6 +130,7 @@ class Config {
     if(!file_exists("$backupdirectory/www/")) mkdir("$backupdirectory/www/", 0777, true);
     $file_date = date("Y-m-d");
     foreach($conns as $key => $conn){
+      if(file_exists("$backupdirectory/mysql/$file_date-$key.sql") || file_exists("$backupdirectory/mysql/$file_date-$key.sql.gz")) continue;
       $tables = [];
       $result = mysqli_query($conn,"SHOW TABLES");
       while($row = mysqli_fetch_row($result)) $tables[] = $row[0];
@@ -158,16 +159,18 @@ class Config {
       fclose($handle);
     }
     exec("(gzip $backupdirectory/mysql/$file_date-*.sql; sleep 10; rm $backupdirectory/mysql/$file_date-*.sql;) > /dev/null 2>&1 &");
-    $zip = new ZipArchive();
-    $zip->open("$backupdirectory/www/$file_date-backup.zip", ZipArchive::CREATE | ZipArchive::OVERWRITE);
-    $files = Candy::dirContents(BASE_PATH);
-    foreach($files as $file){
-      if(is_dir($file) || Candy::var($file)->contains(BASE_PATH."/storage/cache")) continue;
-      $relativePath = substr($file, strlen(BASE_PATH) + 1);
-      $zip->addFile($file,$relativePath);
+    if(!file_exists("$backupdirectory/www/$file_date-backup.zip")){
+      $zip = new ZipArchive();
+      $zip->open("$backupdirectory/www/$file_date-backup.zip", ZipArchive::CREATE | ZipArchive::OVERWRITE);
+      $files = Candy::dirContents(BASE_PATH);
+      foreach($files as $file){
+        if(is_dir($file) || Candy::var($file)->contains(BASE_PATH."/storage/cache")) continue;
+        $relativePath = substr($file, strlen(BASE_PATH) + 1);
+        $zip->addFile($file,$relativePath);
+      }
+      $zip->close();
+      exec("(sleep 60; rm $backupdirectory/www/$file_date-*.zip.*;) > /dev/null 2>&1 &");
     }
-    $zip->close();
-    exec("(sleep 60; rm $backupdirectory/www/$file_date-*.zip.*;) > /dev/null 2>&1 &");
   }
 
   public static function autoUpdate($b = true){
