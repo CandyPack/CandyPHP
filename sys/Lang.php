@@ -14,7 +14,7 @@ class Lang {
         }
       }else{
         $parameters = func_get_args();
-        unset($parameters[0]);
+        $parameters[0] = $var;
         if(count($parameters) > 0) return call_user_func_array("sprintf", array_values($parameters));
       }
     }
