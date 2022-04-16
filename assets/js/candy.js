@@ -67,6 +67,10 @@ const Candy = {
       e.preventDefault();
       let form = $(this);
       form.find('button, input[type="button"], input[type="submit"]').prop('disabled',true);
+      let actions = Candy.candy.actions
+      actions.candy && actions.candy.form && actions.candy.form.input && actions.candy.form.input.class && actions.candy.form.input.class.invalid  && (
+        form.find(`select.${actions.candy.form.input.class.invalid},input.${actions.candy.form.input.class.invalid},textarea.${actions.candy.form.input.class.invalid}`).removeClass(actions.candy.form.input.class.invalid)
+      )
       if(obj.messages !== false) {
         if(obj.messages == undefined || obj.messages == true || obj.messages.includes('error')) form.find('*[candy-form-error]').hide();
         if(obj.messages == undefined || obj.messages == true || obj.messages.includes('success')) form.find('*[candy-form-success]').hide();
