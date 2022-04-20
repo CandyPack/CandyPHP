@@ -148,7 +148,7 @@ class Plugin{
     $loader .= "\n/* --- CANDY PHP - BEGIN --- */\n";
     $loader .= isset($obj->begin) ? $obj->begin."\n" : '';
     $loader .= "\n/* --- CANDY PHP - AUTOLOAD --- */\n";
-    $loader_php .= 'spl_autoload_register(function ($class) {'."\n";
+    $loader_php = 'spl_autoload_register(function ($class) {'."\n";
     foreach($autoload as $key) if(strtolower(substr($key,-4))=='.php') $loader .= "include (BASE_PATH.'".str_replace(BASE_PATH,'',$key)."');\n";
     $loader_php .= '});'."\n";
     $loader .= "\n/* --- CANDY PHP - END --- */\n";
