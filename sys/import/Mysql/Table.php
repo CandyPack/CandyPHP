@@ -135,7 +135,6 @@ class Mysql_Table {
     else foreach($arr as $key => $val)   $vars .= $this->escape($key,'col').' = '. $this->escape($this->type($key, $val, 'encode')) .',';
     $this->arr['set'] = substr($vars,0,-1);
     $query = $this->query('set');
-    if(Candy::page('user.test')) echo $query;
     $sql = mysqli_query(Mysql::$conn, $query);
     if($sql === false) return $this->error();
     $this->affected = mysqli_affected_rows(Mysql::$conn);
