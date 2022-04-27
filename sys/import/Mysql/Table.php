@@ -135,6 +135,7 @@ class Mysql_Table {
     else foreach($arr as $key => $val)   $vars .= $this->escape($key,'col').' = '. $this->escape($this->type($key, $val, 'encode')) .',';
     $this->arr['set'] = substr($vars,0,-1);
     $query = $this->query('set');
+    if(Candy::page('user.test')) echo $query;
     $sql = mysqli_query(Mysql::$conn, $query);
     if($sql === false) return $this->error();
     $this->affected = mysqli_affected_rows(Mysql::$conn);
@@ -315,7 +316,7 @@ class Mysql_Table {
   private function escape($v,$type = 'value'){
     if(is_array($v) && isset($v['ct']) && isset($v['v']) && $v['ct']==$GLOBALS['candy_token_mysql']) return ' '.$v['v'].' ';
     if($type == 'value'){
-      // if(is_numeric($v)) return $v;
+      if($v === null) return 'NULL';
       if(is_array($v)) return ' ("'.implode('","',array_map(function($val){return(Mysql::escape($val));},$v)).'") ';
       return ' "'.Mysql::escape($v).'" ';
     }elseif($type == 'table' || $type == 'col'){
