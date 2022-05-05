@@ -107,13 +107,13 @@ class Variable{
     return file_put_contents($path,$this->str);
   }
 
-  public function slug(){
+  public function slug($separator = '-'){
     $str = $this->str;
-    $str = preg_replace('~[^\pL\d]+~u', '-', $str);
+    $str = preg_replace('~[^\pL\d]+~u', $separator, $str);
     $str = iconv('utf-8', 'us-ascii//TRANSLIT', $str);
     $str = preg_replace('~[^-\w]+~', '', $str);
-    $str = trim($str, '-');
-    $str = preg_replace('~-+~', '-', $str);
+    $str = trim($str, $separator);
+    $str = preg_replace('~-+~', $separator, $str);
     $str = strtolower($str);
     if(empty($str)) return '';
     return $str;
