@@ -54,6 +54,7 @@ class Variable{
     if(in_array('alphaspace',       $val)) $result = (($result || $any) && (($any && $result) || ctype_alpha(\Candy::var($this->str)->clear(' ')) ));
     if(in_array('alphanumeric',     $val)) $result = (($result || $any) && (($any && $result) || ctype_alnum($this->str) ));
     if(in_array('alphanumericspace',$val)) $result = (($result || $any) && (($any && $result) || ctype_alnum(\Candy::var($this->str)->clear(' ')) ));
+    if(in_array('date',             $val)) $result = (($result || $any) && (($any && $result) || !empty(strtotime($this->str)) ));
     if(in_array('domain',           $val)) $result = (($result || $any) && (($any && $result) || preg_match('/([a-z0-9\-]+\.){1,2}[a-z]{2,6}/i', $this->str) ));
     if(in_array('email',            $val)) $result = (($result || $any) && (($any && $result) || filter_var($this->str, FILTER_VALIDATE_EMAIL) ));
     if(in_array('float',            $val)) $result = (($result || $any) && (($any && $result) || filter_var($this->str, FILTER_VALIDATE_FLOAT) ));
