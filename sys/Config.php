@@ -104,7 +104,7 @@ class Config {
     if(!defined('AUTO_BACKUP') || !AUTO_BACKUP) return false;
     $check = isset($_SERVER['SERVER_ADDR']) && isset($_SERVER['REMOTE_ADDR']) && (substr($_SERVER['SERVER_ADDR'],0,8)=='192.168.' || $_SERVER['SERVER_ADDR']==$_SERVER['REMOTE_ADDR']) && isset($_GET['_candy']) && $_GET['_candy']=='cron';
     $check = $check || in_array(php_sapi_name(),['cli','cgi-fcgi']) && $_SERVER['argv'][1] == 'candy' && $_SERVER['argv'][2] == 'cron';
-    $check = $check && AUTO_BACKUP /*&& intval(date("Hi"))==1*/;
+    $check = $check && AUTO_BACKUP && intval(date("i")) == 1;
     if(!$check) return false;
     $storage = Candy::config('backup','date')->get() ?? 0;
     $date = intval(date('Ymd'));
