@@ -388,7 +388,7 @@ class Mysql_Table {
       elseif(Candy::var($this->types[$col])->isBegin('float'))      $value = floatval($value);
       elseif(Candy::var($this->types[$col])->isBegin('boolean'))    $value = boolval($value);
       elseif(Candy::var($this->types[$col])->isBegin('json'))       $value = json_decode($value);
-    } else if(!is_string($value)) {
+    } else if(!is_string($value) && (!is_array($value) || ($value['ct'] ?? 0) != $GLOBALS['candy_token_mysql'])) {
           if(Candy::var($this->types[$col])->isBegin('tinyint(1)')) $value = intval($value);
       elseif(Candy::var($this->types[$col])->isBegin('boolean'))    $value = intval($value);
       elseif(Candy::var($this->types[$col])->isBegin('json'))       $value = json_encode($value);
