@@ -235,7 +235,7 @@ class Mysql_Table {
   }
   function join($tb,$col1,$st=null,$col2=null,$type='inner join'){
     $this->arr[$type] = isset($this->arr[$type]) ? $this->arr[$type] : [];
-    $this->define($tb);
+    $this->define(is_array($tb) ? array_keys($tb)[0] : $tb);
     $tb = $this->escape($tb,'table');
     if($st===null && $col2===null){
       $col1 = self::whereExtract($col1);
