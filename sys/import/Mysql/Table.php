@@ -236,7 +236,7 @@ class Mysql_Table {
   function join($tb,$col1,$st=null,$col2=null,$type='inner join'){
     $this->arr[$type] = isset($this->arr[$type]) ? $this->arr[$type] : [];
     $this->define($tb);
-    $tb = $this->escape($tb,'col');
+    $tb = $this->escape($tb,'table');
     if($st===null && $col2===null){
       $col1 = self::whereExtract($col1);
       $col2 = '';
@@ -318,7 +318,16 @@ class Mysql_Table {
       if($v === null) return 'NULL';
       if(is_array($v)) return ' ("'.implode('","',array_map(function($val){return(Mysql::escape($val));},$v)).'") ';
       return ' "'.Mysql::escape($v).'" ';
-    }elseif($type == 'table' || $type == 'col'){
+    }elseif($type == 'table'){
+      $as = "";
+      if(is_array($v)){
+        $as = array_values($v)[0];
+        $v = array_keys($v)[0];
+        $as = " `$as` ";
+      }
+      if(strpos($v,'.') !== false) return ' `'.implode('`.`',array_map(function($val){return(Mysql::escape($val));},explode('.',$v))).'` '.$as;
+      return ' `'.Mysql::escape($v).'` '.$as;
+    }elseif($type == 'col'){
       $as = "";
       if(is_array($v)){
         $as = array_values($v)[0];
