@@ -424,7 +424,7 @@ class Candy {
     else return password_verify($v, $h);
   }
 
-  public static function getImage($path,$size=null,$b = true){
+  public static function getImage($path,$size=null,$b = true, $echo = true){
       $resize = false;
       $file_raw = 'assets/img/'.$path;
       $arr_extension = explode('.',$file_raw);
@@ -455,10 +455,10 @@ class Candy {
           }
           $resize->saveImage($file_min);
         }
-        echo '/'.$file_min.'?_v='.$date_min;
+        if($echo) echo '/'.$file_min.'?_v='.$date_min;
         return '/'.$file_min.'?_v='.$date_min;
       }else{
-        echo '/assets/img/'.$path;
+        if($echo) echo '/assets/img/'.$path;
         return '/assets/img/'.$path;
       }
   }
