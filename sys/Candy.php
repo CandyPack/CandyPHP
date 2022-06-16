@@ -255,7 +255,7 @@ class Candy {
       }
       if($minify){
         $js_raw = file_get_contents($file_raw, FILE_USE_INCLUDE_PATH);
-        $js_min = self::jsMinifier($js_raw);
+        $js_min = $js_raw;
         if(empty($js_min)) $js_min = "console.error('Candy JS', 'Error: $path file could not be minimized')\n".$js_raw;
         if(substr_count($js_min,"\n") == 2){
           $arr_errors = explode("\n",$js_min);
@@ -303,21 +303,6 @@ class Candy {
       echo '/assets/css/'.$path;
       return '/assets/css/'.$path;
     }
-  }
-
-  public static function jsMinifier($js){
-    $url = 'https://javascript-minifier.com/raw';
-    $ch = curl_init();
-    curl_setopt_array($ch, [
-        CURLOPT_URL => $url,
-        CURLOPT_RETURNTRANSFER => true,
-        CURLOPT_POST => true,
-        CURLOPT_HTTPHEADER => ["Content-Type: application/x-www-form-urlencoded"],
-        CURLOPT_POSTFIELDS => http_build_query([ "input" => $js ])
-    ]);
-    $minified = curl_exec($ch);
-    curl_close($ch);
-    return $minified;
   }
 
   public static function uploadCheck($name=null){
