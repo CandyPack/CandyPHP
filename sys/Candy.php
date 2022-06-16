@@ -257,7 +257,7 @@ class Candy {
         $js_raw = file_get_contents($file_raw, FILE_USE_INCLUDE_PATH);
         self::import('Minifier');
         $minifier = new \Candy\Minifier();
-        $js_min = $minifier->css($js_raw);
+        $js_min = $minifier->js($js_raw);
         if(empty($js_min)) $js_min = "console.error('Candy JS', 'Error: $path file could not be minimized')\n".$js_raw;
         if(substr_count($js_min,"\n") == 2){
           $arr_errors = explode("\n",$js_min);
