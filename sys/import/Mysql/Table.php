@@ -25,11 +25,11 @@ class Mysql_Table {
         }
       }
     }
-    if($type == 'add') return "INSERT ".(isset($this->arr['ignore']) ? 'IGNORE' : '')." INTO ".$this->escape($this->arr['table'],'table').' '.$this->arr['into'].' VALUES '.$this->arr['values'].'';
-    if($type == 'get') return "SELECT ".(isset($this->arr['select']) ? $this->arr['select'] : '*')." FROM ".$this->escape($this->arr['table'],'table')." ".$query;
-    if($type == 'set') return "UPDATE ".$this->escape($this->arr['table'],'table')." SET ".$this->arr['set']." ".$query;
-    if($type == 'delete') return "DELETE FROM ".$this->escape($this->arr['table'],'table')." ".$query;
-    if($type == 'replace') return "REPLACE INTO ".$this->escape($this->arr['table'],'table').' '.$this->arr['into'].' VALUES '.$this->arr['values'].'';
+    if($type == 'add')      return $this->query = "INSERT ".(isset($this->arr['ignore']) ? 'IGNORE' : '')." INTO ".$this->escape($this->arr['table'],'table').' '.$this->arr['into'].' VALUES '.$this->arr['values'].'';
+    if($type == 'get')      return $this->query = "SELECT ".(isset($this->arr['select']) ? $this->arr['select'] : '*')." FROM ".$this->escape($this->arr['table'],'table')." ".$query;
+    if($type == 'set')      return $this->query = "UPDATE ".$this->escape($this->arr['table'],'table')." SET ".$this->arr['set']." ".$query;
+    if($type == 'delete')   return $this->query = "DELETE FROM ".$this->escape($this->arr['table'],'table')." ".$query;
+    if($type == 'replace')  return $this->query = "REPLACE INTO ".$this->escape($this->arr['table'],'table').' '.$this->arr['into'].' VALUES '.$this->arr['values'].'';
     return $query;
   }
   function table($t){
@@ -350,8 +350,8 @@ class Mysql_Table {
   private function error($sql=null){
     $bt = debug_backtrace();
     $caller = $bt[1];
-    Config::errorReport('MYSQL',mysqli_error(Mysql::$conn),$caller['file'],$caller['line']);
     if(Candy::isDev() && defined('DEV_ERRORS')) printf("Candy Mysql Error: %s\n<br />".$caller['file'].' : '.$caller['line'], mysqli_error(Mysql::$conn));
+    else Config::errorReport('MYSQL',mysqli_error(Mysql::$conn),$caller['file'],$caller['line'],$this->query);
     return false;
   }
   private function define($t){
