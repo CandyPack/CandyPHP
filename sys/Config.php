@@ -431,7 +431,7 @@ class Config {
     Candy::config('brute',$now,$ip)->save($storage);
   }
 
-  public static function errorReport($type,$mssg=null,$file=null,$line=null){
+  public static function errorReport($type,$mssg=null,$file=null,$line=null,$sql=null){
     if(Candy::isDev()) return true;
     $now = date('YmdH');
     $log = "";
@@ -440,6 +440,7 @@ class Config {
     $log .= "\n--- ".date('Y/m/d H:i:s')." ---\n";
     if(!empty($type)) $log .= "<b>Type:</b>    ".$type." Error\n";
     if(!empty($mssg)) $log .= "<b>Message:</b> ".$mssg."\n";
+    if(!empty($sql))  $log .= "<b>SQL:</b>     ".$sql."\n";
     if(!empty($file)) $log .= "<b>File:</b>    ".(isset($GLOBALS['_candy']['cached'][$file]['file']) ? $GLOBALS['_candy']['cached'][$file]['file'] : $file)."\n";
     if(isset($line) && !empty($line)) $log .= "<b>Line:</b>    ".(isset($GLOBALS['_candy']['cached'][$file]['line']) ? ($GLOBALS['_candy']['cached'][$file]['line'] + $line) : $line)."\n";
     $log .= "-------\n";
